@@ -3,6 +3,7 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public class ReporteDTOInsert {
 
@@ -27,6 +28,7 @@ public class ReporteDTOInsert {
     private String detalleUbicacion;
 
     @Size(max = 30)
+    @Pattern(regexp = "MUY_BAJA|BAJA|MEDIA|ALTA|MUY_ALTA", message = "La prioridad debe ser MUY_BAJA, BAJA, MEDIA, ALTA o MUY_ALTA")
     private String prioridad;
 
     @NotBlank

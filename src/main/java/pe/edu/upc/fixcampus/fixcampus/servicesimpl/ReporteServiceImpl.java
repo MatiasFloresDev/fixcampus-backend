@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
@@ -10,12 +11,16 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.AdjuntoRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.UbicacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.ReporteRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
 
 import java.time.LocalDateTime;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -25,15 +30,21 @@ public class ReporteServiceImpl implements ReporteService {
     private final UsuarioRepository usuarioRepository;
     private final CategoriaRepository categoriaRepository;
     private final UbicacionRepository ubicacionRepository;
+    private final AdjuntoRepository adjuntoRepository;
+
+    @Value("${app.upload-dir:uploads}")
+    private String uploadDir;
 
     public ReporteServiceImpl(ReporteRepository reporteRepository,
                              UsuarioRepository usuarioRepository,
                              CategoriaRepository categoriaRepository,
-                             UbicacionRepository ubicacionRepository) {
+                             UbicacionRepository ubicacionRepository,
+                             AdjuntoRepository adjuntoRepository) {
         this.reporteRepository = reporteRepository;
         this.usuarioRepository = usuarioRepository;
         this.categoriaRepository = categoriaRepository;
         this.ubicacionRepository = ubicacionRepository;
+        this.adjuntoRepository = adjuntoRepository;
     }
 
     @Override
@@ -65,8 +76,24 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public void eliminar(Long id) {
-
-        reporteRepository.delete(buscarPorId(id));
+        Reporte reporte = buscarPorId(id);
+        Path directory = Paths.get(uploadDir).toAbsolutePath().normalize();
+        adjuntoRepository.findByReporte_IdReporte(id).forEach(adjunto -> {
+            String marker = "/api/attachments/files/";
+            String url = adjunto.getUrlArchivo();
+            if (url != null && url.startsWith(marker)) {
+                Path archivo = directory.resolve(url.substring(marker.length())).normalize();
+                if (archivo.startsWith(directory)) {
+                    try {
+                        Files.deleteIfExists(archivo);
+                    } catch (java.io.IOException ignored) {
+                        // El registro se elimina aunque el archivo físico requiera limpieza posterior.
+                    }
+                }
+            }
+        });
+        adjuntoRepository.deleteAll(adjuntoRepository.findByReporte_IdReporte(id));
+        reporteRepository.delete(reporte);
     }
 
     @Override

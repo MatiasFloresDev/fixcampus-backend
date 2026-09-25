@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -101,7 +102,21 @@ public class ReporteController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ReporteDTOList> actualizar(
             @PathVariable Long id,
-            @Valid @RequestBody ReporteDTOInsert dto) {
+            @Valid @RequestBody ReporteDTOInsert dto,
+            Authentication authentication) {
+        Reporte existente = service.buscarPorId(id);
+        boolean administrador = authentication.getAuthorities().stream()
+                .anyMatch(autoridad -> autoridad.getAuthority().equals("ROLE_ADMIN"));
+        boolean esPropietario = existente.getUsuarioReportante().getCorreo()
+                .equalsIgnoreCase(authentication.getName());
+        if (!administrador && !esPropietario) {
+            throw new AccessDeniedException("Solo puedes editar tus propios reportes");
+        }
+        if (!administrador) {
+            dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
+            dto.setTecnicoAsignadoId(existente.getTecnicoAsignado() == null ? null : existente.getTecnicoAsignado().getIdUsuario());
+            dto.setEstado(existente.getEstado());
+        }
         return ResponseEntity.ok(convertirDto(service.actualizar(id, dto)));
     }
 
