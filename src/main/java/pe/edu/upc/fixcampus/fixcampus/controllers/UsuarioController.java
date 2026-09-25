@@ -33,9 +33,12 @@ public class UsuarioController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar usuarios", description = "Muestra todos los usuarios registrados. Solo para administradores.")
-    public List<UsuarioDTO> listar() {
-        return repository.findAll().stream().map(this::convertir).toList();
+    @Operation(summary = "Listar usuarios", description = "Muestra todos los usuarios registrados. Si se indica estado, aplica ese filtro. Solo para administradores.")
+    public List<UsuarioDTO> listar(@RequestParam(required = false) String estado) {
+        List<Usuario> usuarios = estado == null || estado.isBlank()
+                ? repository.findAll()
+                : repository.findByEstadoIgnoreCase(estado);
+        return usuarios.stream().map(this::convertir).toList();
     }
 
     @GetMapping("/count")
