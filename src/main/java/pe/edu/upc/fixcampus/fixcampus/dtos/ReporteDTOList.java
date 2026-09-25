@@ -100,3 +100,4 @@ public class ReporteDTOList {
     public void setFechaResolucion(LocalDateTime fechaResolucion) {
         this.fechaResolucion = fechaResolucion; }
 }
+

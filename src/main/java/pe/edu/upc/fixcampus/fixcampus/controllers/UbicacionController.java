@@ -59,3 +59,4 @@ public class UbicacionController {
         return ResponseEntity.noContent().build();
     }
 }
+
