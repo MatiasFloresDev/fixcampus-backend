@@ -30,6 +30,16 @@ public class Adjunto {
 
     public Adjunto() {
     }
+
+    public Adjunto(Long idAdjunto, Reporte reporte, String nombreArchivo,
+                   String urlArchivo, String tipoArchivo, LocalDateTime fechaSubida) {
+        this.idAdjunto = idAdjunto;
+        this.reporte = reporte;
+        this.nombreArchivo = nombreArchivo;
+        this.urlArchivo = urlArchivo;
+        this.tipoArchivo = tipoArchivo;
+        this.fechaSubida = fechaSubida;
+    }
     public Long getIdAdjunto() { return idAdjunto; }
     public void setIdAdjunto(Long idAdjunto) { this.idAdjunto = idAdjunto; }
     public Reporte getReporte() { return reporte; }

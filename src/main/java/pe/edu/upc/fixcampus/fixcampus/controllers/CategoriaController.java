@@ -29,12 +29,19 @@ public class CategoriaController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar categorías", description = "Si se indica nombre, busca categorías que contengan ese texto, sin distinguir mayúsculas.")
+    @Operation(summary = "Listar categorías", description = "Permite buscar por parte del nombre o por una palabra de la descripción.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<CategoriaDTOList>> listar(
-            @Parameter(description = "Parte del nombre de la categoría") @RequestParam(required = false) String nombre) {
-        List<Categoria> categorias = nombre == null || nombre.isBlank()
-                ? service.listar() : service.buscarPorNombre(nombre);
+            @Parameter(description = "Parte del nombre de la categoría") @RequestParam(required = false) String nombre,
+            @Parameter(description = "Palabra que debe aparecer en la descripción") @RequestParam(required = false) String descripcion) {
+        List<Categoria> categorias;
+        if (nombre != null && !nombre.isBlank()) {
+            categorias = service.buscarPorNombre(nombre);
+        } else if (descripcion != null && !descripcion.isBlank()) {
+            categorias = service.buscarPorDescripcion(descripcion);
+        } else {
+            categorias = service.listar();
+        }
         List<CategoriaDTOList> lista = categorias
                 .stream()
                 .map(categoria -> modelMapper.map(categoria, CategoriaDTOList.class))

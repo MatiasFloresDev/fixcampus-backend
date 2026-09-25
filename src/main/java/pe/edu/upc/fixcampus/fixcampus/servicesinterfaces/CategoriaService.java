@@ -8,6 +8,7 @@ public interface CategoriaService {
 
     List<Categoria> listar();
     List<Categoria> buscarPorNombre(String nombre);
+    List<Categoria> buscarPorDescripcion(String palabraClave);
 
     Categoria buscarPorId(Long id);
 
