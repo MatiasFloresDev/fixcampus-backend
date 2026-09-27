@@ -40,5 +40,15 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
             "where lower(r.estado) = lower(:estado) " +
             "group by u.campus order by count(r) desc")
     List<IncidenciasPorCampusDTO> contarPorCampusYEstado(@Param("estado") String estado);
+    
+        // Consulta 12: Obtiene el listado completo de reportes filtrados por su nivel de prioridad.
+    @Query("SELECT r FROM Reporte r WHERE r.prioridad = :prioridad")
+    List<Reporte> findByPrioridad(@Param("prioridad") String prioridad);
+
+    // Consulta 13, con JOIN: Obtiene el listado de reportes registrados en un campus específico.
+    @Query("SELECT r FROM Reporte r INNER JOIN r.ubicacion u " +
+            "WHERE LOWER(u.campus) = LOWER(:campus)")
+    List<Reporte> findByCampus(
+            @Param("campus") String campus);
 }
 
