@@ -95,6 +95,34 @@ public class ReporteController {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/prioridad/{prioridad}")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(
+            @PathVariable String prioridad) {
+
+        List<Reporte> reportes =
+                service.buscarPorPrioridad(prioridad);
+
+        List<ReporteDTOList> resultado = reportes.stream()
+                .map(this::convertirDto)
+                .toList();
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/campus/{campus}")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorCampus(
+            @PathVariable String campus) {
+
+        List<Reporte> reportes =
+                service.buscarPorCampus(campus);
+
+        List<ReporteDTOList> resultado = reportes.stream()
+                .map(this::convertirDto)
+                .toList();
+
+        return ResponseEntity.ok(resultado);
+    }
 
     private ReporteDTOList convertirDto(Reporte reporte) {
         ReporteDTOList dto = new ReporteDTOList();
