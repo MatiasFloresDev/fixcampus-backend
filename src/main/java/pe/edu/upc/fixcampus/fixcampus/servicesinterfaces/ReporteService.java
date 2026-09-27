@@ -19,4 +19,6 @@ public interface ReporteService {
     List<Reporte> buscarPorCorreoReportante(String correo);
     List<IncidenciasPorMesDTO> contarPorUsuarioYMes();
     List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado);
+    List<Reporte> buscarPorPrioridad(String prioridad);
+    List<Reporte> buscarPorCampus(String campus);
 }
