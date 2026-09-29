@@ -122,6 +122,16 @@ public class ReporteServiceImpl implements ReporteService {
         return reporteRepository.contarPorCampusYEstado(estado);
     }
 
+    @Override
+    public List<Reporte> buscarPorPrioridad(String prioridad) {
+        return reporteRepository.findByPrioridad(prioridad);
+    }
+
+    @Override
+    public List<Reporte> buscarPorCampus(String campus) {
+        return reporteRepository.findByCampus(campus);
+    }
+
     private void copiarDatos(Reporte reporte, ReporteDTOInsert dto) {
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioReportanteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario reportante no encontrado"));

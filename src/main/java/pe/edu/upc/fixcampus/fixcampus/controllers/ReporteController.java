@@ -77,6 +77,24 @@ public class ReporteController {
         return service.contarPorCampusYEstado(estado);
     }
 
+    @GetMapping("/prioridad/{prioridad}")
+    @Operation(summary = "Buscar reportes por prioridad", description = "Lista las incidencias que tienen la prioridad indicada.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(@PathVariable String prioridad) {
+        return ResponseEntity.ok(service.buscarPorPrioridad(prioridad).stream()
+                .map(this::convertirDto)
+                .toList());
+    }
+
+    @GetMapping("/campus/{campus}")
+    @Operation(summary = "Buscar reportes por campus", description = "Lista las incidencias cuya ubicación pertenece al campus indicado. Usa una consulta JOIN.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorCampus(@PathVariable String campus) {
+        return ResponseEntity.ok(service.buscarPorCampus(campus).stream()
+                .map(this::convertirDto)
+                .toList());
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ReporteDTOList> buscarPorId(@PathVariable Long id) {
