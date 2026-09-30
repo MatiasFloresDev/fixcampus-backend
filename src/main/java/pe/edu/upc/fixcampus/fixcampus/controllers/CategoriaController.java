@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaConReportesDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
@@ -44,14 +45,6 @@ public class CategoriaController {
             categorias = service.listar();
         }
         return ResponseEntity.ok(convertirLista(categorias));
-    }
-
-    @GetMapping("/buscar-descripcion")
-    @Operation(summary = "Buscar categorías por descripción", description = "Busca una palabra dentro de la descripción de las categorías.")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
-            @Parameter(description = "Palabra clave de la descripción") @RequestParam String palabraClave) {
-        return ResponseEntity.ok(convertirLista(service.buscarPorDescripcion(palabraClave)));
     }
 
     @GetMapping("/{id}")
@@ -93,6 +86,16 @@ public class CategoriaController {
                 .toList();
 
         return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/reporte-por-categoria")
+    @Operation(
+        summary = "Reportes por categoría",
+        description = "Consulta con JOIN: une Categoria con Reporte y cuenta cuantos reportes tiene cada categoria. Ordenado de mayor a menor."
+    )
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<CategoriaConReportesDTO>> contarReportesPorCategoria() {
+        return ResponseEntity.ok(service.contarReportesPorCategoria());
     }
 
     @PutMapping("/{id}")
