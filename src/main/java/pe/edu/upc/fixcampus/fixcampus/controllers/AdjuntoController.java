@@ -93,8 +93,12 @@ public class AdjuntoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar adjuntos", description = "Si se indica tipoArchivo, busca adjuntos cuyo tipo contenga ese texto, sin distinguir mayúsculas. Solo para administradores.")
     public List<AdjuntoDTO> listar(@Parameter(description = "Parte del tipo de archivo, por ejemplo pdf") @RequestParam(required = false) String tipoArchivo) {
-        List<Adjunto> lista = tipoArchivo == null || tipoArchivo.isBlank() ? service.listar()
-                : service.buscarPorTipo(tipoArchivo);
+        List<Adjunto> lista;
+        if (tipoArchivo == null || tipoArchivo.isBlank()) {
+            lista = service.listar();
+        } else {
+            lista = service.buscarPorTipo(tipoArchivo);
+        }
         return convertirLista(lista);
     }
 

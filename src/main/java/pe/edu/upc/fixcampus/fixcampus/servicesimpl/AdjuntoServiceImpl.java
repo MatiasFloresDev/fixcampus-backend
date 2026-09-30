@@ -84,7 +84,12 @@ public class AdjuntoServiceImpl implements AdjuntoService {
         if (file.getSize() > 5 * 1024 * 1024) {
             throw new IllegalArgumentException("El archivo no puede superar los 5 MB");
         }
-        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        String contentType;
+        if (file.getContentType() == null) {
+            contentType = "";
+        } else {
+            contentType = file.getContentType().toLowerCase(Locale.ROOT);
+        }
         Set<String> tiposPermitidos = Set.of("image/jpeg", "image/png", "application/pdf");
         if (!tiposPermitidos.contains(contentType)) {
             throw new IllegalArgumentException("Solo se permiten archivos JPG, PNG o PDF");
@@ -93,7 +98,12 @@ public class AdjuntoServiceImpl implements AdjuntoService {
             throw new IllegalArgumentException("Un reporte puede tener como máximo 3 evidencias");
         }
 
-        String original = file.getOriginalFilename() == null ? "evidencia" : Paths.get(file.getOriginalFilename()).getFileName().toString();
+        String original;
+        if (file.getOriginalFilename() == null) {
+            original = "evidencia";
+        } else {
+            original = Paths.get(file.getOriginalFilename()).getFileName().toString();
+        }
         String extension = extension(original, contentType);
         String storedName = UUID.randomUUID() + extension;
         Path directory = Paths.get(uploadDir).toAbsolutePath().normalize();

@@ -32,9 +32,12 @@ public class JwtUserDetailsService implements UserDetailsService {
         Usuario usuario = encontrado.get();
 
         String nombreRol = usuario.getRol().getNombre();
-        String autoridad = nombreRol.startsWith("ROLE_")
-                ? nombreRol
-                : "ROLE_" + nombreRol;
+        String autoridad;
+        if (nombreRol.startsWith("ROLE_")) {
+            autoridad = nombreRol;
+        } else {
+            autoridad = "ROLE_" + nombreRol;
+        }
 
         List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority(autoridad));

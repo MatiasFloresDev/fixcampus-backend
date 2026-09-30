@@ -26,7 +26,7 @@
 El recorrido es `Controller → Service (interfaz) → ServiceImpl → Repository → PostgreSQL`.
 El controlador atiende HTTP y convierte la respuesta; el servicio aplica las reglas; el repositorio consulta o guarda; la entidad representa la tabla.
 
-No se usan lambdas, streams ni referencias a métodos en `src`. Los listados utilizan ciclos `for`.
+No se usan lambdas, streams, referencias a métodos ni operadores ternarios en `src`. Los listados utilizan ciclos `for` y las decisiones se escriben con `if/else`.
 La aplicación no carga datos de prueba al arrancar. Se retiró `DataInitializer`, `CommandLineRunner` y el método con `String...`. Los datos existentes en PostgreSQL se conservan; los nuevos se ingresan por Swagger o pgAdmin. Las pruebas preparan sus propios datos exclusivamente en H2.
 Spring Security conserva los componentes del demo. Su configuración usa implementaciones de `Customizer` porque la versión del framework exige esa interfaz y se solicitó evitar lambdas. No se eliminó la seguridad para simplificar la sintaxis.
 

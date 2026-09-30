@@ -22,8 +22,11 @@ public class UbicacionController {
     @Operation(summary = "Listar ubicaciones", description = "Si se indica campus, busca ubicaciones cuyo campus contenga ese texto, sin distinguir mayúsculas.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public List<Ubicacion> listar(@Parameter(description = "Parte del nombre del campus") @RequestParam(required = false) String campus) {
-        return campus == null || campus.isBlank() ? service.listar()
-                : service.buscarPorCampus(campus);
+        if (campus == null || campus.isBlank()) {
+            return service.listar();
+        } else {
+            return service.buscarPorCampus(campus);
+        }
     }
 
     @GetMapping("/{id}")

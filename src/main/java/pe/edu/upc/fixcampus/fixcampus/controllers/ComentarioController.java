@@ -25,8 +25,12 @@ public class ComentarioController {
     @GetMapping
     @Operation(summary = "Listar comentarios", description = "Si se indica reporteId, muestra solo los comentarios de ese reporte. Solo para administradores.")
     public List<ComentarioDTO> listar(@Parameter(description = "ID del reporte del que se quieren ver comentarios") @RequestParam(required = false) Long reporteId) {
-        List<Comentario> lista = reporteId == null ? service.listar()
-                : service.buscarPorReporte(reporteId);
+        List<Comentario> lista;
+        if (reporteId == null) {
+            lista = service.listar();
+        } else {
+            lista = service.buscarPorReporte(reporteId);
+        }
         return convertirLista(lista);
     }
 

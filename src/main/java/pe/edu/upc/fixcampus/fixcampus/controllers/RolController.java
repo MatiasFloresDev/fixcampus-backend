@@ -22,8 +22,11 @@ public class RolController {
     @Operation(summary = "Listar roles", description = "Si se indica nombre, busca roles que contengan ese texto, sin distinguir mayúsculas.")
     @PreAuthorize("hasRole('ADMIN')")
     public List<Rol> listar(@Parameter(description = "Parte del nombre del rol") @RequestParam(required = false) String nombre) {
-        return nombre == null || nombre.isBlank() ? service.listar()
-                : service.buscarPorNombre(nombre);
+        if (nombre == null || nombre.isBlank()) {
+            return service.listar();
+        } else {
+            return service.buscarPorNombre(nombre);
+        }
     }
 
     @GetMapping("/{id}")

@@ -24,7 +24,11 @@ class PreparacionPruebas {
             } else {
                 rol = new Rol();
                 rol.setNombre(nombres[i]);
-                rol.setNivelAcceso(i == 0 ? "TOTAL" : "BASICO");
+                if (i == 0) {
+                    rol.setNivelAcceso("TOTAL");
+                } else {
+                    rol.setNivelAcceso("BASICO");
+                }
                 rol = roles.save(rol);
             }
 

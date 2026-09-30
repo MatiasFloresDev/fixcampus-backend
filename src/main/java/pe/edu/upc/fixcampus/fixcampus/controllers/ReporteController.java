@@ -163,7 +163,11 @@ public class ReporteController {
         dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
         if (!administrador) {
             dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
-            dto.setTecnicoAsignadoId(existente.getTecnicoAsignado() == null ? null : existente.getTecnicoAsignado().getIdUsuario());
+            if (existente.getTecnicoAsignado() == null) {
+                dto.setTecnicoAsignadoId(null);
+            } else {
+                dto.setTecnicoAsignadoId(existente.getTecnicoAsignado().getIdUsuario());
+            }
             dto.setEstado(existente.getEstado());
         }
         return ResponseEntity.ok(convertirDto(service.actualizar(id, dto)));
@@ -180,7 +184,11 @@ public class ReporteController {
         ReporteDTOList dto = new ReporteDTOList();
         dto.setIdReporte(reporte.getIdReporte());
         dto.setUsuarioReportanteId(reporte.getUsuarioReportante().getIdUsuario());
-        dto.setTecnicoAsignadoId(reporte.getTecnicoAsignado() == null ? null : reporte.getTecnicoAsignado().getIdUsuario());
+        if (reporte.getTecnicoAsignado() == null) {
+            dto.setTecnicoAsignadoId(null);
+        } else {
+            dto.setTecnicoAsignadoId(reporte.getTecnicoAsignado().getIdUsuario());
+        }
         dto.setCategoriaId(reporte.getCategoria().getIdCategoria());
         dto.setCategoriaNombre(reporte.getCategoria().getNombre());
         dto.setUbicacionId(reporte.getUbicacion().getIdUbicacion());
