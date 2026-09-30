@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
 import org.springframework.stereotype.Service;
+import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaConReportesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
@@ -23,6 +24,11 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
     public List<Categoria> buscarPorDescripcion(String palabraClave) {
         return repository.buscarPorDescripcion(palabraClave);
+    }
+
+    // Query 2: JOIN con Reporte y COUNT
+    public List<CategoriaConReportesDTO> contarReportesPorCategoria() {
+        return repository.contarReportesPorCategoria();
     }
     public Categoria buscarPorId(Long id) {
         Optional<Categoria> encontrado = repository.findById(id);
