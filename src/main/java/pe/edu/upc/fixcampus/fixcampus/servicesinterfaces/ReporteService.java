@@ -1,5 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
+import java.time.LocalDate;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
@@ -8,6 +10,8 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import java.util.List;
 
 public interface ReporteService {
+    List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
+            LocalDate desde, LocalDate hasta);
 
     List<Reporte> listar();
     Reporte buscarPorId(Long id);
