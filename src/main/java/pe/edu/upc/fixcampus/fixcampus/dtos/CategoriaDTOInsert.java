@@ -12,6 +12,14 @@ public class CategoriaDTOInsert {
     @Size(max = 255, message = "La descripción no puede superar los 255 caracteres")
     private String descripcion;
 
+    public CategoriaDTOInsert() {
+    }
+
+    public CategoriaDTOInsert(String nombre, String descripcion) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+    }
+
     public String getNombre() {
         return nombre;
     }

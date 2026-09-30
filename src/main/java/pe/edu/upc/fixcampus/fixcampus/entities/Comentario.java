@@ -28,6 +28,15 @@ public class Comentario {
 
     public Comentario() {
     }
+
+    public Comentario(Long idComentario, Reporte reporte, Usuario usuario,
+                      String textoComentario, LocalDateTime fechaComentario) {
+        this.idComentario = idComentario;
+        this.reporte = reporte;
+        this.usuario = usuario;
+        this.textoComentario = textoComentario;
+        this.fechaComentario = fechaComentario;
+    }
     public Long getIdComentario() {
         return idComentario;
     }

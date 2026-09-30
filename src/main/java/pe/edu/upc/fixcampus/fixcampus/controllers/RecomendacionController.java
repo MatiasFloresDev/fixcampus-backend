@@ -1,80 +1,60 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import java.util.ArrayList;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
-import pe.edu.upc.fixcampus.fixcampus.repositories.RecomendacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ReporteRepository;
 
-import java.time.LocalDateTime;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.RecomendacionService;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/recomendaciones")
 @PreAuthorize("hasRole('ADMIN')")
 public class RecomendacionController {
-    private final RecomendacionRepository repository;
-    private final ReporteRepository reporteRepository;
+    private final RecomendacionService service;
 
-    public RecomendacionController(RecomendacionRepository repository,
-                                     ReporteRepository reporteRepository) {
-        this.repository = repository;
-        this.reporteRepository = reporteRepository;
-    }
+    public RecomendacionController(RecomendacionService service) { this.service = service; }
 
     @GetMapping
+    @Operation(summary = "Listar recomendaciones", description = "Devuelve todas las recomendaciones de mantenimiento sin pedir parámetros.")
     public List<RecomendacionDTO> listar() {
-        return repository.findAll().stream().map(this::convertir).toList();
+        return convertirLista(service.listar());
+    }
+
+    @GetMapping("/prioridad")
+    @Operation(summary = "Buscar recomendaciones por prioridad", description = "Consulta 16: filtra recomendaciones por prioridad sugerida. Ejemplo: MEDIA.")
+    public List<RecomendacionDTO> buscarPorPrioridad(@RequestParam String prioridad) {
+        return convertirLista(service.buscarPorPrioridad(prioridad));
+    }
+
+    @GetMapping("/por-categoria")
+    @Operation(summary = "Buscar recomendaciones por categoría", description = "Consulta 17 con JOIN: une recomendación, reporte y categoría. Ejemplo: Electricidad.")
+    public List<RecomendacionDTO> listarPorCategoria(@RequestParam String nombre) {
+        return convertirLista(service.buscarPorCategoria(nombre));
     }
 
     @GetMapping("/{id}")
-    public RecomendacionDTO buscar(@PathVariable Long id) { return convertir(buscarEntidad(id)); }
+    public RecomendacionDTO buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
 
     @PostMapping
     public ResponseEntity<RecomendacionDTO> crear(@Valid @RequestBody RecomendacionDTO datos) {
-        if (repository.existsByReporte_IdReporte(datos.getReporteId())) {
-            throw new IllegalArgumentException("Este reporte ya tiene una recomendación");
-        }
-        Recomendacion recomendacion = new Recomendacion();
-        copiarDatos(recomendacion, datos);
-        recomendacion.setFechaRecomendacion(LocalDateTime.now());
-        return ResponseEntity.status(201).body(convertir(repository.save(recomendacion)));
+        return ResponseEntity.status(201).body(convertir(service.registrar(datos)));
     }
 
     @PutMapping("/{id}")
-    public RecomendacionDTO actualizar(@PathVariable Long id,
-                                         @Valid @RequestBody RecomendacionDTO datos) {
-        Recomendacion recomendacion = buscarEntidad(id);
-        if (!recomendacion.getReporte().getIdReporte().equals(datos.getReporteId())
-                && repository.existsByReporte_IdReporte(datos.getReporteId())) {
-            throw new IllegalArgumentException("Este reporte ya tiene una recomendación");
-        }
-        copiarDatos(recomendacion, datos);
-        return convertir(repository.save(recomendacion));
+    public RecomendacionDTO actualizar(@PathVariable Long id, @Valid @RequestBody RecomendacionDTO datos) {
+        return convertir(service.actualizar(id, datos));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        repository.delete(buscarEntidad(id));
+        service.eliminar(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private Recomendacion buscarEntidad(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Recomendación no encontrada"));
-    }
-
-    private void copiarDatos(Recomendacion recomendacion, RecomendacionDTO datos) {
-        recomendacion.setReporte(reporteRepository.findById(datos.getReporteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado")));
-        recomendacion.setTituloSugerido(datos.getTituloSugerido());
-        recomendacion.setResumen(datos.getResumen());
-        recomendacion.setPrioridadSugerida(datos.getPrioridadSugerida());
-        recomendacion.setJustificacion(datos.getJustificacion());
     }
 
     private RecomendacionDTO convertir(Recomendacion recomendacion) {
@@ -87,5 +67,13 @@ public class RecomendacionController {
         dto.setJustificacion(recomendacion.getJustificacion());
         dto.setFechaRecomendacion(recomendacion.getFechaRecomendacion());
         return dto;
+    }
+
+    private List<RecomendacionDTO> convertirLista(List<Recomendacion> recomendaciones) {
+        List<RecomendacionDTO> lista = new ArrayList<>();
+        for (Recomendacion recomendacion : recomendaciones) {
+            lista.add(convertir(recomendacion));
+        }
+        return lista;
     }
 }

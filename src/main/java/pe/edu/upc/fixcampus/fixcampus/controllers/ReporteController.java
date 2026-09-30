@@ -1,10 +1,18 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
+import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
@@ -13,18 +21,37 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reports")
 public class ReporteController {
+    @GetMapping("/estadisticas/por-categoria")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Contar incidencias por categoría entre fechas", description = "Consulta 18: JOIN y COUNT. Incluye desde y excluye hasta. Ejemplo: desde=2026-09-01, hasta=2026-10-01.")
+    public List<IncidenciasPorCategoriaDTO> incidenciasPorCategoria(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return service.contarPorCategoriaEntreFechas(desde, hasta);
+    }
 
     private final ReporteService service;
+    private final UsuarioRepository usuarioRepository;
 
-    public ReporteController(ReporteService service) {
+    public ReporteController(ReporteService service, UsuarioRepository usuarioRepository) {
         this.service = service;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    @GetMapping("/mis-reportes")
+    @Operation(summary = "Listar mis reportes", description = "Muestra solo las incidencias registradas por la cuenta que inició sesión.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public List<ReporteDTOList> misReportes(Authentication authentication) {
+        return convertirLista(service.buscarPorCorreoReportante(authentication.getName()));
     }
 
     @GetMapping
@@ -46,7 +73,7 @@ public class ReporteController {
             reportes = service.listar();
         }
 
-        return ResponseEntity.ok(reportes.stream().map(this::convertirDto).toList());
+        return ResponseEntity.ok(convertirLista(reportes));
     }
 
     @GetMapping("/estadisticas/por-usuario-mes")
@@ -64,6 +91,20 @@ public class ReporteController {
         return service.contarPorCampusYEstado(estado);
     }
 
+    @GetMapping("/prioridad/{prioridad}")
+    @Operation(summary = "Buscar reportes por prioridad", description = "Lista las incidencias que tienen la prioridad indicada.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(@PathVariable String prioridad) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorPrioridad(prioridad)));
+    }
+
+    @GetMapping("/campus/{campus}")
+    @Operation(summary = "Buscar reportes por campus", description = "Lista las incidencias cuya ubicación pertenece al campus indicado. Usa una consulta JOIN.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorCampus(@PathVariable String campus) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorCampus(campus)));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ReporteDTOList> buscarPorId(@PathVariable Long id) {
@@ -72,7 +113,25 @@ public class ReporteController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<ReporteDTOList> registrar(@Valid @RequestBody ReporteDTOInsert dto) {
+    public ResponseEntity<ReporteDTOList> registrar(@Valid @RequestBody ReporteDTOInsert dto,
+                                                    Authentication authentication) {
+        Optional<Usuario> usuario =
+                usuarioRepository.findByCorreo(authentication.getName());
+        if (usuario.isEmpty()) {
+            throw new AccessDeniedException("Usuario autenticado no encontrado");
+        }
+        Long idUsuario = usuario.get().getIdUsuario();
+        dto.setUsuarioReportanteId(idUsuario);
+        boolean administrador = false;
+        for (GrantedAuthority autoridad : authentication.getAuthorities()) {
+            if ("ROLE_ADMIN".equals(autoridad.getAuthority())) {
+                administrador = true;
+                break;
+            }
+        }
+        if (!administrador) {
+            dto.setTecnicoAsignadoId(null);
+        }
         Reporte guardado = service.registrar(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -85,7 +144,28 @@ public class ReporteController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ReporteDTOList> actualizar(
             @PathVariable Long id,
-            @Valid @RequestBody ReporteDTOInsert dto) {
+            @Valid @RequestBody ReporteDTOInsert dto,
+            Authentication authentication) {
+        Reporte existente = service.buscarPorId(id);
+        boolean administrador = false;
+        for (GrantedAuthority autoridad : authentication.getAuthorities()) {
+            if ("ROLE_ADMIN".equals(autoridad.getAuthority())) {
+                administrador = true;
+                break;
+            }
+        }
+        boolean esPropietario = existente.getUsuarioReportante().getCorreo()
+                .equalsIgnoreCase(authentication.getName());
+        if (!administrador && !esPropietario) {
+            throw new AccessDeniedException("Solo puedes editar tus propios reportes");
+        }
+        // El autor original se conserva también cuando actualiza un administrador.
+        dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
+        if (!administrador) {
+            dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
+            dto.setTecnicoAsignadoId(existente.getTecnicoAsignado() == null ? null : existente.getTecnicoAsignado().getIdUsuario());
+            dto.setEstado(existente.getEstado());
+        }
         return ResponseEntity.ok(convertirDto(service.actualizar(id, dto)));
     }
 
@@ -114,5 +194,12 @@ public class ReporteController {
         dto.setFechaResolucion(reporte.getFechaResolucion());
         return dto;
     }
-}
 
+    private List<ReporteDTOList> convertirLista(List<Reporte> reportes) {
+        List<ReporteDTOList> lista = new ArrayList<>();
+        for (Reporte reporte : reportes) {
+            lista.add(convertirDto(reporte));
+        }
+        return lista;
+    }
+}

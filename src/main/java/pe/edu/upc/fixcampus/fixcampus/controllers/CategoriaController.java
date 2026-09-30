@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
+import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -29,18 +30,28 @@ public class CategoriaController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar categorías", description = "Si se indica nombre, busca categorías que contengan ese texto, sin distinguir mayúsculas.")
+    @Operation(summary = "Listar categorías", description = "Permite buscar por parte del nombre o por una palabra de la descripción.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<CategoriaDTOList>> listar(
-            @Parameter(description = "Parte del nombre de la categoría") @RequestParam(required = false) String nombre) {
-        List<Categoria> categorias = nombre == null || nombre.isBlank()
-                ? service.listar() : service.buscarPorNombre(nombre);
-        List<CategoriaDTOList> lista = categorias
-                .stream()
-                .map(categoria -> modelMapper.map(categoria, CategoriaDTOList.class))
-                .toList();
+            @Parameter(description = "Parte del nombre de la categoría") @RequestParam(required = false) String nombre,
+            @Parameter(description = "Palabra que debe aparecer en la descripción") @RequestParam(required = false) String descripcion) {
+        List<Categoria> categorias;
+        if (nombre != null && !nombre.isBlank()) {
+            categorias = service.buscarPorNombre(nombre);
+        } else if (descripcion != null && !descripcion.isBlank()) {
+            categorias = service.buscarPorDescripcion(descripcion);
+        } else {
+            categorias = service.listar();
+        }
+        return ResponseEntity.ok(convertirLista(categorias));
+    }
 
-        return ResponseEntity.ok(lista);
+    @GetMapping("/buscar-descripcion")
+    @Operation(summary = "Buscar categorías por descripción", description = "Busca una palabra dentro de la descripción de las categorías.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
+            @Parameter(description = "Palabra clave de la descripción") @RequestParam String palabraClave) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorDescripcion(palabraClave)));
     }
 
     @GetMapping("/{id}")
@@ -102,5 +113,13 @@ public class CategoriaController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private List<CategoriaDTOList> convertirLista(List<Categoria> categorias) {
+        List<CategoriaDTOList> lista = new ArrayList<>();
+        for (Categoria categoria : categorias) {
+            lista.add(modelMapper.map(categoria, CategoriaDTOList.class));
+        }
+        return lista;
     }
 }

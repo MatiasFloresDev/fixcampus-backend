@@ -11,6 +11,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
@@ -24,9 +25,11 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String correo)
             throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByCorreo(correo)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "Usuario no encontrado: " + correo));
+        Optional<Usuario> encontrado = usuarioRepository.findByCorreo(correo);
+        if (encontrado.isEmpty()) {
+            throw new UsernameNotFoundException("Usuario no encontrado: " + correo);
+        }
+        Usuario usuario = encontrado.get();
 
         String nombreRol = usuario.getRol().getNombre();
         String autoridad = nombreRol.startsWith("ROLE_")

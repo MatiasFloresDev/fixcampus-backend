@@ -3,12 +3,18 @@ package pe.edu.upc.fixcampus.fixcampus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ComentarioService;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.ComentarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.UbicacionRepository;
@@ -17,11 +23,16 @@ import pe.edu.upc.fixcampus.fixcampus.repositories.RolRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Transactional
 class ReporteRepositoryTests {
+
+    @Autowired private ReporteService reportService;
+    @Autowired private ComentarioService commentService;
 
     @Autowired
     private RolRepository roleRepository;
@@ -82,27 +93,25 @@ class ReporteRepositoryTests {
         reportRepository.save(report);
 
         assertThat(reportRepository.findByEstadoIgnoreCase("abierto")).hasSize(1);
-        assertThat(reportRepository.findByNombreCategoria("limpieza de prueba"))
-                .extracting(Reporte::getTitulo)
-                .containsExactly("Luz apagada");
-        assertThat(reportRepository.findByCorreoReportante("MATIAS.PRUEBA@UPC.EDU.PE"))
-                .extracting(Reporte::getTitulo)
-                .containsExactly("Luz apagada");
-        assertThat(reportRepository.contarPorUsuarioYMes())
-                .singleElement()
-                .satisfies(resumen -> {
-                    assertThat(resumen.getUsuarioId()).isEqualTo(user.getIdUsuario());
-                    assertThat(resumen.getAnio()).isEqualTo(LocalDateTime.now().getYear());
-                    assertThat(resumen.getMes()).isEqualTo(LocalDateTime.now().getMonthValue());
-                    assertThat(resumen.getCantidad()).isEqualTo(1L);
-                });
+        List<Reporte> porCategoria = reportRepository.findByNombreCategoria("limpieza de prueba");
+        assertThat(porCategoria).hasSize(1);
+        assertThat(porCategoria.get(0).getTitulo()).isEqualTo("Luz apagada");
 
-        assertThat(reportRepository.contarPorCampusYEstado("abierto"))
-                .singleElement()
-                .satisfies(resumen -> {
-                    assertThat(resumen.getCampus()).isEqualTo("UPC San Miguel");
-                    assertThat(resumen.getCantidad()).isEqualTo(1L);
-                });
+        List<Reporte> porCorreo = reportRepository.findByCorreoReportante("MATIAS.PRUEBA@UPC.EDU.PE");
+        assertThat(porCorreo).hasSize(1);
+        assertThat(porCorreo.get(0).getTitulo()).isEqualTo("Luz apagada");
+
+        List<IncidenciasPorMesDTO> porMes = reportService.contarPorUsuarioYMes();
+        assertThat(porMes).hasSize(1);
+        assertThat(porMes.get(0).getUsuarioId()).isEqualTo(user.getIdUsuario());
+        assertThat(porMes.get(0).getAnio()).isEqualTo(LocalDateTime.now().getYear());
+        assertThat(porMes.get(0).getMes()).isEqualTo(LocalDateTime.now().getMonthValue());
+        assertThat(porMes.get(0).getCantidad()).isEqualTo(1L);
+
+        List<IncidenciasPorCampusDTO> porCampus = reportService.contarPorCampusYEstado("abierto");
+        assertThat(porCampus).hasSize(1);
+        assertThat(porCampus.get(0).getCampus()).isEqualTo("UPC San Miguel");
+        assertThat(porCampus.get(0).getCantidad()).isEqualTo(1L);
         assertThat(reportRepository.contarPorCampusYEstado("CERRADO")).isEmpty();
 
         for (String texto : new String[] {"Revisar lámpara", "Sigue sin funcionar"}) {
@@ -114,13 +123,12 @@ class ReporteRepositoryTests {
             commentRepository.save(comentario);
         }
 
-        assertThat(commentRepository.contarPorReporteYCorreo("MATIAS.PRUEBA@UPC.EDU.PE"))
-                .singleElement()
-                .satisfies(resumen -> {
-                    assertThat(resumen.getReporteId()).isEqualTo(report.getIdReporte());
-                    assertThat(resumen.getTituloReporte()).isEqualTo("Luz apagada");
-                    assertThat(resumen.getCantidad()).isEqualTo(2L);
-                });
+        List<ComentariosPorReporteDTO> comentariosPorReporte =
+                commentService.contarPorReporteYCorreo("MATIAS.PRUEBA@UPC.EDU.PE");
+        assertThat(comentariosPorReporte).hasSize(1);
+        assertThat(comentariosPorReporte.get(0).getReporteId()).isEqualTo(report.getIdReporte());
+        assertThat(comentariosPorReporte.get(0).getTituloReporte()).isEqualTo("Luz apagada");
+        assertThat(comentariosPorReporte.get(0).getCantidad()).isEqualTo(2L);
         assertThat(commentRepository.contarPorReporteYCorreo("otro@upc.edu.pe")).isEmpty();
     }
 }

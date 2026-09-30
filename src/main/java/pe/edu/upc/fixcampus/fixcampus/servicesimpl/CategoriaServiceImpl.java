@@ -6,6 +6,7 @@ import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.CategoriaService;
 
 import java.util.List;
+import java.util.Optional;
 @Service
 public class CategoriaServiceImpl implements CategoriaService {
     private final CategoriaRepository repository;
@@ -24,10 +25,11 @@ public class CategoriaServiceImpl implements CategoriaService {
         return repository.buscarPorDescripcion(palabraClave);
     }
     public Categoria buscarPorId(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Categoría no encontrada"
-                ));
+        Optional<Categoria> encontrado = repository.findById(id);
+        if (encontrado.isEmpty()) {
+            throw new ResourceNotFoundException("Categoría no encontrada");
+        }
+        return encontrado.get();
     }
 
    public Categoria registrar(Categoria categoria){
