@@ -2,9 +2,7 @@ package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface RecomendacionService {
     List<Recomendacion> listar();

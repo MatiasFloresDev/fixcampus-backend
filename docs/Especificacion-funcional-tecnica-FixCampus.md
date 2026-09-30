@@ -14,12 +14,12 @@ FixCampus centraliza incidencias de espacios del campus. El sistema captura el c
 - Consulta de reportes propios.
 - CRUD de entidades principales en la API protegido por roles.
 - Documentación OpenAPI disponible en Swagger.
-- Subida y descarga de evidencias JPG/PNG/PDF, con límite de tamaño y permiso por reporte.
+- CRUD de metadatos de evidencias: nombre del archivo, URL, tipo y fecha. Consulta por reporte con permiso de su propietario o administrador.
 - Cinco consultas agrupadas con JOIN y COUNT para analizar las incidencias.
 
 ### Fuera del alcance de la API actual
 
-- Carga de archivos desde una interfaz.
+- Subida y descarga de archivos físicos.
 - Bandeja visual para personal de atención.
 - Notificaciones automáticas y cálculo programado de SLA.
 - Línea de tiempo y conversación en la pantalla de detalle.
@@ -67,7 +67,7 @@ OpenAPI: `http://localhost:8080/v3/api-docs`
 | Ubicaciones | `GET/POST/PUT/DELETE /api/locations` | Consulta autenticada / cambios admin |
 | Usuarios | `GET/POST/PUT/DELETE /api/users` | Admin |
 | Roles | `GET/POST/PUT/DELETE /api/roles` | Admin |
-| Adjuntos | `GET/POST/PUT/DELETE /api/attachments`; carga y descarga por reporte | CRUD admin; carga/descarga propia o admin |
+| Adjuntos | `GET/POST/PUT/DELETE /api/attachments`; `GET /api/attachments/reporte/{reporteId}` | CRUD admin; consulta por reporte propio o admin |
 | Comentarios | `GET/POST/PUT/DELETE /api/comments` | Admin |
 | Recomendaciones | `GET/POST/PUT/DELETE /api/recomendaciones` | Admin |
 | Indicadores | Incidencias por usuario/mes, campus y categoría; comentarios por reporte; evidencias por usuario | Admin |
@@ -114,6 +114,8 @@ erDiagram
 ```
 
 La relación de `REPORTE` con `CATEGORIA` y `UBICACION` evita guardar texto libre repetido. `ADJUNTO`, `COMENTARIO` y `RECOMENDACION` tienen CRUD en la API. Una incidencia puede tener varios adjuntos y comentarios, y como máximo una recomendación de mantenimiento.
+
+La FK impide borrar un reporte que todavía tenga adjuntos, comentarios o una recomendación. La API responde `409`; después de eliminar esos registros mediante sus CRUD se puede eliminar el reporte con respuesta `204`.
 
 ## 8. Arquitectura
 
@@ -163,10 +165,10 @@ PostgreSQL (base fixcampus)
 |---|---|---|
 | P-01 | Registrar cuenta nueva | `201` y mensaje de confirmación |
 | P-02 | Repetir correo | Error sin crear una segunda cuenta |
-| P-03 | Login válido | Redirección a `/reportar` |
-| P-04 | Login inválido | Mensaje y permanencia en acceso |
-| P-05 | Abrir reportar | Categorías y ubicaciones cargadas |
-| P-06 | Enviar sin título | Validación local, no hay `POST` |
+| P-03 | `POST /login` con credenciales válidas | `200` y token JWT |
+| P-04 | `POST /login` con contraseña incorrecta | `401` |
+| P-05 | Consultar categorías y ubicaciones con token | `200` y catálogos disponibles |
+| P-06 | `POST /api/reports` sin título | `400` por validación del DTO |
 | P-07 | Enviar reporte válido | `201` y aparece en Mis reportes |
 | P-08 | Consultar sin token | `401` |
 | P-09 | CRUD de catálogo como usuario | `403` |
@@ -174,7 +176,7 @@ PostgreSQL (base fixcampus)
 
 ## 11. Evidencias que conviene llevar
 
-- Captura del formulario con catálogos cargados.
+- Captura de Swagger con la consulta de categorías y ubicaciones.
 - Captura de Swagger con `POST /api/reports` y respuesta `201`.
 - Captura del caso de error de validación.
 - Historial de cambios de este documento o commit asociado.

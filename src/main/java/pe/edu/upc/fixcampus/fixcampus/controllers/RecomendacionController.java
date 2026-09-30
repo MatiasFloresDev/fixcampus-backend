@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import java.util.ArrayList;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
@@ -43,7 +44,9 @@ public class RecomendacionController {
 
     @PostMapping
     public ResponseEntity<RecomendacionDTO> crear(@Valid @RequestBody RecomendacionDTO datos) {
-        return ResponseEntity.status(201).body(convertir(service.registrar(datos)));
+        Recomendacion guardado = service.registrar(datos);
+        RecomendacionDTO respuesta = convertir(guardado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PutMapping("/{id}")

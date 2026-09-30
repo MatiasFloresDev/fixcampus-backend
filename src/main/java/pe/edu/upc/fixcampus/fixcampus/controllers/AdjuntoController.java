@@ -6,21 +6,15 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.EvidenciasPorUsuarioDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.AdjuntoService;
 import java.util.List;
 
@@ -45,29 +39,6 @@ public class AdjuntoController {
         return convertirLista(service.buscarPorReporte(reporteId));
     }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    @Operation(summary = "Subir evidencia", description = "Guarda una imagen JPG/PNG o PDF de hasta 5 MB asociada a un reporte. Máximo 3 evidencias por reporte.")
-    public ResponseEntity<AdjuntoDTO> subir(@RequestParam Long reporteId,
-                                             @RequestPart MultipartFile file,
-                                             Authentication authentication) throws IOException {
-        verificarPermiso(service.buscarReporte(reporteId), authentication);
-        return ResponseEntity.status(201).body(convertir(service.subir(reporteId, file)));
-    }
-
-    @GetMapping("/files/{fileName:.+}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<Resource> descargar(@PathVariable String fileName, Authentication authentication) {
-        Adjunto adjunto = service.buscarPorUrl("/api/attachments/files/" + fileName);
-        verificarPermiso(adjunto.getReporte(), authentication);
-        Path path = service.rutaArchivo(fileName);
-        Resource resource = new FileSystemResource(path);
-        return ResponseEntity.ok()
-                .contentType(mediaType(adjunto.getTipoArchivo()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + adjunto.getNombreArchivo() + "\"")
-                .body(resource);
-    }
-
     private void verificarPermiso(Reporte reporte, Authentication authentication) {
         boolean admin = false;
         for (GrantedAuthority authority : authentication.getAuthorities()) {
@@ -81,13 +52,6 @@ public class AdjuntoController {
         }
     }
 
-    private MediaType mediaType(String contentType) {
-        try {
-            return MediaType.parseMediaType(contentType);
-        } catch (Exception ignored) {
-            return MediaType.APPLICATION_OCTET_STREAM;
-        }
-    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -109,7 +73,9 @@ public class AdjuntoController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdjuntoDTO> crear(@Valid @RequestBody AdjuntoDTO datos) {
-        return ResponseEntity.status(201).body(convertir(service.registrar(datos)));
+        Adjunto guardado = service.registrar(datos);
+        AdjuntoDTO respuesta = convertir(guardado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PutMapping("/{id}")

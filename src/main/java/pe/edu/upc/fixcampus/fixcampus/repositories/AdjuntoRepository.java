@@ -26,7 +26,4 @@ public interface AdjuntoRepository extends JpaRepository<Adjunto, Long> {
 
     List<Adjunto> findByReporte_IdReporte(Long reporteId);
 
-    long countByReporte_IdReporte(Long reporteId);
-
-    java.util.Optional<Adjunto> findByUrlArchivo(String urlArchivo);
 }

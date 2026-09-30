@@ -2,7 +2,6 @@ package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import java.util.List;
-import java.util.Optional;
 
 public interface UbicacionService {
     List<Ubicacion> listar();

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
@@ -36,7 +37,8 @@ public class UbicacionController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ubicacion> crear(@Valid @RequestBody Ubicacion datos) {
-        return ResponseEntity.status(201).body(service.registrar(datos));
+        Ubicacion guardado = service.registrar(datos);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")

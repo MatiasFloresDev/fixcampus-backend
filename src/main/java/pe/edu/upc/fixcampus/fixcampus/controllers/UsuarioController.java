@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
@@ -52,7 +53,9 @@ public class UsuarioController {
     @PostMapping("/api/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody UsuarioDTOInsert datos) {
-        return ResponseEntity.status(201).body(convertir(service.crear(datos)));
+        Usuario guardado = service.crear(datos);
+        UsuarioDTO respuesta = convertir(guardado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PutMapping("/api/users/{id}")
@@ -76,7 +79,7 @@ public class UsuarioController {
         Usuario guardado = service.registrar(request);
         RegistroResponseDTO response = new RegistroResponseDTO(
                 guardado.getIdUsuario(), guardado.getCorreo(), "Cuenta creada correctamente");
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     private UsuarioDTO convertir(Usuario usuario) {

@@ -103,7 +103,12 @@ class CrudCompletoTests {
         assertThat(peticion("POST", "/login", "{\"correo\":\"admin@fixcampus.com\",\"password\":\"incorrecta\"}", null).statusCode()).isEqualTo(401);
         assertThat(peticion("POST", "/registro", "{\"nombre\":\"Ana\",\"apellido\":\"Prueba\",\"correo\":\"" + correo + "\",\"password\":\"clave123\"}", null).statusCode()).isEqualTo(400);
 
-        // Borrar una incidencia elimina primero todos sus hijos; no deja FK inválidas.
+        // La FK protege el reporte mientras sus comentarios, adjuntos y recomendación existan.
+        assertThat(peticion("DELETE", "/api/reports/" + reporte, null, token).statusCode()).isEqualTo(409);
+        assertThat(peticion("GET", "/api/reports/" + reporte, null, token).statusCode()).isEqualTo(200);
+        for (int i = 5; i < rutas.length; i++) {
+            assertThat(peticion("DELETE", rutas[i] + "/" + ids[i], null, token).statusCode()).isEqualTo(204);
+        }
         assertThat(peticion("DELETE", "/api/reports/" + reporte, null, token).statusCode()).isEqualTo(204);
         for (int i = 4; i < rutas.length; i++) {
             assertThat(peticion("GET", rutas[i] + "/" + ids[i], null, token).statusCode()).isEqualTo(404);

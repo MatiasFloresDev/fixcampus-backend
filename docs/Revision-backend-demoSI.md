@@ -28,9 +28,27 @@ El controlador atiende HTTP y convierte la respuesta; el servicio aplica las reg
 
 No se usan lambdas, streams, referencias a métodos ni operadores ternarios en `src`. Los listados utilizan ciclos `for` y las decisiones se escriben con `if/else`.
 La aplicación no carga datos de prueba al arrancar. Se retiró `DataInitializer`, `CommandLineRunner` y el método con `String...`. Los datos existentes en PostgreSQL se conservan; los nuevos se ingresan por Swagger o pgAdmin. Las pruebas preparan sus propios datos exclusivamente en H2.
-Spring Security conserva los componentes del demo. Su configuración usa implementaciones de `Customizer` porque la versión del framework exige esa interfaz y se solicitó evitar lambdas. No se eliminó la seguridad para simplificar la sintaxis.
+Spring Security conserva los componentes del demo. Su configuración usa implementaciones de `Customizer` porque la versión del framework recibe esa interfaz y se solicitó evitar lambdas. El demo utiliza lambdas en este punto; la variante sin lambdas es una adaptación del proyecto, no una sintaxis cuya enseñanza en clase se haya confirmado.
 
-`@Transactional` en la eliminación de reportes agrupa los cambios de la base: si falla una eliminación, se revierten las demás. Es necesario porque primero se eliminan comentarios, recomendación y adjuntos, y luego el reporte. Los archivos se limpian después de comprobar las restricciones de la base.
+Se retiraron la subida y descarga de archivos físicos y el borrado automático de los datos asociados a un reporte: esas implementaciones no aparecen en los demos revisados. Adjunto conserva su CRUD de nombre, URL, tipo y fecha; guardar una URL no copia un archivo al servidor. Los archivos que ya existan en disco no se eliminan con este cambio.
+
+La eliminación de reportes ahora hace un solo `delete`, igual que los CRUD del ejemplo. Si tiene comentarios, adjuntos o una recomendación, la FK impide borrarlo y la API responde `409`. Primero se eliminan esos registros mediante sus CRUD y luego el reporte. No se usa `@Transactional` en el código de la aplicación; en una prueba aislada de H2 se utiliza para revertir sus datos al terminar.
+
+Las anotaciones de Swagger que describen las consultas se conservaron por el requisito de documentarlas. Son documentación añadida al proyecto: no hay evidencia de que cada anotación aparezca en los demos. Comparar el código confirma sus componentes y diferencias, pero no permite asegurar que la profesora haya enseñado cada variante de sintaxis.
+
+## Por qué crear devuelve 201
+
+En `demoSI/demoSI/src/main/java/pe/edu/upc/demosi/controllers/CropController.java`, línea 60, se utiliza `ResponseEntity.created(location).body(responseDTO)`. Esa respuesta tiene estado HTTP **201 Created**: se creó un registro. También incluye la cabecera `Location` con su dirección.
+
+En `ComentarioController` se separan los pasos para leerlos con claridad:
+
+```java
+Comentario guardado = service.registrar(datos);
+ComentarioDTO respuesta = convertir(guardado);
+return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+```
+
+El servicio guarda el comentario, `convertir` prepara el DTO de salida y `ResponseEntity` devuelve el DTO con estado 201. `HttpStatus.CREATED` es el nombre de ese mismo número. No es el ID del comentario ni un dato de PostgreSQL. La respuesta de comentario no incluye `Location`.
 
 Hay ocho controladores de entidades, más `LoginController` para autenticar: nueve en total. `POST /registro` está en `UsuarioController`. Se retiraron `RegistroController`, `InicioController` y el controlador auxiliar de administrador. Swagger se abre directamente en `/swagger-ui/index.html`; la raíz `/` no es una pantalla del sistema.
 
@@ -57,7 +75,7 @@ No se eliminan estas clases solo para reducir el número: hacerlo obligaría a m
 - La lógica de usuarios, roles, ubicaciones, comentarios, adjuntos y recomendaciones pasa a servicios.
 - El autor del reporte proviene del token y se conserva al actualizar. Un usuario no puede asignarse técnicos ni editar reportes ajenos.
 - Una incidencia nueva inicia en `ABIERTO`; se registran fechas de asignación y resolución.
-- Eliminar una incidencia con datos hijos respeta las FK.
+- Eliminar una incidencia con datos asociados responde `409` hasta borrarlos mediante sus CRUD; después responde `204`.
 - Login valida correo y contraseña; registro conserva el mínimo de seis caracteres y BCrypt.
 - Las consultas agrupadas usan SQL explícito y conversión por columnas. Se corrigió la numeración repetida de consultas.
 
@@ -156,7 +174,7 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 - Compilación y empaquetado mediante Maven.
 - Cinco pruebas automatizadas que cubren arranque, Swagger, registro/login, CRUD de ocho entidades, permisos, consultas y eliminación con relaciones.
 - Pruebas HTTP adicionales contra PostgreSQL local con datos temporales y limpieza posterior.
-- Carga y descarga real de un PNG, rechazo de la cuarta evidencia y rechazo de descarga por otra cuenta.
+- CRUD de metadatos de adjuntos; FK que impide borrar un reporte en uso y eliminación posterior en el orden correcto.
 - Revisión de fuentes sin lambdas/streams/referencias a métodos y sin configuración Angular/Firebase.
 
 Los cambios corresponden al proyecto local. Las comprobaciones locales no garantizan que Render ya ejecute esta versión: se requiere publicar y desplegar los cambios para eso.
