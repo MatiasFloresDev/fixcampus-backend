@@ -43,6 +43,14 @@ public class RecomendacionController {
     @GetMapping("/{id}")
     public RecomendacionDTO buscar(@PathVariable Long id) { return convertir(buscarEntidad(id)); }
 
+    @GetMapping("/reporte/{reporteId}")
+    public RecomendacionDTO buscarPorReporte(@PathVariable Long reporteId) {
+        Recomendacion recomendacion = repository.findByReporte_IdReporte(reporteId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Este reporte no tiene una recomendación registrada"));
+        return convertir(recomendacion);
+    }
+
     @PostMapping
     public ResponseEntity<RecomendacionDTO> crear(@Valid @RequestBody RecomendacionDTO datos) {
         if (repository.existsByReporte_IdReporte(datos.getReporteId())) {
