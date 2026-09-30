@@ -1,7 +1,14 @@
 package pe.edu.upc.fixcampus.fixcampus;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import pe.edu.upc.fixcampus.fixcampus.repositories.RolRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UsuarioService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.net.URI;
@@ -16,6 +23,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApiSwaggerTests {
 
+    @Autowired
+    private RolRepository rolesDePrueba;
+
+    @Autowired
+    private UsuarioService usuariosDePrueba;
+
+    @BeforeEach
+    void prepararCuentas() {
+        PreparacionPruebas.crearCuentas(rolesDePrueba, usuariosDePrueba);
+    }
+
     @Value("${local.server.port}")
     private int port;
 
@@ -24,17 +42,22 @@ class ApiSwaggerTests {
         HttpClient client = HttpClient.newHttpClient();
         String base = "http://localhost:" + port;
 
-        HttpResponse<String> inicio = client.send(
-                HttpRequest.newBuilder(URI.create(base + "/")).GET().build(),
+        HttpResponse<String> swagger = client.send(
+                HttpRequest.newBuilder(URI.create(base + "/swagger-ui/index.html")).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
-        assertThat(inicio.statusCode()).isEqualTo(302);
-        assertThat(inicio.headers().firstValue("Location").orElseThrow())
-                .endsWith("/swagger-ui/index.html");
+        assertThat(swagger.statusCode()).isEqualTo(200);
 
         HttpResponse<String> docs = client.send(
                 HttpRequest.newBuilder(URI.create(base + "/v3/api-docs")).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
         assertThat(docs.statusCode()).isEqualTo(200);
+        JsonNode paths = new ObjectMapper().readTree(docs.body()).get("paths");
+        assertThat(paths.get("/api/users").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/api/recomendaciones").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/registro").get("post").get("security").size()).isZero();
+        assertThat(paths.get("/login").get("post").get("security").size()).isZero();
+        assertThat(paths.get("/api/reports/estadisticas/por-categoria")).isNotNull();
+        assertThat(paths.get("/api/attachments/estadisticas/por-usuario")).isNotNull();
         for (String ruta : new String[] {"/api/categories", "/api/reports", "/api/users",
                 "/api/roles", "/api/locations", "/api/comments",
                 "/api/attachments", "/api/recomendaciones"}) {

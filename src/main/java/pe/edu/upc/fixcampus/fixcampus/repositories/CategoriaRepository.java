@@ -16,7 +16,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     Optional<Categoria> findByNombreIgnoreCase(String nombre);
 
-    // Consulta: busca categorías por una palabra de su descripción.
+    // Consulta 15: busca categorías por una palabra de su descripción.
     @Query("select c from Categoria c where lower(c.descripcion) like lower(concat('%', :palabraClave, '%'))")
     List<Categoria> buscarPorDescripcion(@Param("palabraClave") String palabraClave);
 }

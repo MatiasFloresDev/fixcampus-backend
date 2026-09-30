@@ -9,15 +9,17 @@ FixCampus centraliza incidencias de espacios del campus. El sistema captura el c
 ### Incluido y demostrable
 
 - Registro de cuenta y autenticación con token.
-- Catálogos de categorías y ubicaciones consultados por el frontend.
+- Catálogos de categorías y ubicaciones consultados por la API.
 - Registro de incidencias con categoría, ubicación, detalle, descripción, prioridad y estado.
 - Consulta de reportes propios.
 - CRUD de entidades principales en la API protegido por roles.
 - Documentación OpenAPI disponible en Swagger.
+- Subida y descarga de evidencias JPG/PNG/PDF, con límite de tamaño y permiso por reporte.
+- Cinco consultas agrupadas con JOIN y COUNT para analizar las incidencias.
 
-### Fuera del flujo web actual
+### Fuera del alcance de la API actual
 
-- Carga de archivos desde la interfaz.
+- Carga de archivos desde una interfaz.
 - Bandeja visual para personal de atención.
 - Notificaciones automáticas y cálculo programado de SLA.
 - Línea de tiempo y conversación en la pantalla de detalle.
@@ -65,10 +67,10 @@ OpenAPI: `http://localhost:8080/v3/api-docs`
 | Ubicaciones | `GET/POST/PUT/DELETE /api/locations` | Consulta autenticada / cambios admin |
 | Usuarios | `GET/POST/PUT/DELETE /api/users` | Admin |
 | Roles | `GET/POST/PUT/DELETE /api/roles` | Admin |
-| Adjuntos | `GET/POST/PUT/DELETE /api/attachments` | Admin en el alcance actual |
-| Comentarios | `GET/POST/PUT/DELETE /api/comments` | Según operación |
-| Recomendaciones | `GET/POST/PUT/DELETE /api/recomendaciones` | Según operación |
-| Indicadores | `GET /api/reports/estadisticas/por-usuario-mes`, `GET /api/reports/estadisticas/por-campus` | Admin |
+| Adjuntos | `GET/POST/PUT/DELETE /api/attachments`; carga y descarga por reporte | CRUD admin; carga/descarga propia o admin |
+| Comentarios | `GET/POST/PUT/DELETE /api/comments` | Admin |
+| Recomendaciones | `GET/POST/PUT/DELETE /api/recomendaciones` | Admin |
+| Indicadores | Incidencias por usuario/mes, campus y categoría; comentarios por reporte; evidencias por usuario | Admin |
 
 ## 6. Contrato de creación de reporte
 
@@ -86,7 +88,7 @@ OpenAPI: `http://localhost:8080/v3/api-docs`
 }
 ```
 
-El frontend envía el token en `Authorization: Bearer <token>`. El backend obtiene el usuario autenticado y guarda la relación, por lo que el usuario no debe poder hacerse pasar por otra cuenta.
+El cliente envía el token en `Authorization: Bearer <token>`. El backend obtiene el usuario autenticado y guarda la relación, por lo que el usuario no debe poder hacerse pasar por otra cuenta.
 
 ### Respuestas esperadas
 
@@ -108,14 +110,15 @@ erDiagram
   REPORTE ||--o{ ADJUNTO : contiene
   REPORTE ||--o{ COMENTARIO : recibe
   USUARIO ||--o{ COMENTARIO : escribe
+  REPORTE ||--o| RECOMENDACION : tiene
 ```
 
-La relación de `REPORTE` con `CATEGORIA` y `UBICACION` evita guardar texto libre repetido. `ADJUNTO` y `COMENTARIO` están modelados para la ampliación del seguimiento.
+La relación de `REPORTE` con `CATEGORIA` y `UBICACION` evita guardar texto libre repetido. `ADJUNTO`, `COMENTARIO` y `RECOMENDACION` tienen CRUD en la API. Una incidencia puede tener varios adjuntos y comentarios, y como máximo una recomendación de mantenimiento.
 
 ## 8. Arquitectura
 
 ```text
-Angular 22 (frontend)
+Cliente HTTP o Swagger
         │ HTTP + Bearer token
         ▼
 Spring Boot 4 / Spring Security / Spring Data JPA
@@ -132,15 +135,16 @@ PostgreSQL (base fixcampus)
 - `repositories`: acceso a PostgreSQL mediante JPA.
 - `entities`: entidades persistentes.
 - `dtos`: contratos de entrada y salida.
-- `config`: seguridad, CORS y datos iniciales.
+- `config`: configuración de ModelMapper.
+- `securities`: BCrypt, JWT, reglas de acceso y configuración de Swagger.
 
 ### Decisiones técnicas
 
-1. El frontend obtiene catálogos por API para que los cambios del administrador no requieran recompilarlo.
-2. El backend valida rol y token; ocultar un botón en Angular no se considera seguridad.
-3. `DataInitializer` agrega categorías y ubicaciones faltantes sin duplicarlas cuando la aplicación reinicia.
+1. El cliente obtiene catálogos por API para que los cambios del administrador estén disponibles sin modificar el backend.
+2. El backend valida el rol y el token; ocultar una opción del cliente no se considera seguridad.
+3. El arranque no crea datos de prueba. Roles y primera cuenta administradora se preparan manualmente en una base nueva; después los catálogos se gestionan por sus CRUD.
 4. La base local usa PostgreSQL en el puerto `5433`; las pruebas automáticas usan H2 aislado.
-5. Swagger sirve para revisar contratos y probar operaciones administrativas sin inventar una pantalla que todavía no existe.
+5. Swagger sirve para revisar contratos y probar operaciones administrativas sin inventar una capacidad que todavía no existe.
 
 ## 9. Requisitos no funcionales
 
@@ -148,8 +152,8 @@ PostgreSQL (base fixcampus)
 |---|---|---|
 | RNF-01 | La contraseña no aparece en logs ni respuestas. | Revisión de DTO y prueba de registro. |
 | RNF-02 | Las operaciones privadas requieren autenticación. | Petición sin token debe devolver `401`. |
-| RNF-03 | Un error de red debe liberar el botón del formulario. | Desconectar API y repetir envío. |
-| RNF-04 | El formulario debe poder usarse con teclado. | Navegación con Tab y etiquetas visibles. |
+| RNF-03 | La API debe responder errores con un mensaje claro. | Repetir una petición con datos inválidos. |
+| RNF-04 | Los endpoints deben estar documentados y ser comprobables. | Revisar Swagger y ejecutar una petición. |
 | RNF-05 | El backend debe responder errores con un código claro. | Pruebas `400`, `401`, `403` y `404`. |
 | RNF-06 | La aplicación debe poder levantar en otra máquina con variables de entorno. | Cambiar `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` y `PORT`. |
 

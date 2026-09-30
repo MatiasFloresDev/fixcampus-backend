@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
+import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -42,12 +43,7 @@ public class CategoriaController {
         } else {
             categorias = service.listar();
         }
-        List<CategoriaDTOList> lista = categorias
-                .stream()
-                .map(categoria -> modelMapper.map(categoria, CategoriaDTOList.class))
-                .toList();
-
-        return ResponseEntity.ok(lista);
+        return ResponseEntity.ok(convertirLista(categorias));
     }
 
     @GetMapping("/buscar-descripcion")
@@ -55,10 +51,7 @@ public class CategoriaController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
             @Parameter(description = "Palabra clave de la descripción") @RequestParam String palabraClave) {
-        List<CategoriaDTOList> lista = service.buscarPorDescripcion(palabraClave).stream()
-                .map(categoria -> modelMapper.map(categoria, CategoriaDTOList.class))
-                .toList();
-        return ResponseEntity.ok(lista);
+        return ResponseEntity.ok(convertirLista(service.buscarPorDescripcion(palabraClave)));
     }
 
     @GetMapping("/{id}")
@@ -106,5 +99,13 @@ public class CategoriaController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private List<CategoriaDTOList> convertirLista(List<Categoria> categorias) {
+        List<CategoriaDTOList> lista = new ArrayList<>();
+        for (Categoria categoria : categorias) {
+            lista.add(modelMapper.map(categoria, CategoriaDTOList.class));
+        }
+        return lista;
     }
 }

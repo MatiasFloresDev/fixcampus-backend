@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 
 import java.util.List;
@@ -14,11 +13,13 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
     // Consulta 6: lista los comentarios de un reporte concreto mediante su relación.
     List<Comentario> findByReporte_IdReporte(Long idReporte);
 
-    // Consulta 12, con JOIN: cuenta los comentarios de un usuario en cada reporte.
-    @Query("select new pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO(" +
-            "r.idReporte, r.titulo, count(c)) " +
-            "from Comentario c join c.reporte r join c.usuario u " +
-            "where lower(u.correo) = lower(:correo) " +
-            "group by r.idReporte, r.titulo order by count(c) desc")
-    List<ComentariosPorReporteDTO> contarPorReporteYCorreo(@Param("correo") String correo);
+    // Consulta 14: JOIN con reporte y usuario; filtra correo y cuenta comentarios de cada incidencia.
+    @Query(value = """
+            SELECT r.id_reporte, r.titulo, COUNT(*)
+            FROM comentario c INNER JOIN reporte r ON c.id_reporte = r.id_reporte
+            INNER JOIN usuario u ON c.id_usuario = u.id_usuario
+            WHERE LOWER(u.correo) = LOWER(:correo)
+            GROUP BY r.id_reporte, r.titulo ORDER BY COUNT(*) DESC
+            """, nativeQuery = true)
+    List<Object[]> contarPorReporteYCorreo(@Param("correo") String correo);
 }
