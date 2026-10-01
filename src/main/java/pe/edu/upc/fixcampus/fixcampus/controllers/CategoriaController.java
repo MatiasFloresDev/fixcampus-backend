@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaConReportesDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
@@ -46,14 +47,6 @@ public class CategoriaController {
         return ResponseEntity.ok(convertirLista(categorias));
     }
 
-    @GetMapping("/buscar-descripcion")
-    @Operation(summary = "Buscar categorías por descripción", description = "Busca una palabra dentro de la descripción de las categorías.")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
-            @Parameter(description = "Palabra clave de la descripción") @RequestParam String palabraClave) {
-        return ResponseEntity.ok(convertirLista(service.buscarPorDescripcion(palabraClave)));
-    }
-
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<CategoriaDTOList> buscarPorId(@PathVariable Long id) {
@@ -79,6 +72,27 @@ public class CategoriaController {
                 .toUri();
 
         return ResponseEntity.created(location).body(response);
+    }
+    @GetMapping("/buscar-descripcion")
+    @Operation(summary = "Buscar por descripción", description = "Busca categorías que contengan una palabra clave en su descripción.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
+            @Parameter(description = "Palabra clave a buscar en la descripción") @RequestParam String palabraClave) {
+
+        List<Categoria> categorias = service.buscarPorDescripcion(palabraClave);
+        List<CategoriaDTOList> lista = convertirLista(categorias);
+
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/reporte-por-categoria")
+    @Operation(
+        summary = "Reportes por categoría",
+        description = "Consulta 20: LEFT JOIN y COUNT. Cuenta todos los reportes por categoría e incluye las que tienen cero. No filtra por fechas. Solo administradores."
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CategoriaConReportesDTO>> contarReportesPorCategoria() {
+        return ResponseEntity.ok(service.contarReportesPorCategoria());
     }
 
     @PutMapping("/{id}")
