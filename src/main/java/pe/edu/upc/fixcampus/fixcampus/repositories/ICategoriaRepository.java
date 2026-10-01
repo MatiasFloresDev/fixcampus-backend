@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
+public interface ICategoriaRepository extends JpaRepository<Categoria, Long> {
     // Consulta 1: busca categorías por parte del nombre, sin distinguir mayúsculas.
     List<Categoria> findByNombreContainingIgnoreCase(String nombre);
 

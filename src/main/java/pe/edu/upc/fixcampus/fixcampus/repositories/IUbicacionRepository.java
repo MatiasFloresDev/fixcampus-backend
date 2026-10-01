@@ -7,7 +7,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import java.util.List;
 
 @Repository
-public interface UbicacionRepository extends JpaRepository<Ubicacion, Long> {
+public interface IUbicacionRepository extends JpaRepository<Ubicacion, Long> {
     // Consulta 3: encuentra ubicaciones de un campus, aunque se escriba solo una parte.
     List<Ubicacion> findByCampusContainingIgnoreCase(String campus);
 }

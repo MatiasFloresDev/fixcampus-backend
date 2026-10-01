@@ -1,7 +1,7 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UsuarioService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioServiceImpl implements UsuarioService {
-    private final UsuarioRepository repository;
-    private final RolRepository rolRepository;
+public class UsuarioServiceImplement implements IUsuarioService {
+    private final IUsuarioRepository repository;
+    private final IRolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImpl(UsuarioRepository repository, RolRepository rolRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioServiceImplement(IUsuarioRepository repository, IRolRepository rolRepository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.rolRepository = rolRepository;
         this.passwordEncoder = passwordEncoder;

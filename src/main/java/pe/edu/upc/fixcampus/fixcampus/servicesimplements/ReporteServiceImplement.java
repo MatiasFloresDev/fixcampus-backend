@@ -1,4 +1,4 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import java.time.LocalDate;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
@@ -14,14 +14,14 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
-import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.AdjuntoRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ComentarioRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.RecomendacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UbicacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ReporteRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IAdjuntoRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IComentarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRecomendacionRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 
 import java.time.LocalDateTime;
 import java.nio.file.Files;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
-public class ReporteServiceImpl implements ReporteService {
+public class ReporteServiceImplement implements IReporteService {
     @Override
     public List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
             LocalDate desde, LocalDate hasta) {
@@ -47,24 +47,24 @@ public class ReporteServiceImpl implements ReporteService {
         return lista;
     }
 
-    private final ReporteRepository reporteRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final CategoriaRepository categoriaRepository;
-    private final UbicacionRepository ubicacionRepository;
-    private final AdjuntoRepository adjuntoRepository;
-    private final ComentarioRepository comentarioRepository;
-    private final RecomendacionRepository recomendacionRepository;
+    private final IReporteRepository reporteRepository;
+    private final IUsuarioRepository usuarioRepository;
+    private final ICategoriaRepository categoriaRepository;
+    private final IUbicacionRepository ubicacionRepository;
+    private final IAdjuntoRepository adjuntoRepository;
+    private final IComentarioRepository comentarioRepository;
+    private final IRecomendacionRepository recomendacionRepository;
 
     @Value("${app.upload-dir:uploads}")
     private String uploadDir;
 
-    public ReporteServiceImpl(ReporteRepository reporteRepository,
-                             UsuarioRepository usuarioRepository,
-                             CategoriaRepository categoriaRepository,
-                             UbicacionRepository ubicacionRepository,
-                             AdjuntoRepository adjuntoRepository,
-                             ComentarioRepository comentarioRepository,
-                             RecomendacionRepository recomendacionRepository) {
+    public ReporteServiceImplement(IReporteRepository reporteRepository,
+                                   IUsuarioRepository usuarioRepository,
+                                   ICategoriaRepository categoriaRepository,
+                                   IUbicacionRepository ubicacionRepository,
+                                   IAdjuntoRepository adjuntoRepository,
+                                   IComentarioRepository comentarioRepository,
+                                   IRecomendacionRepository recomendacionRepository) {
         this.reporteRepository = reporteRepository;
         this.usuarioRepository = usuarioRepository;
         this.categoriaRepository = categoriaRepository;

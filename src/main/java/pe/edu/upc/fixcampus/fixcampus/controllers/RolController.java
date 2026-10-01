@@ -7,16 +7,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.RolService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {
-    private final RolService service;
+    private final IRolService service;
 
-    public RolController(RolService service) { this.service = service; }
+    public RolController(IRolService service) { this.service = service; }
 
     @GetMapping
     @Operation(summary = "Listar roles", description = "Si se indica nombre, busca roles que contengan ese texto, sin distinguir mayúsculas.")

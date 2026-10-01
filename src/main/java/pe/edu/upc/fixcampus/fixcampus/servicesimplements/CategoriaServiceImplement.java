@@ -1,16 +1,16 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
-import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.CategoriaService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ICategoriaService;
 
 import java.util.List;
 import java.util.Optional;
 @Service
-public class CategoriaServiceImpl implements CategoriaService {
-    private final CategoriaRepository repository;
-    public CategoriaServiceImpl(CategoriaRepository repository) {
+public class CategoriaServiceImplement implements ICategoriaService {
+    private final ICategoriaRepository repository;
+    public CategoriaServiceImplement(ICategoriaRepository repository) {
 
         this.repository = repository;
     }

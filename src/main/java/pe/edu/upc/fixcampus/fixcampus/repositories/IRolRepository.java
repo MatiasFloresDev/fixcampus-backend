@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RolRepository extends JpaRepository<Rol, Long> {
+public interface IRolRepository extends JpaRepository<Rol, Long> {
     Optional<Rol> findByNombre(String nombre);
     // Consulta 2: filtra roles por parte de su nombre.
     List<Rol> findByNombreContainingIgnoreCase(String nombre);

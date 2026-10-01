@@ -1,7 +1,7 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.RolService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RolServiceImpl implements RolService {
-    private final RolRepository repository;
+public class RolServiceImplement implements IRolService {
+    private final IRolRepository repository;
 
-    public RolServiceImpl(RolRepository repository) { this.repository = repository; }
+    public RolServiceImplement(IRolRepository repository) { this.repository = repository; }
 
     public List<Rol> listar() { return repository.findAll(); }
 

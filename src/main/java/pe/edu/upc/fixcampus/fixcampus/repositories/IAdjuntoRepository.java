@@ -9,7 +9,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
 import java.util.List;
 
 @Repository
-public interface AdjuntoRepository extends JpaRepository<Adjunto, Long> {
+public interface IAdjuntoRepository extends JpaRepository<Adjunto, Long> {
     // Consulta 19: JOIN con usuario y LEFT JOIN con adjunto; cuenta las evidencias del correo indicado.
     // LEFT JOIN incluye sus incidencias sin adjuntos; COUNT(id_adjunto) no cuenta los valores nulos.
     @Query(value = """

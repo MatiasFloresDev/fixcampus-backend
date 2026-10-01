@@ -3,15 +3,15 @@ package pe.edu.upc.fixcampus.fixcampus;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.repositories.RolRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UsuarioService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 
 import java.util.Optional;
 
 // Datos exclusivos de las pruebas en H2. La aplicación no ejecuta esta clase.
 class PreparacionPruebas {
 
-    static void crearCuentas(RolRepository roles, UsuarioService usuarios) {
+    static void crearCuentas(IRolRepository roles, IUsuarioService usuarios) {
         String[] nombres = {"ADMIN", "USUARIO"};
         String[] correos = {"admin@fixcampus.com", "usuario@fixcampus.com"};
         String[] claves = {"admin123", "usuario123"};

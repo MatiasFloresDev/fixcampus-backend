@@ -10,7 +10,7 @@ import java.util.List;
 import java.time.LocalDateTime;
 
 @Repository
-public interface ReporteRepository extends JpaRepository<Reporte, Long> {
+public interface IReporteRepository extends JpaRepository<Reporte, Long> {
 
     // Consulta 7: filtra incidencias por estado (ABIERTO, RESUELTO, etc.).
     List<Reporte> findByEstadoIgnoreCase(String estado);

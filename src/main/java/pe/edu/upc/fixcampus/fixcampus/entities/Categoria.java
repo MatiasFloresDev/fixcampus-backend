@@ -1,31 +1,52 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
+
 import jakarta.persistence.*;
+
 @Entity
-@Table(name="categoria")
+@Table(name = "categoria")
 public class Categoria {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
     private Long idCategoria;
-    @Column(nullable = false, unique = true, length = 100)
+
+    @Column(name = "nombre", nullable = false, unique = true, length = 100)
     private String nombre;
 
-    @Column(length = 255)
+    @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    public Categoria(){
-
+    public Categoria() {
     }
 
-    public Long getIdCategoria() { return idCategoria; }
+    public Categoria(Long idCategoria, String nombre, String descripcion) {
+        this.idCategoria = idCategoria;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+    }
 
-    public void setIdCategoria(Long idCategoria) { this.idCategoria = idCategoria; }
+    public Long getIdCategoria() {
+        return idCategoria;
+    }
 
-    public String getNombre() { return nombre; }
+    public void setIdCategoria(Long idCategoria) {
+        this.idCategoria = idCategoria;
+    }
 
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public String getDescripcion() { return descripcion; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 }

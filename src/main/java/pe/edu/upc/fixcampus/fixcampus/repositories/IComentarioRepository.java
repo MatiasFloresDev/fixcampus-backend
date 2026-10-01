@@ -9,7 +9,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 import java.util.List;
 
 @Repository
-public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
+public interface IComentarioRepository extends JpaRepository<Comentario, Long> {
     // Consulta 6: lista los comentarios de un reporte concreto mediante su relación.
     List<Comentario> findByReporte_IdReporte(Long idReporte);
 

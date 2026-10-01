@@ -9,7 +9,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 
 import java.util.List;
 
-public interface ReporteService {
+public interface IReporteService {
     List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
             LocalDate desde, LocalDate hasta);
 

@@ -20,8 +20,8 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 
 import java.net.URI;
 import java.util.List;
@@ -39,10 +39,10 @@ public class ReporteController {
         return service.contarPorCategoriaEntreFechas(desde, hasta);
     }
 
-    private final ReporteService service;
-    private final UsuarioRepository usuarioRepository;
+    private final IReporteService service;
+    private final IUsuarioRepository usuarioRepository;
 
-    public ReporteController(ReporteService service, UsuarioRepository usuarioRepository) {
+    public ReporteController(IReporteService service, IUsuarioRepository usuarioRepository) {
         this.service = service;
         this.usuarioRepository = usuarioRepository;
     }

@@ -14,14 +14,14 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UsuarioService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 import java.util.List;
 
 @RestController
 public class UsuarioController {
-    private final UsuarioService service;
+    private final IUsuarioService service;
 
-    public UsuarioController(UsuarioService service) { this.service = service; }
+    public UsuarioController(IUsuarioService service) { this.service = service; }
 
     @GetMapping("/api/users")
     @PreAuthorize("hasRole('ADMIN')")

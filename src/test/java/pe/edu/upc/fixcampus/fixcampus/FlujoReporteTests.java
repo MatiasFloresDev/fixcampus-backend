@@ -4,19 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import pe.edu.upc.fixcampus.fixcampus.repositories.RolRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UsuarioService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ReporteRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
-import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UbicacionRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FlujoReporteTests {
 
     @Autowired
-    private RolRepository rolesDePrueba;
+    private IRolRepository rolesDePrueba;
 
     @Autowired
-    private UsuarioService usuariosDePrueba;
+    private IUsuarioService usuariosDePrueba;
 
     @BeforeEach
     void prepararCuentas() {
@@ -50,14 +50,14 @@ class FlujoReporteTests {
     private Long categoriaCreada;
     private Long ubicacionCreada;
 
-    @Autowired private CategoriaRepository categoriaRepository;
-    @Autowired private UbicacionRepository ubicacionRepository;
+    @Autowired private ICategoriaRepository categoriaRepository;
+    @Autowired private IUbicacionRepository ubicacionRepository;
 
     @Autowired
-    private ReporteRepository reporteRepository;
+    private IReporteRepository reporteRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private IUsuarioRepository usuarioRepository;
 
     @AfterEach
     void limpiarDatosDePrueba() {

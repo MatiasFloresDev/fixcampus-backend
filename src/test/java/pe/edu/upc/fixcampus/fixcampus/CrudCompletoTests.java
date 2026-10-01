@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import pe.edu.upc.fixcampus.fixcampus.repositories.RolRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UsuarioService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CrudCompletoTests {
 
     @Autowired
-    private RolRepository rolesDePrueba;
+    private IRolRepository rolesDePrueba;
 
     @Autowired
-    private UsuarioService usuariosDePrueba;
+    private IUsuarioService usuariosDePrueba;
 
     @BeforeEach
     void prepararCuentas() {

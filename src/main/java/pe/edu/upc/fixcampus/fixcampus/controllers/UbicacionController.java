@@ -7,16 +7,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UbicacionService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/locations")
 public class UbicacionController {
-    private final UbicacionService service;
+    private final IUbicacionService service;
 
-    public UbicacionController(UbicacionService service) { this.service = service; }
+    public UbicacionController(IUbicacionService service) { this.service = service; }
 
     @GetMapping
     @Operation(summary = "Listar ubicaciones", description = "Si se indica campus, busca ubicaciones cuyo campus contenga ese texto, sin distinguir mayúsculas.")

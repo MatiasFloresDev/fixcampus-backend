@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.edu.upc.fixcampus.fixcampus.dtos.LoginRequestDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.LoginResponseDTO;
 import pe.edu.upc.fixcampus.fixcampus.securities.JwtTokenService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 
 import java.util.Optional;
@@ -28,11 +28,11 @@ public class LoginController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
-    private final UsuarioRepository usuarioRepository;
+    private final IUsuarioRepository usuarioRepository;
 
     public LoginController(AuthenticationManager authenticationManager,
                            JwtTokenService jwtTokenService,
-                           UsuarioRepository usuarioRepository) {
+                           IUsuarioRepository usuarioRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
         this.usuarioRepository = usuarioRepository;

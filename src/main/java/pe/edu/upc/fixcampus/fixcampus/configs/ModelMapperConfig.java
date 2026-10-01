@@ -1,4 +1,4 @@
-package pe.edu.upc.fixcampus.fixcampus.config;
+package pe.edu.upc.fixcampus.fixcampus.configs;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

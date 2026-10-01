@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface RecomendacionRepository extends JpaRepository<Recomendacion, Long> {
+public interface IRecomendacionRepository extends JpaRepository<Recomendacion, Long> {
     boolean existsByReporte_IdReporte(Long idReporte);
     List<Recomendacion> findByReporte_IdReporte(Long idReporte);
     

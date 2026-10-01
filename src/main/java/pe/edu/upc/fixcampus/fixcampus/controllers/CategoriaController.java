@@ -12,7 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.CategoriaService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ICategoriaService;
 
 import java.net.URI;
 import java.util.List;
@@ -21,10 +21,10 @@ import java.util.List;
 @RequestMapping("/api/categories")
 public class CategoriaController {
 
-    private final CategoriaService service;
+    private final ICategoriaService service;
     private final ModelMapper modelMapper;
 
-    public CategoriaController(CategoriaService service, ModelMapper modelMapper) {
+    public CategoriaController(ICategoriaService service, ModelMapper modelMapper) {
         this.service = service;
         this.modelMapper = modelMapper;
     }
