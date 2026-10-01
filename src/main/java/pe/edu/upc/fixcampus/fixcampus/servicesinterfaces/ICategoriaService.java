@@ -4,7 +4,7 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaConReportesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import java.util.List;
 
-public interface CategoriaService {
+public interface ICategoriaService {
 
     List<Categoria> listar();
 

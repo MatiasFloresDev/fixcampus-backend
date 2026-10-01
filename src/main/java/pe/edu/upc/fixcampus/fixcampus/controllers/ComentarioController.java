@@ -12,16 +12,16 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ComentarioService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
 @PreAuthorize("hasRole('ADMIN')")
 public class ComentarioController {
-    private final ComentarioService service;
+    private final IComentarioService service;
 
-    public ComentarioController(ComentarioService service) { this.service = service; }
+    public ComentarioController(IComentarioService service) { this.service = service; }
 
     @GetMapping
     @Operation(summary = "Listar comentarios", description = "Si se indica reporteId, muestra solo los comentarios de ese reporte. Solo para administradores.")

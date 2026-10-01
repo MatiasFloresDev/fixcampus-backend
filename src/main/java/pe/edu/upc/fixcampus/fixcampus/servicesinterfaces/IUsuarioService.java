@@ -5,7 +5,7 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import java.util.List;
 
-public interface UsuarioService {
+public interface IUsuarioService {
     List<Usuario> listar();
     List<Usuario> buscarPorEstado(String estado);
     long contarRegistrados();

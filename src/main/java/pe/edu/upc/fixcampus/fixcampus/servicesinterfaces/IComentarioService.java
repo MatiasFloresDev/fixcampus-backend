@@ -5,7 +5,7 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTO;
 import java.util.List;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 
-public interface ComentarioService {
+public interface IComentarioService {
     List<Comentario> listar();
     List<Comentario> buscarPorReporte(Long reporteId);
     List<ComentariosPorReporteDTO> contarPorReporteYCorreo(String correo);

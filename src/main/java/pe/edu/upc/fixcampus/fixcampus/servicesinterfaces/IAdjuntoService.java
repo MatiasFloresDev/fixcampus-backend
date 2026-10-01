@@ -6,7 +6,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTO;
 import java.util.List;
 
-public interface AdjuntoService {
+public interface IAdjuntoService {
     List<EvidenciasPorUsuarioDTO> contarEvidenciasPorUsuario(String correo);
     List<Adjunto> listar();
     List<Adjunto> buscarPorTipo(String tipo);

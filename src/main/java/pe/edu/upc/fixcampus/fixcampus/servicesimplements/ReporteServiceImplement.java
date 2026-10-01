@@ -1,4 +1,4 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import java.time.LocalDate;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
@@ -11,11 +11,11 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
-import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UbicacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ReporteRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
+import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
-public class ReporteServiceImpl implements ReporteService {
+public class ReporteServiceImplement implements IReporteService {
     @Override
     public List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
             LocalDate desde, LocalDate hasta) {
@@ -38,16 +38,16 @@ public class ReporteServiceImpl implements ReporteService {
         return lista;
     }
 
-    private final ReporteRepository reporteRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final CategoriaRepository categoriaRepository;
-    private final UbicacionRepository ubicacionRepository;
+    private final IReporteRepository reporteRepository;
+    private final IUsuarioRepository usuarioRepository;
+    private final ICategoriaRepository categoriaRepository;
+    private final IUbicacionRepository ubicacionRepository;
 
 
-    public ReporteServiceImpl(ReporteRepository reporteRepository,
-                             UsuarioRepository usuarioRepository,
-                             CategoriaRepository categoriaRepository,
-                             UbicacionRepository ubicacionRepository) {
+    public ReporteServiceImplement(IReporteRepository reporteRepository,
+                             IUsuarioRepository usuarioRepository,
+                             ICategoriaRepository categoriaRepository,
+                             IUbicacionRepository ubicacionRepository) {
         this.reporteRepository = reporteRepository;
         this.usuarioRepository = usuarioRepository;
         this.categoriaRepository = categoriaRepository;

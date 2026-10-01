@@ -1,7 +1,7 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.UbicacionService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UbicacionServiceImpl implements UbicacionService {
-    private final UbicacionRepository repository;
+public class UbicacionServiceImplement implements IUbicacionService {
+    private final IUbicacionRepository repository;
 
-    public UbicacionServiceImpl(UbicacionRepository repository) { this.repository = repository; }
+    public UbicacionServiceImplement(IUbicacionRepository repository) { this.repository = repository; }
 
     public List<Ubicacion> listar() { return repository.findAll(); }
 

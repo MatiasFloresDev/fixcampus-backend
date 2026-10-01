@@ -4,7 +4,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
 import java.util.List;
 
-public interface RecomendacionService {
+public interface IRecomendacionService {
     List<Recomendacion> listar();
     List<Recomendacion> buscarPorPrioridad(String prioridad);
     List<Recomendacion> buscarPorCategoria(String nombre);

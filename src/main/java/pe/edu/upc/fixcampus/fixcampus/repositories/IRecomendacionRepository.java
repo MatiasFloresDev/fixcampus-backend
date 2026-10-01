@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface RecomendacionRepository extends JpaRepository<Recomendacion, Long> {
+public interface IRecomendacionRepository extends JpaRepository<Recomendacion, Long> {
     boolean existsByReporte_IdReporte(Long idReporte);
     // Consulta 21: busca la única recomendación de mantenimiento del reporte indicado.
     Optional<Recomendacion> findByReporte_IdReporte(Long idReporte);

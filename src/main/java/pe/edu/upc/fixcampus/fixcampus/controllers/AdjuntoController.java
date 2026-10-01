@@ -15,7 +15,7 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.AdjuntoService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IAdjuntoService;
 import java.util.List;
 
 @RestController
@@ -27,8 +27,8 @@ public class AdjuntoController {
     public List<EvidenciasPorUsuarioDTO> evidenciasPorUsuario(@RequestParam String correo) {
         return service.contarEvidenciasPorUsuario(correo);
     }
-    private final AdjuntoService service;
-    public AdjuntoController(AdjuntoService service) { this.service = service; }
+    private final IAdjuntoService service;
+    public AdjuntoController(IAdjuntoService service) { this.service = service; }
 
     @GetMapping("/reporte/{reporteId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")

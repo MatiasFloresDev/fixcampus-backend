@@ -1,4 +1,4 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +16,9 @@ import java.util.Optional;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-    private final UsuarioRepository usuarioRepository;
+    private final IUsuarioRepository usuarioRepository;
 
-    public JwtUserDetailsService(UsuarioRepository usuarioRepository) {
+    public JwtUserDetailsService(IUsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
 

@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
 
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.RecomendacionService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/recomendaciones")
 @PreAuthorize("hasRole('ADMIN')")
 public class RecomendacionController {
-    private final RecomendacionService service;
+    private final IRecomendacionService service;
 
-    public RecomendacionController(RecomendacionService service) { this.service = service; }
+    public RecomendacionController(IRecomendacionService service) { this.service = service; }
 
     @GetMapping
     @Operation(summary = "Listar recomendaciones", description = "Devuelve todas las recomendaciones de mantenimiento sin pedir parámetros.")

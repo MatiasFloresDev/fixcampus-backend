@@ -133,7 +133,7 @@ PostgreSQL (base fixcampus)
 
 - `controllers`: rutas HTTP y códigos de respuesta.
 - `servicesinterfaces`: contratos de negocio.
-- `servicesimpl`: reglas, asociaciones y consultas.
+- `servicesimplements`: reglas, asociaciones y consultas.
 - `repositories`: acceso a PostgreSQL mediante JPA.
 - `entities`: entidades persistentes.
 - `dtos`: contratos de entrada y salida.

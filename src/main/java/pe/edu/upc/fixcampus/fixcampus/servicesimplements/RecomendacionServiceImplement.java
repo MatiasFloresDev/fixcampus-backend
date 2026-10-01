@@ -1,8 +1,8 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.RecomendacionService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RecomendacionServiceImpl implements RecomendacionService {
-    private final RecomendacionRepository repository;
-    private final ReporteRepository reporteRepository;
+public class RecomendacionServiceImplement implements IRecomendacionService {
+    private final IRecomendacionRepository repository;
+    private final IReporteRepository reporteRepository;
 
-    public RecomendacionServiceImpl(RecomendacionRepository repository, ReporteRepository reporteRepository) {
+    public RecomendacionServiceImplement(IRecomendacionRepository repository, IReporteRepository reporteRepository) {
         this.repository = repository;
         this.reporteRepository = reporteRepository;
     }

@@ -1,9 +1,9 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ComentarioService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
@@ -15,12 +15,12 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import java.util.ArrayList;
 
 @Service
-public class ComentarioServiceImpl implements ComentarioService {
-    private final ComentarioRepository repository;
-    private final ReporteRepository reporteRepository;
-    private final UsuarioRepository usuarioRepository;
+public class ComentarioServiceImplement implements IComentarioService {
+    private final IComentarioRepository repository;
+    private final IReporteRepository reporteRepository;
+    private final IUsuarioRepository usuarioRepository;
 
-    public ComentarioServiceImpl(ComentarioRepository repository, ReporteRepository reporteRepository, UsuarioRepository usuarioRepository) {
+    public ComentarioServiceImplement(IComentarioRepository repository, IReporteRepository reporteRepository, IUsuarioRepository usuarioRepository) {
         this.repository = repository;
         this.reporteRepository = reporteRepository;
         this.usuarioRepository = usuarioRepository;

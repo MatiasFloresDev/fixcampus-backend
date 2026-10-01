@@ -15,7 +15,7 @@ public class Rol {
 
     @NotBlank
     @Size(max = 50)
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "nombre", nullable = false, unique = true, length = 50)
     private String nombre;
 
     @NotBlank
@@ -24,30 +24,48 @@ public class Rol {
     private String nivelAcceso;
 
     @Size(max = 255)
-    @Column(length = 255)
+    @Column(name = "descripcion", length = 255)
     private String descripcion;
 
     public Rol() {
     }
 
+    public Rol(Long idRol, String nombre, String nivelAcceso, String descripcion) {
+        this.idRol = idRol;
+        this.nombre = nombre;
+        this.nivelAcceso = nivelAcceso;
+        this.descripcion = descripcion;
+    }
+
     public Long getIdRol() {
         return idRol;
     }
+
     public void setIdRol(Long idRol) {
         this.idRol = idRol;
     }
+
     public String getNombre() {
         return nombre;
     }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
     public String getNivelAcceso() {
         return nivelAcceso;
     }
+
     public void setNivelAcceso(String nivelAcceso) {
         this.nivelAcceso = nivelAcceso;
     }
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 }

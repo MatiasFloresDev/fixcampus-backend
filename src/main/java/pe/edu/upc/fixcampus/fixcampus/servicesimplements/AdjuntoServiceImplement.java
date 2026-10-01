@@ -1,9 +1,9 @@
-package pe.edu.upc.fixcampus.fixcampus.servicesimpl;
+package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import java.util.ArrayList;
 import pe.edu.upc.fixcampus.fixcampus.dtos.EvidenciasPorUsuarioDTO;
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.AdjuntoService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IAdjuntoService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AdjuntoServiceImpl implements AdjuntoService {
+public class AdjuntoServiceImplement implements IAdjuntoService {
     public List<EvidenciasPorUsuarioDTO> contarEvidenciasPorUsuario(String correo) {
         if (correo.isBlank()) {
             throw new IllegalArgumentException("El correo es obligatorio");
@@ -27,10 +27,10 @@ public class AdjuntoServiceImpl implements AdjuntoService {
         }
         return lista;
     }
-    private final AdjuntoRepository repository;
-    private final ReporteRepository reporteRepository;
+    private final IAdjuntoRepository repository;
+    private final IReporteRepository reporteRepository;
 
-    public AdjuntoServiceImpl(AdjuntoRepository repository, ReporteRepository reporteRepository) {
+    public AdjuntoServiceImplement(IAdjuntoRepository repository, IReporteRepository reporteRepository) {
         this.repository = repository;
         this.reporteRepository = reporteRepository;
     }

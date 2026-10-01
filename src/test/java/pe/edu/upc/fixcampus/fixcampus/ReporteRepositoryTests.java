@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ReporteService;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ComentarioService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
@@ -15,12 +15,12 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
-import pe.edu.upc.fixcampus.fixcampus.repositories.CategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ComentarioRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UbicacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ReporteRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.RolRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.UsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IComentarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,26 +31,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class ReporteRepositoryTests {
 
-    @Autowired private ReporteService reportService;
-    @Autowired private ComentarioService commentService;
+    @Autowired private IReporteService reportService;
+    @Autowired private IComentarioService commentService;
 
     @Autowired
-    private RolRepository roleRepository;
+    private IRolRepository roleRepository;
 
     @Autowired
-    private UsuarioRepository userRepository;
+    private IUsuarioRepository userRepository;
 
     @Autowired
-    private CategoriaRepository categoryRepository;
+    private ICategoriaRepository categoryRepository;
 
     @Autowired
-    private UbicacionRepository locationRepository;
+    private IUbicacionRepository locationRepository;
 
     @Autowired
-    private ReporteRepository reportRepository;
+    private IReporteRepository reportRepository;
 
     @Autowired
-    private ComentarioRepository commentRepository;
+    private IComentarioRepository commentRepository;
 
     @Test
     void debeBuscarReportePorEstadoYConJoinDeCategoria() {

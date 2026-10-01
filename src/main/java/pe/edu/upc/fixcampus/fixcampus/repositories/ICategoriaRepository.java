@@ -8,7 +8,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import java.util.List;
 
 @Repository
-public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
+public interface ICategoriaRepository extends JpaRepository<Categoria, Long> {
 
     // Consulta 1: busca categorías por parte del nombre.
     List<Categoria> findByNombreContainingIgnoreCase(String nombre);

@@ -3,7 +3,7 @@ package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import java.util.List;
 
-public interface UbicacionService {
+public interface IUbicacionService {
     List<Ubicacion> listar();
     List<Ubicacion> buscarPorCampus(String campus);
     Ubicacion buscarPorId(Long id);
