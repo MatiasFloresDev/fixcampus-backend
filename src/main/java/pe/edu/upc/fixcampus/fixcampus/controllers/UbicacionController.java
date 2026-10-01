@@ -1,51 +1,132 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/locations")
 public class UbicacionController {
-    private final IUbicacionService service;
 
-    public UbicacionController(IUbicacionService service) { this.service = service; }
+    private final IUbicacionService ubicacionService;
+    private final ModelMapper modelMapper;
+
+    public UbicacionController(
+            IUbicacionService ubicacionService,
+            ModelMapper modelMapper) {
+        this.ubicacionService = ubicacionService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
-    @Operation(summary = "Listar ubicaciones", description = "Si se indica campus, busca ubicaciones cuyo campus contenga ese texto, sin distinguir mayúsculas.")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public List<Ubicacion> listar(@Parameter(description = "Parte del nombre del campus") @RequestParam(required = false) String campus) {
-        return campus == null || campus.isBlank() ? service.listar()
-                : service.buscarPorCampus(campus);
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    public ResponseEntity<List<UbicacionDTOList>> listar(
+            @RequestParam(required = false) String campus) {
+
+        List<Ubicacion> ubicaciones;
+
+        if (campus != null && !campus.isBlank()) {
+            ubicaciones = ubicacionService.buscarPorCampus(campus);
+        } else {
+            ubicaciones = ubicacionService.listar();
+        }
+
+        List<UbicacionDTOList> lista = ubicaciones
+                .stream()
+                .map(ubicacion ->
+                        modelMapper.map(
+                                ubicacion,
+                                UbicacionDTOList.class
+                        )
+                )
+                .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public Ubicacion buscar(@PathVariable Long id) { return service.buscarPorId(id); }
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    public ResponseEntity<UbicacionDTOList> buscarPorId(
+            @PathVariable Long id) {
+
+        Ubicacion ubicacion =
+                ubicacionService.buscarPorId(id);
+
+        UbicacionDTOList response =
+                modelMapper.map(
+                        ubicacion,
+                        UbicacionDTOList.class
+                );
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Ubicacion> crear(@Valid @RequestBody Ubicacion datos) {
-        return ResponseEntity.status(201).body(service.registrar(datos));
+    public ResponseEntity<UbicacionDTOList> registrar(
+            @Valid @RequestBody UbicacionDTOInsert dto) {
+
+        Ubicacion ubicacion =
+                modelMapper.map(dto, Ubicacion.class);
+
+        Ubicacion guardada =
+                ubicacionService.registrar(ubicacion);
+
+        UbicacionDTOList response =
+                modelMapper.map(
+                        guardada,
+                        UbicacionDTOList.class
+                );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(guardada.getIdUbicacion())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Ubicacion actualizar(@PathVariable Long id, @Valid @RequestBody Ubicacion datos) {
-        return service.actualizar(id, datos);
+    public ResponseEntity<UbicacionDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UbicacionDTOInsert dto) {
+
+        Ubicacion ubicacion =
+                modelMapper.map(dto, Ubicacion.class);
+
+        Ubicacion actualizada =
+                ubicacionService.actualizar(id, ubicacion);
+
+        UbicacionDTOList response =
+                modelMapper.map(
+                        actualizada,
+                        UbicacionDTOList.class
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        ubicacionService.eliminar(id);
+
         return ResponseEntity.noContent().build();
     }
 }

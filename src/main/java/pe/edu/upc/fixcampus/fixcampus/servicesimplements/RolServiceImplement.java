@@ -28,6 +28,13 @@ public class RolServiceImplement implements IRolService {
     }
 
     @Override
+    public Rol buscarPorNombreExacto(String nombre) {
+        return rolRepository.findByNombre(nombre)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Rol no encontrado"));
+    }
+    @Override
     public Rol buscarPorId(Long id) {
         return rolRepository.findById(id)
                 .orElseThrow(() ->

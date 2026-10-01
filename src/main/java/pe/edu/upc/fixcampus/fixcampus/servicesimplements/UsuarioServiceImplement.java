@@ -42,6 +42,14 @@ public class UsuarioServiceImplement implements IUsuarioService {
     }
 
     @Override
+    public Usuario buscarPorCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario no encontrado"));
+    }
+
+    @Override
     public Usuario registrar(Usuario datos) {
 
         if (usuarioRepository.existsByCorreo(datos.getCorreo())) {

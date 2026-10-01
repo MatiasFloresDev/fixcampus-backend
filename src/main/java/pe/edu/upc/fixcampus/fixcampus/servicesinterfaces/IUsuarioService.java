@@ -14,6 +14,8 @@ public interface IUsuarioService {
 
     Usuario buscarPorId(Long id);
 
+    Usuario buscarPorCorreo(String correo);
+
     Usuario registrar(Usuario datos);
 
     Usuario actualizar(Long id, Usuario datos);
