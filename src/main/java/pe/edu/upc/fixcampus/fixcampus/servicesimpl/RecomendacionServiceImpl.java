@@ -53,6 +53,14 @@ public class RecomendacionServiceImpl implements RecomendacionService {
         return encontrado.get();
     }
 
+    public Recomendacion buscarPorReporte(Long reporteId) {
+        Optional<Recomendacion> encontrado = repository.findByReporte_IdReporte(reporteId);
+        if (encontrado.isEmpty()) {
+            throw new ResourceNotFoundException("Este reporte no tiene una recomendación registrada");
+        }
+        return encontrado.get();
+    }
+
     private void copiarDatos(Recomendacion recomendacion, RecomendacionDTO datos) {
         Optional<Reporte> reporte =
                 reporteRepository.findById(datos.getReporteId());

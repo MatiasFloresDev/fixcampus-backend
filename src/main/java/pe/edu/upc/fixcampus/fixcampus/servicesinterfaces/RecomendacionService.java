@@ -9,6 +9,7 @@ public interface RecomendacionService {
     List<Recomendacion> buscarPorPrioridad(String prioridad);
     List<Recomendacion> buscarPorCategoria(String nombre);
     Recomendacion buscarPorId(Long id);
+    Recomendacion buscarPorReporte(Long reporteId);
     Recomendacion registrar(RecomendacionDTO datos);
     Recomendacion actualizar(Long id, RecomendacionDTO datos);
     void eliminar(Long id);

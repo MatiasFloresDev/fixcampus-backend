@@ -42,6 +42,13 @@ public class RecomendacionController {
     @GetMapping("/{id}")
     public RecomendacionDTO buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
 
+    @GetMapping("/reporte/{reporteId}")
+    @Operation(summary = "Buscar recomendación por reporte", description = "Consulta 21: devuelve la recomendación del reporte indicado. Responde 404 si no tiene una registrada. Solo administradores.")
+    public RecomendacionDTO buscarPorReporte(@PathVariable Long reporteId) {
+        Recomendacion recomendacion = service.buscarPorReporte(reporteId);
+        return convertir(recomendacion);
+    }
+
     @PostMapping
     public ResponseEntity<RecomendacionDTO> crear(@Valid @RequestBody RecomendacionDTO datos) {
         Recomendacion guardado = service.registrar(datos);
