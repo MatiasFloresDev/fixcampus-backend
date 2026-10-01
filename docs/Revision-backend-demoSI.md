@@ -18,7 +18,7 @@
 | `@RequestBody`, `@PathVariable`, `@RequestParam` | JSON de entrada, ID en la ruta y filtros de consultas |
 | DTO y validaciones | Datos de entrada/salida; usuario de salida sin contraseña |
 | `findBy...`, `@Query`, JOIN y GROUP BY | Búsquedas y estadísticas documentadas |
-| SQL nativo + `List<Object[]>` | Cinco agrupaciones convertidas a DTO mediante `for`, igual que las consultas de Attention en el demo |
+| SQL nativo + `List<Object[]>` | Seis agrupaciones convertidas a DTO mediante `for`; se evita usar streams o lambdas para recorrer sus resultados |
 | BCrypt y JWT | Registro, login y acceso mediante Bearer token |
 | `@PreAuthorize` | Permiso ADMIN/USUARIO por operación |
 | OpenAPI | Swagger con descripciones de consultas y rutas públicas sin candado |
@@ -56,17 +56,17 @@ Hay ocho controladores de entidades, más `LoginController` para autenticar: nue
 
 La retroalimentación revisada no establece una cantidad máxima de DTO. El ejemplo demoSI también separa `CropDTOInsert` y `CropDTOList`: recibir datos y devolverlos pueden necesitar campos distintos.
 
-La carpeta `dtos` contiene 19 clases, todas utilizadas:
+La carpeta `dtos` contiene 20 clases, todas utilizadas, después de incorporar el resultado de la consulta por categoría de Jeffrey:
 
 | Uso | Cantidad | Motivo |
 |---|---|---|
 | CRUD de categoría, reporte, usuario, comentario, adjunto y recomendación | 9 | Seleccionar campos y validar entradas. Usuario mantiene una salida sin contraseña y una entrada distinta para crear o actualizar |
 | Login | 2 | La entrada recibe correo y contraseña; la salida entrega token y datos de sesión |
 | Registro público | 2 | La entrada no permite escoger rol ni estado; la salida confirma la cuenta sin devolver contraseña |
-| Estadísticas | 5 | Cada consulta agrupada devuelve columnas diferentes; son resultados de consultas, no nuevas tablas |
+| Estadísticas | 6 | Cada consulta agrupada devuelve columnas diferentes; son resultados de consultas, no nuevas tablas |
 | ErrorResponse | 1 | Mantiene una respuesta de error consistente con estado, mensaje y ruta |
 
-No se eliminan estas clases solo para reducir el número: hacerlo obligaría a mezclar contratos o devolver campos que no corresponden. En `config` solo queda `ModelMapperConfig`; la seguridad sigue en `securities`.
+No se eliminan estas clases solo para reducir el número: hacerlo obligaría a mezclar contratos o devolver campos que no corresponden. Con la reorganización de Yair, la carpeta se llama `configs` y solo contiene `ModelMapperConfig`; la seguridad sigue en `securities`. Las interfaces usan prefijo `I` y las implementaciones se encuentran en `servicesimplements`.
 
 ## Correcciones funcionales
 
@@ -92,6 +92,8 @@ La profesora pide una consulta simple y otra con JOIN y agregación por integran
 | 5 | Q5: adjuntos por tipo | Q19: evidencias de un usuario |
 
 Las búsquedas adicionales que ya estaban implementadas siguen disponibles. Q8, Q9, Q13 y Q17 tienen JOIN, pero **no sustituyen una consulta agrupada** porque no cuentan, suman ni calculan promedios.
+
+La actualización del 01/10/2026 incorpora Q20 de Jeffrey (total por categoría, incluidas categorías sin reportes) y Q21 de Mauricio (recomendación por reporte). La selección anterior de diez es una propuesta técnica: no acredita por sí sola que cada integrante haya desarrollado su par. La autoría registrada y los ejemplos completos están en `Actualizacion-consultas-y-documento-2026-10-01.md`.
 
 ## Probar en Swagger local
 

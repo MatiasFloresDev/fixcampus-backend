@@ -41,6 +41,11 @@ class CrudCompletoTests {
         String correo = "crud" + System.nanoTime() + "@example.com";
         long rol = crear("/api/roles", "{\"nombre\":\"PRUEBA\",\"nivelAcceso\":\"BASICO\"}", "idRol", token);
         long categoria = crear("/api/categories", "{\"nombre\":\"Electricidad prueba CRUD\",\"descripcion\":\"Luces\"}", "idCategoria", token);
+        JsonNode categoriasSinReportes = leer("/api/categories/reporte-por-categoria", token);
+        assertThat(categoriasSinReportes.get(0).get("idCategoria").asLong()).isEqualTo(categoria);
+        assertThat(categoriasSinReportes.get(0).get("totalReportes").asLong()).isZero();
+        assertThat(leer("/api/categories/buscar-descripcion?palabraClave=Luces", token).get(0).get("idCategoria").asLong()).isEqualTo(categoria);
+        assertThat(peticion("POST", "/api/roles", "{\"nombre\":\"\",\"nivelAcceso\":\"BASICO\"}", token).statusCode()).isEqualTo(400);
         long ubicacion = crear("/api/locations", "{\"campus\":\"Campus prueba\",\"edificio\":\"A\",\"piso\":1,\"zona\":\"Pasillo\",\"tipo\":\"AULA\"}", "idUbicacion", token);
         String datosUsuario = "{\"rolId\":" + rol + ",\"nombre\":\"Ana\",\"apellido\":\"Prueba\",\"correo\":\"" + correo + "\",\"password\":\"clave123\",\"estado\":\"ACTIVO\"}";
         long usuario = crear("/api/users", datosUsuario, "idUsuario", token);
@@ -49,6 +54,8 @@ class CrudCompletoTests {
                 + ",\"categoriaId\":" + categoria + ",\"ubicacionId\":" + ubicacion
                 + ",\"titulo\":\"Luz averiada prueba\",\"descripcion\":\"No enciende\",\"prioridad\":\"MEDIA\",\"estado\":\"RESUELTO\"}";
         long reporte = crear("/api/reports", datosReporte, "idReporte", token);
+        assertThat(leer("/api/categories/reporte-por-categoria", token).get(0).get("totalReportes").asLong()).isEqualTo(1);
+        assertThat(peticion("GET", "/api/recomendaciones/reporte/" + reporte, null, token).statusCode()).isEqualTo(404);
         JsonNode creado = leer("/api/reports/" + reporte, token);
         assertThat(creado.get("estado").asText()).isEqualTo("ABIERTO");
         assertThat(creado.get("fechaAsignacion").isNull()).isFalse();
@@ -58,6 +65,7 @@ class CrudCompletoTests {
         long comentario = crear("/api/comments", "{\"reporteId\":" + reporte + ",\"usuarioId\":" + usuario + ",\"textoComentario\":\"Necesita revisión\"}", "idComentario", token);
         long adjunto = crear("/api/attachments", "{\"reporteId\":" + reporte + ",\"nombreArchivo\":\"luz.jpg\",\"urlArchivo\":\"https://example.com/luz.jpg\",\"tipoArchivo\":\"image/jpeg\"}", "idAdjunto", token);
         long recomendacion = crear("/api/recomendaciones", "{\"reporteId\":" + reporte + ",\"tituloSugerido\":\"Revisar lámpara\",\"resumen\":\"Cambio de lámpara\",\"prioridadSugerida\":\"MEDIA\",\"justificacion\":\"Aula sin luz\"}", "idRecomendacion", token);
+        assertThat(leer("/api/recomendaciones/reporte/" + reporte, token).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
 
         String[] rutas = {"/api/roles", "/api/categories", "/api/locations", "/api/users", "/api/reports", "/api/comments", "/api/attachments", "/api/recomendaciones"};
         long[] ids = {rol, categoria, ubicacion, usuario, reporte, comentario, adjunto, recomendacion};
@@ -98,6 +106,8 @@ class CrudCompletoTests {
         String usuarioToken = login("usuario@fixcampus.com", "usuario123");
         assertThat(peticion("GET", "/api/users", null, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("GET", "/api/recomendaciones", null, usuarioToken).statusCode()).isEqualTo(403);
+        assertThat(peticion("GET", "/api/recomendaciones/reporte/" + reporte, null, usuarioToken).statusCode()).isEqualTo(403);
+        assertThat(peticion("GET", "/api/categories/reporte-por-categoria", null, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("PUT", "/api/reports/" + reporte, datosReporte, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("GET", "/api/users", null, null).statusCode()).isEqualTo(401);
         assertThat(peticion("POST", "/login", "{\"correo\":\"admin@fixcampus.com\",\"password\":\"incorrecta\"}", null).statusCode()).isEqualTo(401);
