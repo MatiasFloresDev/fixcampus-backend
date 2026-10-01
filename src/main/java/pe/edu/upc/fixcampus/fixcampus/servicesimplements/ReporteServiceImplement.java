@@ -72,8 +72,10 @@ public class ReporteServiceImplement implements IReporteService {
         actual.setDescripcion(datos.getDescripcion());
         actual.setDetalleUbicacion(datos.getDetalleUbicacion());
 
-        if (actual.getTecnicoAsignado() == null
+        if (actual.getFechaAsignacion() == null
+                && actual.getTecnicoAsignado() == null
                 && datos.getTecnicoAsignado() != null) {
+
             actual.setFechaAsignacion(LocalDateTime.now());
         }
 
