@@ -1,104 +1,90 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.*;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UsuarioServiceImplement implements IUsuarioService {
-    private final IUsuarioRepository repository;
-    private final IRolRepository rolRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImplement(IUsuarioRepository repository, IRolRepository rolRepository, PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.rolRepository = rolRepository;
-        this.passwordEncoder = passwordEncoder;
+    private final IUsuarioRepository usuarioRepository;
+
+    public UsuarioServiceImplement(IUsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
-    public List<Usuario> listar() { return repository.findAll(); }
-    public List<Usuario> buscarPorEstado(String estado) { return repository.findByEstadoIgnoreCase(estado); }
-    public long contarRegistrados() { return repository.count(); }
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
-
-    public Usuario crear(UsuarioDTOInsert datos) {
-        if (datos.getPassword() == null || datos.getPassword().length() < 6) {
-            throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
-        }
-        Usuario usuario = new Usuario();
-        copiarDatos(usuario, datos);
-        usuario.setFechaRegistro(LocalDateTime.now());
-        return repository.save(usuario);
+    @Override
+    public List<Usuario> listar() {
+        return usuarioRepository.findAll();
     }
 
-    public Usuario actualizar(Long id, UsuarioDTOInsert datos) {
-        Usuario usuario = buscarPorId(id);
-        copiarDatos(usuario, datos);
-        return repository.save(usuario);
+    @Override
+    public List<Usuario> buscarPorEstado(String estado) {
+        return usuarioRepository.findByEstadoIgnoreCase(estado);
     }
 
-    public Usuario registrar(RegistroRequestDTO request) {
-        if (repository.findByCorreo(request.getCorreo()).isPresent()) {
-            throw new IllegalArgumentException("El correo ya está registrado");
-        }
-
-        Optional<Rol> rolEncontrado = rolRepository.findByNombre("USUARIO");
-        if (rolEncontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Rol USUARIO no encontrado");
-        }
-
-        Usuario usuario = new Usuario();
-        usuario.setRol(rolEncontrado.get());
-        usuario.setNombre(request.getNombre());
-        usuario.setApellido(request.getApellido());
-        usuario.setCorreo(request.getCorreo());
-        usuario.setContrasenaHash(passwordEncoder.encode(request.getPassword()));
-        usuario.setEstado("ACTIVO");
-        usuario.setFechaRegistro(LocalDateTime.now());
-
-        return repository.save(usuario);
+    @Override
+    public long contarRegistrados() {
+        return usuarioRepository.count();
     }
 
+    @Override
     public Usuario buscarPorId(Long id) {
-        Optional<Usuario> encontrado = repository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Usuario no encontrado");
-        }
-        return encontrado.get();
+        return usuarioRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario no encontrado"));
     }
 
-    private void copiarDatos(Usuario usuario, UsuarioDTOInsert datos) {
-        Optional<Rol> rolEncontrado = rolRepository.findById(datos.getRolId());
-        if (rolEncontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Rol no encontrado");
+    @Override
+    public Usuario registrar(Usuario datos) {
+
+        if (usuarioRepository.existsByCorreo(datos.getCorreo())) {
+            throw new IllegalArgumentException(
+                    "El correo ya está registrado");
         }
-        Rol rol = rolEncontrado.get();
-        Optional<Usuario> usuarioExistente = repository.findByCorreo(datos.getCorreo());
-        if (usuarioExistente.isPresent()) {
-            Usuario existente = usuarioExistente.get();
-            if (!existente.getIdUsuario().equals(usuario.getIdUsuario())) {
-                throw new IllegalArgumentException("El correo ya está registrado");
-            }
+
+        datos.setEstado("ACTIVO");
+        datos.setFechaRegistro(LocalDateTime.now());
+
+        return usuarioRepository.save(datos);
+    }
+
+    @Override
+    public Usuario actualizar(Long id, Usuario datos) {
+        Usuario actual = buscarPorId(id);
+
+        if (!actual.getCorreo().equals(datos.getCorreo())
+                && usuarioRepository.existsByCorreo(datos.getCorreo())) {
+
+            throw new IllegalArgumentException(
+                    "El correo ya está registrado");
         }
-        usuario.setRol(rol);
-        usuario.setNombre(datos.getNombre());
-        usuario.setApellido(datos.getApellido());
-        usuario.setCorreo(datos.getCorreo());
-        usuario.setEstado(datos.getEstado());
-        if (datos.getPassword() != null && !datos.getPassword().isBlank()) {
-            if (datos.getPassword().length() < 6) {
-                throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
-            }
-            usuario.setContrasenaHash(passwordEncoder.encode(datos.getPassword()));
+
+        actual.setRol(datos.getRol());
+        actual.setNombre(datos.getNombre());
+        actual.setApellido(datos.getApellido());
+        actual.setCorreo(datos.getCorreo());
+        actual.setEstado(datos.getEstado());
+
+        if (datos.getContrasenaHash() != null
+                && !datos.getContrasenaHash().isBlank()) {
+
+            actual.setContrasenaHash(
+                    datos.getContrasenaHash());
         }
+
+        return usuarioRepository.save(actual);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        Usuario actual = buscarPorId(id);
+        usuarioRepository.delete(actual);
     }
 }

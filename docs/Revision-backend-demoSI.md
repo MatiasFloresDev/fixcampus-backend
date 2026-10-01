@@ -139,7 +139,7 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 ## Qué explicar a la profesora
 
 - **CRUD:** crear con POST, leer con GET, actualizar con PUT y eliminar con DELETE. El ID se utiliza para buscar, actualizar o borrar un registro; no para listar todos.
-- **DTO:** selecciona qué datos recibe/devuelve la API. `RegistroRequestDTO` recibe la contraseña; `UsuarioDTO` la excluye. Los DTO de estadísticas contienen las columnas del resultado, no una tabla nueva.
+- **DTO:** selecciona qué datos recibe/devuelve la API. `RegistroRequestDTO` recibe la contraseña; `UsuarioDTOList` la excluye. Los DTO de estadísticas contienen las columnas del resultado, no una tabla nueva.
 - **API:** FixCampus es una API REST desarrollada por el equipo. Render aloja esa API; PostgreSQL guarda sus datos. Swagger la documenta y permite probarla. Esto no equivale a consumir una API externa de terceros.
 - **Autenticación:** `AuthenticationManager` valida las credenciales con el usuario cargado por `JwtUserDetailsService` y con BCrypt.
 - **Autorización:** `@PreAuthorize` comprueba el rol antes de ejecutar una operación. Un token de USUARIO produce 403 al listar usuarios.

@@ -4,23 +4,28 @@ public class LoginResponseDTO {
 
     private String token;
     private String correo;
-    private Long idUsuario;
 
-    public LoginResponseDTO(String token, String correo, Long idUsuario) {
+    public LoginResponseDTO() {
+    }
+
+    public LoginResponseDTO(String token, String correo) {
         this.token = token;
         this.correo = correo;
-        this.idUsuario = idUsuario;
     }
 
     public String getToken() {
         return token;
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public String getCorreo() {
         return correo;
     }
 
-    public Long getIdUsuario() {
-        return idUsuario;
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 }

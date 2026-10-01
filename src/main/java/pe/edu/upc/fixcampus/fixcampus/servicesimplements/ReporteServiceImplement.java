@@ -1,74 +1,38 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import java.time.LocalDate;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
-import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
+
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
-import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
-import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IAdjuntoRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IComentarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IRecomendacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class ReporteServiceImplement implements IReporteService {
-    @Override
-    public List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
-            LocalDate desde, LocalDate hasta) {
-        if (!hasta.isAfter(desde)) {
-            throw new IllegalArgumentException("La fecha hasta debe ser posterior a desde");
-        }
-        List<IncidenciasPorCategoriaDTO> lista = new ArrayList<>();
-        for (Object[] fila : reporteRepository.contarPorCategoriaEntreFechas(desde.atStartOfDay(), hasta.atStartOfDay())) {
-            lista.add(new IncidenciasPorCategoriaDTO(
-                    ((Number) fila[0]).longValue(), (String) fila[1], ((Number) fila[2]).longValue()));
-        }
-        return lista;
-    }
 
     private final IReporteRepository reporteRepository;
-    private final IUsuarioRepository usuarioRepository;
-    private final ICategoriaRepository categoriaRepository;
-    private final IUbicacionRepository ubicacionRepository;
     private final IAdjuntoRepository adjuntoRepository;
     private final IComentarioRepository comentarioRepository;
     private final IRecomendacionRepository recomendacionRepository;
 
-    @Value("${app.upload-dir:uploads}")
-    private String uploadDir;
+    public ReporteServiceImplement(
+            IReporteRepository reporteRepository,
+            IAdjuntoRepository adjuntoRepository,
+            IComentarioRepository comentarioRepository,
+            IRecomendacionRepository recomendacionRepository) {
 
-    public ReporteServiceImplement(IReporteRepository reporteRepository,
-                                   IUsuarioRepository usuarioRepository,
-                                   ICategoriaRepository categoriaRepository,
-                                   IUbicacionRepository ubicacionRepository,
-                                   IAdjuntoRepository adjuntoRepository,
-                                   IComentarioRepository comentarioRepository,
-                                   IRecomendacionRepository recomendacionRepository) {
         this.reporteRepository = reporteRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.categoriaRepository = categoriaRepository;
-        this.ubicacionRepository = ubicacionRepository;
         this.adjuntoRepository = adjuntoRepository;
         this.comentarioRepository = comentarioRepository;
         this.recomendacionRepository = recomendacionRepository;
@@ -76,68 +40,79 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public List<Reporte> listar() {
-
         return reporteRepository.findAll();
     }
 
     @Override
     public Reporte buscarPorId(Long id) {
-        Optional<Reporte> encontrado = reporteRepository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Reporte no encontrado");
+        return reporteRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Reporte no encontrado"));
+    }
+
+    @Override
+    public Reporte registrar(Reporte datos) {
+        datos.setTecnicoAsignado(null);
+        datos.setPrioridad(null);
+        datos.setEstado("PENDIENTE");
+        datos.setFechaCreacion(LocalDateTime.now());
+        datos.setFechaAsignacion(null);
+        datos.setFechaResolucion(null);
+
+        return reporteRepository.save(datos);
+    }
+
+    @Override
+    public Reporte actualizar(Long id, Reporte datos) {
+        Reporte actual = buscarPorId(id);
+
+        actual.setCategoria(datos.getCategoria());
+        actual.setUbicacion(datos.getUbicacion());
+        actual.setTitulo(datos.getTitulo());
+        actual.setDescripcion(datos.getDescripcion());
+        actual.setDetalleUbicacion(datos.getDetalleUbicacion());
+
+        if (actual.getTecnicoAsignado() == null
+                && datos.getTecnicoAsignado() != null) {
+            actual.setFechaAsignacion(LocalDateTime.now());
         }
-        return encontrado.get();
+
+        actual.setTecnicoAsignado(datos.getTecnicoAsignado());
+        actual.setPrioridad(datos.getPrioridad());
+
+        if ("RESUELTO".equalsIgnoreCase(datos.getEstado())
+                && !"RESUELTO".equalsIgnoreCase(actual.getEstado())) {
+
+            actual.setFechaResolucion(LocalDateTime.now());
+
+        } else if (!"RESUELTO".equalsIgnoreCase(datos.getEstado())) {
+
+            actual.setFechaResolucion(null);
+        }
+
+        actual.setEstado(datos.getEstado());
+
+        return reporteRepository.save(actual);
     }
 
     @Override
-    public Reporte registrar(ReporteDTOInsert dto) {
-        Reporte reporte = new Reporte();
-        dto.setEstado("ABIERTO");
-        copiarDatos(reporte, dto);
-        reporte.setFechaCreacion(LocalDateTime.now());
-        return reporteRepository.save(reporte);
-    }
-
-    @Override
-    public Reporte actualizar(Long id, ReporteDTOInsert dto) {
-        Reporte reporte = buscarPorId(id);
-        copiarDatos(reporte, dto);
-        return reporteRepository.save(reporte);
-    }
-
-    @Override
-    @Transactional
     public void eliminar(Long id) {
         Reporte reporte = buscarPorId(id);
-        Path directory = Paths.get(uploadDir).toAbsolutePath().normalize();
-        List<Adjunto> adjuntos =
-                adjuntoRepository.findByReporte_IdReporte(id);
-        // Primero se eliminan los hijos para respetar las llaves foráneas.
-        comentarioRepository.deleteAll(comentarioRepository.findByReporte_IdReporte(id));
-        recomendacionRepository.deleteAll(recomendacionRepository.findByReporte_IdReporte(id));
-        adjuntoRepository.deleteAll(adjuntos);
+
+        comentarioRepository.deleteAll(
+                comentarioRepository.findByReporte_IdReporte(id));
+
+        recomendacionRepository.deleteAll(
+                recomendacionRepository.findByReporte_IdReporte(id));
+
+        adjuntoRepository.deleteAll(
+                adjuntoRepository.findByReporte_IdReporte(id));
+
         reporteRepository.delete(reporte);
-        // Fuerza a comprobar las restricciones antes de borrar los archivos físicos.
-        reporteRepository.flush();
-        for (Adjunto adjunto : adjuntos) {
-            String marker = "/api/attachments/files/";
-            String url = adjunto.getUrlArchivo();
-            if (url != null && url.startsWith(marker)) {
-                Path archivo = directory.resolve(url.substring(marker.length())).normalize();
-                if (archivo.startsWith(directory)) {
-                    try {
-                        Files.deleteIfExists(archivo);
-                    } catch (java.io.IOException ignored) {
-                        // El registro se elimina aunque el archivo físico requiera limpieza posterior.
-                    }
-                }
-            }
-        }
     }
 
     @Override
     public List<Reporte> buscarPorEstado(String estado) {
-
         return reporteRepository.findByEstadoIgnoreCase(estado);
     }
 
@@ -154,20 +129,36 @@ public class ReporteServiceImplement implements IReporteService {
     @Override
     public List<IncidenciasPorMesDTO> contarPorUsuarioYMes() {
         List<IncidenciasPorMesDTO> lista = new ArrayList<>();
+
         for (Object[] fila : reporteRepository.contarPorUsuarioYMes()) {
-            lista.add(new IncidenciasPorMesDTO(((Number) fila[0]).longValue(),
-                    (String) fila[1], (String) fila[2], ((Number) fila[3]).intValue(),
-                    ((Number) fila[4]).intValue(), ((Number) fila[5]).longValue()));
+            lista.add(new IncidenciasPorMesDTO(
+                    ((Number) fila[0]).longValue(),
+                    (String) fila[1],
+                    (String) fila[2],
+                    ((Number) fila[3]).intValue(),
+                    ((Number) fila[4]).intValue(),
+                    ((Number) fila[5]).longValue()
+            ));
         }
+
         return lista;
     }
 
     @Override
-    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado) {
+    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(
+            String estado) {
+
         List<IncidenciasPorCampusDTO> lista = new ArrayList<>();
-        for (Object[] fila : reporteRepository.contarPorCampusYEstado(estado)) {
-            lista.add(new IncidenciasPorCampusDTO((String) fila[0], ((Number) fila[1]).longValue()));
+
+        for (Object[] fila :
+                reporteRepository.contarPorCampusYEstado(estado)) {
+
+            lista.add(new IncidenciasPorCampusDTO(
+                    (String) fila[0],
+                    ((Number) fila[1]).longValue()
+            ));
         }
+
         return lista;
     }
 
@@ -181,54 +172,29 @@ public class ReporteServiceImplement implements IReporteService {
         return reporteRepository.findByCampus(campus);
     }
 
-    private void copiarDatos(Reporte reporte, ReporteDTOInsert dto) {
-        Optional<Usuario> usuarioEncontrado = usuarioRepository.findById(dto.getUsuarioReportanteId());
-        if (usuarioEncontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Usuario reportante no encontrado");
-        }
-        Usuario usuario = usuarioEncontrado.get();
+    @Override
+    public List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
+            LocalDate desde, LocalDate hasta) {
 
-        Optional<Categoria> categoriaEncontrada = categoriaRepository.findById(dto.getCategoriaId());
-        if (categoriaEncontrada.isEmpty()) {
-            throw new ResourceNotFoundException("Categoría no encontrada");
+        if (!hasta.isAfter(desde)) {
+            throw new IllegalArgumentException(
+                    "La fecha hasta debe ser posterior a desde");
         }
-        Categoria categoria = categoriaEncontrada.get();
 
-        Optional<Ubicacion> ubicacionEncontrada = ubicacionRepository.findById(dto.getUbicacionId());
-        if (ubicacionEncontrada.isEmpty()) {
-            throw new ResourceNotFoundException("Ubicación no encontrada");
-        }
-        Ubicacion ubicacion = ubicacionEncontrada.get();
+        List<IncidenciasPorCategoriaDTO> lista = new ArrayList<>();
 
-        reporte.setUsuarioReportante(usuario);
-        reporte.setCategoria(categoria);
-        reporte.setUbicacion(ubicacion);
-        Usuario tecnico = null;
-        if (dto.getTecnicoAsignadoId() != null) {
-            Optional<Usuario> tecnicoEncontrado = usuarioRepository.findById(dto.getTecnicoAsignadoId());
-            if (tecnicoEncontrado.isEmpty()) {
-                throw new ResourceNotFoundException("Técnico no encontrado");
-            }
-            tecnico = tecnicoEncontrado.get();
+        for (Object[] fila :
+                reporteRepository.contarPorCategoriaEntreFechas(
+                        desde.atStartOfDay(),
+                        hasta.atStartOfDay())) {
+
+            lista.add(new IncidenciasPorCategoriaDTO(
+                    ((Number) fila[0]).longValue(),
+                    (String) fila[1],
+                    ((Number) fila[2]).longValue()
+            ));
         }
-        if (tecnico != null && (reporte.getTecnicoAsignado() == null
-                || !tecnico.getIdUsuario().equals(reporte.getTecnicoAsignado().getIdUsuario()))) {
-            reporte.setFechaAsignacion(LocalDateTime.now());
-        } else if (tecnico == null) {
-            reporte.setFechaAsignacion(null);
-        }
-        reporte.setTecnicoAsignado(tecnico);
-        reporte.setTitulo(dto.getTitulo());
-        reporte.setDescripcion(dto.getDescripcion());
-        reporte.setDetalleUbicacion(dto.getDetalleUbicacion());
-        reporte.setPrioridad(dto.getPrioridad());
-        if ("RESUELTO".equalsIgnoreCase(dto.getEstado())) {
-            if (reporte.getFechaResolucion() == null) {
-                reporte.setFechaResolucion(LocalDateTime.now());
-            }
-        } else {
-            reporte.setFechaResolucion(null);
-        }
-        reporte.setEstado(dto.getEstado());
+
+        return lista;
     }
 }

@@ -1,16 +1,21 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Email;
 
 public class LoginRequestDTO {
 
-    @NotBlank @Email
+    @NotBlank(message = "El correo es obligatorio")
     private String correo;
-    @NotBlank
-    private String password;
+
+    @NotBlank(message = "La contraseña es obligatoria")
+    private String contrasena;
 
     public LoginRequestDTO() {
+    }
+
+    public LoginRequestDTO(String correo, String contrasena) {
+        this.correo = correo;
+        this.contrasena = contrasena;
     }
 
     public String getCorreo() {
@@ -21,11 +26,11 @@ public class LoginRequestDTO {
         this.correo = correo;
     }
 
-    public String getPassword() {
-        return password;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 }

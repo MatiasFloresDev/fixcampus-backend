@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
 
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;

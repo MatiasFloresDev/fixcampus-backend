@@ -1,50 +1,37 @@
-package pe.edu.upc.fixcampus.fixcampus.entities;
+package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "ubicacion")
-public class Ubicacion {
+public class UbicacionDTOInsert {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_ubicacion")
-    private Long idUbicacion;
-
-    @Column(name = "campus", nullable = false, length = 100)
+    @NotBlank(message = "El campus es obligatorio")
+    @Size(max = 100, message = "El campus no puede superar los 100 caracteres")
     private String campus;
 
-    @Column(name = "edificio", nullable = false, length = 100)
+    @NotBlank(message = "El edificio es obligatorio")
+    @Size(max = 100, message = "El edificio no puede superar los 100 caracteres")
     private String edificio;
 
-    @Column(name = "piso")
     private Integer piso;
 
-    @Column(name = "zona", length = 150)
+    @Size(max = 150, message = "La zona no puede superar los 150 caracteres")
     private String zona;
 
-    @Column(name = "tipo", nullable = false, length = 50)
+    @NotBlank(message = "El tipo es obligatorio")
+    @Size(max = 50, message = "El tipo no puede superar los 50 caracteres")
     private String tipo;
 
-    public Ubicacion() {
+    public UbicacionDTOInsert() {
     }
 
-    public Ubicacion(Long idUbicacion, String campus, String edificio,
-                     Integer piso, String zona, String tipo) {
-        this.idUbicacion = idUbicacion;
+    public UbicacionDTOInsert(String campus, String edificio,
+                              Integer piso, String zona, String tipo) {
         this.campus = campus;
         this.edificio = edificio;
         this.piso = piso;
         this.zona = zona;
         this.tipo = tipo;
-    }
-
-    public Long getIdUbicacion() {
-        return idUbicacion;
-    }
-
-    public void setIdUbicacion(Long idUbicacion) {
-        this.idUbicacion = idUbicacion;
     }
 
     public String getCampus() {

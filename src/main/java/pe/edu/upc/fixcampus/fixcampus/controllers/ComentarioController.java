@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 

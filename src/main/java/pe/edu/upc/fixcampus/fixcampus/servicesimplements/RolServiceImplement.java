@@ -1,45 +1,58 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.*;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
+import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RolServiceImplement implements IRolService {
-    private final IRolRepository repository;
 
-    public RolServiceImplement(IRolRepository repository) { this.repository = repository; }
+    private final IRolRepository rolRepository;
 
-    public List<Rol> listar() { return repository.findAll(); }
+    public RolServiceImplement(IRolRepository rolRepository) {
+        this.rolRepository = rolRepository;
+    }
 
+    @Override
+    public List<Rol> listar() {
+        return rolRepository.findAll();
+    }
+
+    @Override
     public List<Rol> buscarPorNombre(String nombre) {
-        return repository.findByNombreContainingIgnoreCase(nombre);
+        return rolRepository.findByNombreContainingIgnoreCase(nombre);
     }
 
+    @Override
     public Rol buscarPorId(Long id) {
-        Optional<Rol> encontrado = repository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Rol no encontrado");
-        }
-        return encontrado.get();
+        return rolRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Rol no encontrado"));
     }
 
+    @Override
     public Rol registrar(Rol datos) {
-        datos.setIdRol(null);
-        return repository.save(datos);
+        return rolRepository.save(datos);
     }
 
+    @Override
     public Rol actualizar(Long id, Rol datos) {
         Rol actual = buscarPorId(id);
+
         actual.setNombre(datos.getNombre());
         actual.setNivelAcceso(datos.getNivelAcceso());
         actual.setDescripcion(datos.getDescripcion());
-        return repository.save(actual);
+
+        return rolRepository.save(actual);
     }
 
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    @Override
+    public void eliminar(Long id) {
+        Rol actual = buscarPorId(id);
+        rolRepository.delete(actual);
+    }
 }

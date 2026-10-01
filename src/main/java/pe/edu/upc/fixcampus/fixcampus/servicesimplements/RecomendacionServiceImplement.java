@@ -1,70 +1,78 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.*;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
+import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRecomendacionRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RecomendacionServiceImplement implements IRecomendacionService {
-    private final IRecomendacionRepository repository;
-    private final IReporteRepository reporteRepository;
 
-    public RecomendacionServiceImplement(IRecomendacionRepository repository, IReporteRepository reporteRepository) {
-        this.repository = repository;
-        this.reporteRepository = reporteRepository;
+    private final IRecomendacionRepository recomendacionRepository;
+
+    public RecomendacionServiceImplement(
+            IRecomendacionRepository recomendacionRepository) {
+        this.recomendacionRepository = recomendacionRepository;
     }
 
-    public List<Recomendacion> listar() { return repository.findAll(); }
-    public List<Recomendacion> buscarPorPrioridad(String prioridad) { return repository.findByPrioridadSugeridaIgnoreCase(prioridad); }
-    public List<Recomendacion> buscarPorCategoria(String nombre) { return repository.findByCategoriaDelReporte(nombre); }
-
-    public Recomendacion registrar(RecomendacionDTO datos) {
-        if (repository.existsByReporte_IdReporte(datos.getReporteId())) {
-            throw new IllegalArgumentException("Este reporte ya tiene una recomendación");
-        }
-        Recomendacion recomendacion = new Recomendacion();
-        copiarDatos(recomendacion, datos);
-        recomendacion.setFechaRecomendacion(LocalDateTime.now());
-        return repository.save(recomendacion);
+    @Override
+    public List<Recomendacion> listar() {
+        return recomendacionRepository.findAll();
     }
 
-    public Recomendacion actualizar(Long id, RecomendacionDTO datos) {
-        Recomendacion recomendacion = buscarPorId(id);
-        if (!recomendacion.getReporte().getIdReporte().equals(datos.getReporteId())
-                && repository.existsByReporte_IdReporte(datos.getReporteId())) {
-            throw new IllegalArgumentException("Este reporte ya tiene una recomendación");
-        }
-        copiarDatos(recomendacion, datos);
-        return repository.save(recomendacion);
+    @Override
+    public List<Recomendacion> buscarPorPrioridad(String prioridad) {
+        return recomendacionRepository
+                .findByPrioridadSugeridaIgnoreCase(prioridad);
     }
 
+    @Override
+    public List<Recomendacion> buscarPorCategoria(String nombre) {
+        return recomendacionRepository.findByCategoriaDelReporte(nombre);
+    }
+
+    @Override
     public Recomendacion buscarPorId(Long id) {
-        Optional<Recomendacion> encontrado = repository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Recomendacion no encontrado");
-        }
-        return encontrado.get();
+        return recomendacionRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Recomendación no encontrada"));
     }
 
-    private void copiarDatos(Recomendacion recomendacion, RecomendacionDTO datos) {
-        Optional<Reporte> reporte =
-                reporteRepository.findById(datos.getReporteId());
-        if (reporte.isEmpty()) {
-            throw new ResourceNotFoundException("Reporte no encontrado");
+    @Override
+    public Recomendacion registrar(Recomendacion datos) {
+
+        if (recomendacionRepository.existsByReporte_IdReporte(
+                datos.getReporte().getIdReporte())) {
+
+            throw new IllegalArgumentException(
+                    "Este reporte ya tiene una recomendación");
         }
-        recomendacion.setReporte(reporte.get());
-        recomendacion.setTituloSugerido(datos.getTituloSugerido());
-        recomendacion.setResumen(datos.getResumen());
-        recomendacion.setPrioridadSugerida(datos.getPrioridadSugerida());
-        recomendacion.setJustificacion(datos.getJustificacion());
+
+        datos.setFechaRecomendacion(LocalDateTime.now());
+
+        return recomendacionRepository.save(datos);
     }
 
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    @Override
+    public Recomendacion actualizar(Long id, Recomendacion datos) {
+        Recomendacion actual = buscarPorId(id);
+
+        actual.setTituloSugerido(datos.getTituloSugerido());
+        actual.setResumen(datos.getResumen());
+        actual.setPrioridadSugerida(datos.getPrioridadSugerida());
+        actual.setJustificacion(datos.getJustificacion());
+
+        return recomendacionRepository.save(actual);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        Recomendacion actual = buscarPorId(id);
+        recomendacionRepository.delete(actual);
+    }
 }

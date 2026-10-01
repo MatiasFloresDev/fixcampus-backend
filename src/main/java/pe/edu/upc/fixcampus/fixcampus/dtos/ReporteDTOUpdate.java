@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-public class ReporteDTOInsert {
+public class ReporteDTOUpdate {
 
     @NotNull(message = "La categoría es obligatoria")
     @Positive(message = "La categoría debe ser válida")
@@ -25,17 +25,31 @@ public class ReporteDTOInsert {
     @Size(max = 255, message = "El detalle de ubicación no puede superar los 255 caracteres")
     private String detalleUbicacion;
 
-    public ReporteDTOInsert() {
+    private Long tecnicoAsignadoId;
+
+    private String prioridad;
+
+    @NotBlank(message = "El estado es obligatorio")
+    @Size(max = 30, message = "El estado no puede superar los 30 caracteres")
+    private String estado;
+
+    public ReporteDTOUpdate() {
     }
 
-    public ReporteDTOInsert(Long categoriaId, Long ubicacionId,
+    public ReporteDTOUpdate(Long categoriaId, Long ubicacionId,
                             String titulo, String descripcion,
-                            String detalleUbicacion) {
+                            String detalleUbicacion,
+                            Long tecnicoAsignadoId,
+                            String prioridad,
+                            String estado) {
         this.categoriaId = categoriaId;
         this.ubicacionId = ubicacionId;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.detalleUbicacion = detalleUbicacion;
+        this.tecnicoAsignadoId = tecnicoAsignadoId;
+        this.prioridad = prioridad;
+        this.estado = estado;
     }
 
     public Long getCategoriaId() {
@@ -76,5 +90,29 @@ public class ReporteDTOInsert {
 
     public void setDetalleUbicacion(String detalleUbicacion) {
         this.detalleUbicacion = detalleUbicacion;
+    }
+
+    public Long getTecnicoAsignadoId() {
+        return tecnicoAsignadoId;
+    }
+
+    public void setTecnicoAsignadoId(Long tecnicoAsignadoId) {
+        this.tecnicoAsignadoId = tecnicoAsignadoId;
+    }
+
+    public String getPrioridad() {
+        return prioridad;
+    }
+
+    public void setPrioridad(String prioridad) {
+        this.prioridad = prioridad;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 }

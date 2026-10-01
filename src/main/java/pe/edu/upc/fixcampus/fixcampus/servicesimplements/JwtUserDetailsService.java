@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
@@ -25,25 +25,29 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String correo)
             throws UsernameNotFoundException {
-        Optional<Usuario> encontrado = usuarioRepository.findByCorreo(correo);
-        if (encontrado.isEmpty()) {
-            throw new UsernameNotFoundException("Usuario no encontrado: " + correo);
-        }
-        Usuario usuario = encontrado.get();
 
-        String nombreRol = usuario.getRol().getNombre();
-        String autoridad = nombreRol.startsWith("ROLE_")
-                ? nombreRol
-                : "ROLE_" + nombreRol;
+        Usuario usuario = usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "Usuario no encontrado: " + correo
+                        )
+                );
 
-        List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(autoridad));
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        authorities.add(
+                new SimpleGrantedAuthority(
+                        usuario.getRol().getNombre()
+                )
+        );
 
         return User.builder()
                 .username(usuario.getCorreo())
                 .password(usuario.getContrasenaHash())
                 .authorities(authorities)
-                .disabled(!"ACTIVO".equalsIgnoreCase(usuario.getEstado()))
+                .disabled(!"ACTIVO".equalsIgnoreCase(
+                        usuario.getEstado()))
                 .build();
     }
 }

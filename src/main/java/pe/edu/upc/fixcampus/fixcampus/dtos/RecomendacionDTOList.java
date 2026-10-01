@@ -1,46 +1,26 @@
-package pe.edu.upc.fixcampus.fixcampus.entities;
-
-import jakarta.persistence.*;
+package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "recomendacion")
-public class Recomendacion {
+public class RecomendacionDTOList {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_recomendacion")
     private Long idRecomendacion;
-
-    @OneToOne(optional = false)
-    @JoinColumn(name = "id_reporte", nullable = false, unique = true)
-    private Reporte reporte;
-
-    @Column(name = "titulo_sugerido", nullable = false, length = 200)
+    private Long reporteId;
     private String tituloSugerido;
-
-    @Column(name = "resumen", nullable = false, columnDefinition = "TEXT")
     private String resumen;
-
-    @Column(name = "prioridad_sugerida", nullable = false, length = 30)
     private String prioridadSugerida;
-
-    @Column(name = "justificacion", nullable = false, columnDefinition = "TEXT")
     private String justificacion;
-
-    @Column(name = "fecha_recomendacion", nullable = false)
     private LocalDateTime fechaRecomendacion;
 
-    public Recomendacion() {
+    public RecomendacionDTOList() {
     }
 
-    public Recomendacion(Long idRecomendacion, Reporte reporte,
-                         String tituloSugerido, String resumen,
-                         String prioridadSugerida, String justificacion,
-                         LocalDateTime fechaRecomendacion) {
+    public RecomendacionDTOList(Long idRecomendacion, Long reporteId,
+                                String tituloSugerido, String resumen,
+                                String prioridadSugerida, String justificacion,
+                                LocalDateTime fechaRecomendacion) {
         this.idRecomendacion = idRecomendacion;
-        this.reporte = reporte;
+        this.reporteId = reporteId;
         this.tituloSugerido = tituloSugerido;
         this.resumen = resumen;
         this.prioridadSugerida = prioridadSugerida;
@@ -56,12 +36,12 @@ public class Recomendacion {
         this.idRecomendacion = idRecomendacion;
     }
 
-    public Reporte getReporte() {
-        return reporte;
+    public Long getReporteId() {
+        return reporteId;
     }
 
-    public void setReporte(Reporte reporte) {
-        this.reporte = reporte;
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
     }
 
     public String getTituloSugerido() {

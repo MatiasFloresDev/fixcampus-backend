@@ -10,8 +10,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtTokenService {
@@ -25,13 +24,12 @@ public class JwtTokenService {
 
     public String generarToken(UserDetails usuario) {
         Instant ahora = Instant.now();
-        List<String> nombresRoles = new ArrayList<>();
 
-        for (GrantedAuthority autoridad : usuario.getAuthorities()) {
-            nombresRoles.add(autoridad.getAuthority());
-        }
+        String roles = usuario.getAuthorities()
+                .stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.joining(","));
 
-        String roles = String.join(",", nombresRoles);
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(usuario.getUsername())
                 .issuedAt(ahora)
@@ -39,8 +37,17 @@ public class JwtTokenService {
                 .claim("roles", roles)
                 .build();
 
-        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims))
+        JwsHeader header = JwsHeader
+                .with(MacAlgorithm.HS512)
+                .build();
+
+        return jwtEncoder
+                .encode(
+                        JwtEncoderParameters.from(
+                                header,
+                                claims
+                        )
+                )
                 .getTokenValue();
     }
 }

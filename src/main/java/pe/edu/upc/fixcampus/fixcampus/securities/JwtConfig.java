@@ -24,20 +24,22 @@ public class JwtConfig {
     public SecretKey jwtSecretKey() {
         return new SecretKeySpec(
                 secret.getBytes(StandardCharsets.UTF_8),
-                "HmacSHA256"
+                "HmacSHA512"
         );
     }
 
     @Bean
     public JwtEncoder jwtEncoder(SecretKey secretKey) {
-        return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey));
+        return new NimbusJwtEncoder(
+                new ImmutableSecret<>(secretKey)
+        );
     }
 
     @Bean
     public JwtDecoder jwtDecoder(SecretKey secretKey) {
         return NimbusJwtDecoder
                 .withSecretKey(secretKey)
-                .macAlgorithm(MacAlgorithm.HS256)
+                .macAlgorithm(MacAlgorithm.HS512)
                 .build();
     }
 }

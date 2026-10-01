@@ -1,41 +1,24 @@
-package pe.edu.upc.fixcampus.fixcampus.entities;
-
-import jakarta.persistence.*;
+package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "adjunto")
-public class Adjunto {
+public class AdjuntoDTOList {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_adjunto")
     private Long idAdjunto;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_reporte", nullable = false)
-    private Reporte reporte;
-
-    @Column(name = "nombre_archivo", nullable = false, length = 255)
+    private Long reporteId;
     private String nombreArchivo;
-
-    @Column(name = "url_archivo", nullable = false, length = 500)
     private String urlArchivo;
-
-    @Column(name = "tipo_archivo", length = 100)
     private String tipoArchivo;
-
-    @Column(name = "fecha_subida", nullable = false)
     private LocalDateTime fechaSubida;
 
-    public Adjunto() {
+    public AdjuntoDTOList() {
     }
 
-    public Adjunto(Long idAdjunto, Reporte reporte, String nombreArchivo,
-                   String urlArchivo, String tipoArchivo, LocalDateTime fechaSubida) {
+    public AdjuntoDTOList(Long idAdjunto, Long reporteId,
+                          String nombreArchivo, String urlArchivo,
+                          String tipoArchivo, LocalDateTime fechaSubida) {
         this.idAdjunto = idAdjunto;
-        this.reporte = reporte;
+        this.reporteId = reporteId;
         this.nombreArchivo = nombreArchivo;
         this.urlArchivo = urlArchivo;
         this.tipoArchivo = tipoArchivo;
@@ -50,12 +33,12 @@ public class Adjunto {
         this.idAdjunto = idAdjunto;
     }
 
-    public Reporte getReporte() {
-        return reporte;
+    public Long getReporteId() {
+        return reporteId;
     }
 
-    public void setReporte(Reporte reporte) {
-        this.reporte = reporte;
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
     }
 
     public String getNombreArchivo() {

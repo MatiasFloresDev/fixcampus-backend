@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroResponseDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 
@@ -26,14 +26,14 @@ public class UsuarioController {
     @GetMapping("/api/users")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar usuarios", description = "Muestra todos los usuarios registrados sin pedir parámetros y sin devolver contraseñas. Solo para administradores.")
-    public List<UsuarioDTO> listar() {
+    public List<UsuarioDTOList> listar() {
         return convertirLista(service.listar());
     }
 
     @GetMapping("/api/users/estado")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar usuarios por estado", description = "Consulta 4: filtra usuarios por estado, por ejemplo ACTIVO. Solo para administradores.")
-    public List<UsuarioDTO> buscarPorEstado(@RequestParam String estado) {
+    public List<UsuarioDTOList> buscarPorEstado(@RequestParam String estado) {
         return convertirLista(service.buscarPorEstado(estado));
     }
 
@@ -45,19 +45,19 @@ public class UsuarioController {
 
     @GetMapping("/api/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UsuarioDTO buscar(@PathVariable Long id) {
+    public UsuarioDTOList buscar(@PathVariable Long id) {
         return convertir(service.buscarPorId(id));
     }
 
     @PostMapping("/api/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody UsuarioDTOInsert datos) {
+    public ResponseEntity<UsuarioDTOList> crear(@Valid @RequestBody UsuarioDTOInsert datos) {
         return ResponseEntity.status(201).body(convertir(service.crear(datos)));
     }
 
     @PutMapping("/api/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UsuarioDTO actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioDTOInsert datos) {
+    public UsuarioDTOList actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioDTOInsert datos) {
         return convertir(service.actualizar(id, datos));
     }
 
@@ -79,8 +79,8 @@ public class UsuarioController {
         return ResponseEntity.status(201).body(response);
     }
 
-    private UsuarioDTO convertir(Usuario usuario) {
-        UsuarioDTO dto = new UsuarioDTO();
+    private UsuarioDTOList convertir(Usuario usuario) {
+        UsuarioDTOList dto = new UsuarioDTOList();
         dto.setIdUsuario(usuario.getIdUsuario());
         dto.setRolId(usuario.getRol().getIdRol());
         dto.setNombre(usuario.getNombre());
@@ -91,8 +91,8 @@ public class UsuarioController {
         return dto;
     }
 
-    private List<UsuarioDTO> convertirLista(List<Usuario> usuarios) {
-        List<UsuarioDTO> lista = new ArrayList<>();
+    private List<UsuarioDTOList> convertirLista(List<Usuario> usuarios) {
+        List<UsuarioDTOList> lista = new ArrayList<>();
         for (Usuario usuario : usuarios) {
             lista.add(convertir(usuario));
         }

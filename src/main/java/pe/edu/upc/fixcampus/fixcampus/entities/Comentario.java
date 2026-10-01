@@ -1,6 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,33 +38,43 @@ public class Comentario {
         this.textoComentario = textoComentario;
         this.fechaComentario = fechaComentario;
     }
+
     public Long getIdComentario() {
         return idComentario;
     }
+
     public void setIdComentario(Long idComentario) {
         this.idComentario = idComentario;
     }
+
     public Reporte getReporte() {
         return reporte;
     }
+
     public void setReporte(Reporte reporte) {
         this.reporte = reporte;
     }
+
     public Usuario getUsuario() {
         return usuario;
     }
+
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
+
     public String getTextoComentario() {
         return textoComentario;
     }
+
     public void setTextoComentario(String textoComentario) {
         this.textoComentario = textoComentario;
     }
+
     public LocalDateTime getFechaComentario() {
         return fechaComentario;
     }
+
     public void setFechaComentario(LocalDateTime fechaComentario) {
         this.fechaComentario = fechaComentario;
     }
