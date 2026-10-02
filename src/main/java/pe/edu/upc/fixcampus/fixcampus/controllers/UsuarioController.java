@@ -1,6 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOUpdate;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuariosPorRolDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
@@ -99,6 +99,50 @@ public class UsuarioController {
                 );
 
         return ResponseEntity.ok(dto);
+    }
+    @GetMapping("/api/users/por-rol")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UsuariosPorRolDTO>> contarUsuariosPorRol() {
+
+        List<UsuariosPorRolDTO> lista =
+                usuarioService.contarUsuariosPorRol()
+                        .stream()
+                        .map(fila -> {
+                            UsuariosPorRolDTO dto =
+                                    new UsuariosPorRolDTO();
+
+                            dto.setNombreRol(
+                                    (String) fila[0]
+                            );
+
+                            dto.setCantidadUsuarios(
+                                    ((Number) fila[1]).longValue()
+                            );
+
+                            return dto;
+                        })
+                        .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/api/users/nombre")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UsuarioDTOList>> buscarPorNombre(
+            @RequestParam String nombre) {
+
+        List<UsuarioDTOList> lista =
+                usuarioService.buscarPorNombre(nombre)
+                        .stream()
+                        .map(usuario ->
+                                modelMapper.map(
+                                        usuario,
+                                        UsuarioDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @PutMapping("/api/users/{id}")
@@ -191,4 +235,5 @@ public class UsuarioController {
                 .status(201)
                 .body(responseDTO);
     }
+
 }

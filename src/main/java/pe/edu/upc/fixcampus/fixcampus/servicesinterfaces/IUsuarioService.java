@@ -18,7 +18,11 @@ public interface IUsuarioService {
 
     Usuario registrar(Usuario datos);
 
+    List<Usuario> buscarPorNombre(String nombre);
+
     Usuario actualizar(Long id, Usuario datos);
 
     void eliminar(Long id);
+
+    List<Object[]> contarUsuariosPorRol();
 }

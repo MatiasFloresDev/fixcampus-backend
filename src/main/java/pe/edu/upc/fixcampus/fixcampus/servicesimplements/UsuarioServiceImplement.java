@@ -32,6 +32,10 @@ public class UsuarioServiceImplement implements IUsuarioService {
     public long contarRegistrados() {
         return usuarioRepository.count();
     }
+    @Override
+    public List<Usuario> buscarPorNombre(String nombre) {
+        return usuarioRepository.findByNombre(nombre);
+    }
 
     @Override
     public Usuario buscarPorId(Long id) {
@@ -94,5 +98,10 @@ public class UsuarioServiceImplement implements IUsuarioService {
     public void eliminar(Long id) {
         Usuario actual = buscarPorId(id);
         usuarioRepository.delete(actual);
+    }
+
+    @Override
+    public List<Object[]> contarUsuariosPorRol() {
+        return usuarioRepository.contarUsuariosPorRol();
     }
 }
