@@ -1,9 +1,14 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@Getter
+@Setter
 public class RecomendacionDTOInsert {
 
     @NotNull(message = "El reporte es obligatorio")
@@ -36,43 +41,4 @@ public class RecomendacionDTOInsert {
         this.justificacion = justificacion;
     }
 
-    public Long getReporteId() {
-        return reporteId;
-    }
-
-    public void setReporteId(Long reporteId) {
-        this.reporteId = reporteId;
-    }
-
-    public String getTituloSugerido() {
-        return tituloSugerido;
-    }
-
-    public void setTituloSugerido(String tituloSugerido) {
-        this.tituloSugerido = tituloSugerido;
-    }
-
-    public String getResumen() {
-        return resumen;
-    }
-
-    public void setResumen(String resumen) {
-        this.resumen = resumen;
-    }
-
-    public String getPrioridadSugerida() {
-        return prioridadSugerida;
-    }
-
-    public void setPrioridadSugerida(String prioridadSugerida) {
-        this.prioridadSugerida = prioridadSugerida;
-    }
-
-    public String getJustificacion() {
-        return justificacion;
-    }
-
-    public void setJustificacion(String justificacion) {
-        this.justificacion = justificacion;
-    }
 }

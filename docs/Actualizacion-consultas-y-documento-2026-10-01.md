@@ -63,7 +63,7 @@ Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4
 - **Q9:** el método `findByTextoComentarioContainingIgnoreCase` genera la búsqueda por una parte del texto de un comentario. `texto=lampara` encuentra textos que contengan esa palabra; la búsqueda ignora mayúsculas, pero no elimina acentos.
 - **Q10:** `reporte LEFT JOIN comentario` por `id_reporte`; agrupa por ID y título y cuenta `id_comentario`. Una incidencia con dos comentarios devuelve `cantidad: 2`; otra sin comentarios devuelve `cantidad: 0`. Devuelve `reporteId`, `titulo`, `cantidad`.
 
-Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. No se utilizan lambdas ni streams.
+Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. Estas conversiones mantienen ciclos for y no utilizan lambdas ni streams. Las cinco lambdas permitidas se encuentran únicamente en SecurityConfig, siguiendo demoSI_seguridad.
 
 ### Métodos auxiliares
 
@@ -85,6 +85,8 @@ Se siguió `demoSI_seguridad`: la clave utiliza `HmacSHA512`; el token se firma 
 
 Sobre PostgreSQL local, se verificaron **54/54 operaciones documentadas y 121 peticiones HTTP**, comprobando datos y conteos, no solo respuestas 200. Se validaron agrupaciones con dos incidencias y categorías/incidencias con conteos de cero. Se rechazaron HS256 y firmas alteradas; se comprobó HS512 con clave local de 64 bytes. Los datos temporales se eliminaron y los conteos iniciales se restauraron.
 
-La revisión sintáctica de los **83 archivos Java** de aplicación y pruebas no encontró lambdas, referencias a métodos, ternarios ni streams. Hay ocho entidades, ocho repositorios y ocho controladores de entidades más LoginController. `configs` contiene únicamente ModelMapperConfig. Hay 26 DTO utilizados: 16 de CRUD, dos de login, dos de registro, cinco de resultados agrupados y uno de errores.
+La revisión de los **83 archivos Java** encuentra únicamente cinco lambdas, todas en SecurityConfig y presentes en el ejemplo de seguridad. No hay referencias a métodos, ternarios ni streams. Hay ocho entidades, ocho repositorios y ocho controladores de entidades más LoginController. `configs` contiene únicamente ModelMapperConfig. Hay 26 DTO utilizados: 16 de CRUD, dos de login, dos de registro, cinco de resultados agrupados y uno de errores.
 
 Estos resultados validan la versión local. La publicación GitHub no confirma que Render ya ejecute la misma versión. Render necesita `JWT_SECRET` privada de al menos 64 bytes y sus variables de conexión a PostgreSQL.
+
+Lombok se incorporó posteriormente por pedido del usuario: Getter/Setter en las ocho entidades y 26 DTO; los constructores se mantienen. Ver [explicación y referencias](Lombok-y-lambdas-demoSI.md).

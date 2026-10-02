@@ -26,9 +26,9 @@
 El recorrido es `Controller → Service (interfaz) → ServiceImpl → Repository → PostgreSQL`.
 El controlador atiende HTTP y convierte la respuesta; el servicio aplica las reglas; el repositorio consulta o guarda; la entidad representa la tabla.
 
-No se usan lambdas, streams, referencias a métodos ni operadores ternarios en `src`. Los listados utilizan ciclos `for` y las decisiones se escriben con `if/else`.
+Solo se utilizan las cinco lambdas de SecurityConfig comprobadas en demoSI_seguridad. Los listados mantienen ciclos `for` y las decisiones de negocio `if/else`; no se usan streams, referencias a métodos ni ternarios.
 La aplicación no carga datos de prueba al arrancar. Se retiró `DataInitializer`, `CommandLineRunner` y el método con `String...`. Los datos existentes en PostgreSQL se conservan; los nuevos se ingresan por Swagger o pgAdmin. Las pruebas preparan sus propios datos exclusivamente en H2.
-Spring Security conserva los componentes del demo. Su configuración usa implementaciones de `Customizer` porque la versión del framework recibe esa interfaz y se solicitó evitar lambdas. El demo utiliza lambdas en este punto; la variante sin lambdas es una adaptación del proyecto, no una sintaxis cuya enseñanza en clase se haya confirmado.
+Spring Security conserva los componentes del demo y ahora configura CSRF, sesiones, autorización y JWT con las mismas cinco lambdas de SecurityConfig de demoSI_seguridad, autorizadas por el usuario tras revisar los ejemplos. Se adaptan las rutas al registro y login de FixCampus.
 
 Se retiraron la subida y descarga de archivos físicos y el borrado automático de los datos asociados a un reporte: esas implementaciones no aparecen en los demos revisados. Adjunto conserva su CRUD de nombre, URL, tipo y fecha; guardar una URL no copia un archivo al servidor. Los archivos que ya existan en disco no se eliminan con este cambio.
 
@@ -105,7 +105,7 @@ Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4
 - **Q9:** el método `findByTextoComentarioContainingIgnoreCase` genera la búsqueda por una parte del texto de un comentario. `texto=lampara` encuentra textos que contengan esa palabra; la búsqueda ignora mayúsculas, pero no elimina acentos.
 - **Q10:** `reporte LEFT JOIN comentario` por `id_reporte`; agrupa por ID y título y cuenta `id_comentario`. Una incidencia con dos comentarios devuelve `cantidad: 2`; otra sin comentarios devuelve `cantidad: 0`. Devuelve `reporteId`, `titulo`, `cantidad`.
 
-Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. No se utilizan lambdas ni streams.
+Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. Estas conversiones mantienen ciclos for y no utilizan lambdas ni streams. Las cinco lambdas permitidas se encuentran únicamente en SecurityConfig, siguiendo demoSI_seguridad.
 
 ### Métodos auxiliares
 
@@ -170,8 +170,10 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 - Cinco pruebas automatizadas que cubren arranque, Swagger, registro/login, CRUD de ocho entidades, permisos, consultas y eliminación con relaciones.
 - Pruebas HTTP adicionales contra PostgreSQL local con datos temporales y limpieza posterior.
 - CRUD de metadatos de adjuntos; FK que impide borrar un reporte en uso y eliminación posterior en el orden correcto.
-- Revisión de fuentes sin lambdas/streams/referencias a métodos y sin configuración Angular/Firebase.
+- Revisión de fuentes con solo las cinco lambdas de seguridad del demo, sin streams ni referencias a métodos y sin configuración Angular/Firebase.
 
 Los cambios corresponden al proyecto local. Las comprobaciones locales no garantizan que Render ya ejecute esta versión: se requiere publicar y desplegar los cambios para eso.
 
-La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). La verificación actual comprobó 54 operaciones, 121 peticiones HTTP y 83 archivos Java sin las construcciones restringidas.
+La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). La verificación actual comprobó 54 operaciones, 121 peticiones HTTP y 83 archivos Java con las cinco lambdas de seguridad autorizadas y sin las demás construcciones restringidas.
+
+Lombok se incorporó posteriormente por pedido del usuario: Getter/Setter en las ocho entidades y 26 DTO; los constructores se mantienen. Ver [explicación y referencias](Lombok-y-lambdas-demoSI.md).

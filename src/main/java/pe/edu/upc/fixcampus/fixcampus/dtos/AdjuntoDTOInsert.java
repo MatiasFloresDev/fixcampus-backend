@@ -1,10 +1,15 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
+@Getter
+@Setter
 public class AdjuntoDTOInsert {
 
     @NotNull(message = "El id del reporte es obligatorio")
@@ -33,35 +38,4 @@ public class AdjuntoDTOInsert {
         this.tipoArchivo = tipoArchivo;
     }
 
-    public Long getReporteId() {
-        return reporteId;
-    }
-
-    public void setReporteId(Long reporteId) {
-        this.reporteId = reporteId;
-    }
-
-    public String getNombreArchivo() {
-        return nombreArchivo;
-    }
-
-    public void setNombreArchivo(String nombreArchivo) {
-        this.nombreArchivo = nombreArchivo;
-    }
-
-    public String getUrlArchivo() {
-        return urlArchivo;
-    }
-
-    public void setUrlArchivo(String urlArchivo) {
-        this.urlArchivo = urlArchivo;
-    }
-
-    public String getTipoArchivo() {
-        return tipoArchivo;
-    }
-
-    public void setTipoArchivo(String tipoArchivo) {
-        this.tipoArchivo = tipoArchivo;
-    }
 }

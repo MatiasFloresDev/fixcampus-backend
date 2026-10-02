@@ -1,5 +1,8 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import lombok.Getter;
+
+@Getter
 public class IncidenciasPorMesDTO {
     private Long usuarioId;
     private String nombre;
@@ -18,10 +21,4 @@ public class IncidenciasPorMesDTO {
         this.cantidad = cantidad;
     }
 
-    public Long getUsuarioId() { return usuarioId; }
-    public String getNombre() { return nombre; }
-    public String getApellido() { return apellido; }
-    public Integer getAnio() { return anio; }
-    public Integer getMes() { return mes; }
-    public Long getCantidad() { return cantidad; }
 }

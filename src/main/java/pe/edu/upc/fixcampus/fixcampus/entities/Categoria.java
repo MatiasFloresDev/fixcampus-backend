@@ -1,9 +1,14 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "categoria")
+@Getter
+@Setter
 public class Categoria {
 
     @Id
@@ -26,27 +31,4 @@ public class Categoria {
         this.descripcion = descripcion;
     }
 
-    public Long getIdCategoria() {
-        return idCategoria;
-    }
-
-    public void setIdCategoria(Long idCategoria) {
-        this.idCategoria = idCategoria;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
 }

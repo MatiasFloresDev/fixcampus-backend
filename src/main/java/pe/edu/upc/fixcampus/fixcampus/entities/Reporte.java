@@ -1,11 +1,16 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reporte")
+@Getter
+@Setter
 public class Reporte {
 
     @Id
@@ -77,107 +82,4 @@ public class Reporte {
         this.fechaResolucion = fechaResolucion;
     }
 
-    public Long getIdReporte() {
-        return idReporte;
-    }
-
-    public void setIdReporte(Long idReporte) {
-        this.idReporte = idReporte;
-    }
-
-    public Usuario getUsuarioReportante() {
-        return usuarioReportante;
-    }
-
-    public void setUsuarioReportante(Usuario usuarioReportante) {
-        this.usuarioReportante = usuarioReportante;
-    }
-
-    public Usuario getTecnicoAsignado() {
-        return tecnicoAsignado;
-    }
-
-    public void setTecnicoAsignado(Usuario tecnicoAsignado) {
-        this.tecnicoAsignado = tecnicoAsignado;
-    }
-
-    public Categoria getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
-    }
-
-    public Ubicacion getUbicacion() {
-        return ubicacion;
-    }
-
-    public void setUbicacion(Ubicacion ubicacion) {
-        this.ubicacion = ubicacion;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getDetalleUbicacion() {
-        return detalleUbicacion;
-    }
-
-    public void setDetalleUbicacion(String detalleUbicacion) {
-        this.detalleUbicacion = detalleUbicacion;
-    }
-
-    public String getPrioridad() {
-        return prioridad;
-    }
-
-    public void setPrioridad(String prioridad) {
-        this.prioridad = prioridad;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public LocalDateTime getFechaAsignacion() {
-        return fechaAsignacion;
-    }
-
-    public void setFechaAsignacion(LocalDateTime fechaAsignacion) {
-        this.fechaAsignacion = fechaAsignacion;
-    }
-
-    public LocalDateTime getFechaResolucion() {
-        return fechaResolucion;
-    }
-
-    public void setFechaResolucion(LocalDateTime fechaResolucion) {
-        this.fechaResolucion = fechaResolucion;
-    }
 }

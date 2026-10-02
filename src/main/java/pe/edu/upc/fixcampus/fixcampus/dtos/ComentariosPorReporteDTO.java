@@ -1,5 +1,10 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ComentariosPorReporteDTO {
     private Long reporteId;
     private String titulo;
@@ -12,10 +17,4 @@ public class ComentariosPorReporteDTO {
         this.titulo = titulo;
         this.cantidad = cantidad;
     }
-    public Long getReporteId() { return reporteId; }
-    public void setReporteId(Long reporteId) { this.reporteId = reporteId; }
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-    public Long getCantidad() { return cantidad; }
-    public void setCantidad(Long cantidad) { this.cantidad = cantidad; }
 }

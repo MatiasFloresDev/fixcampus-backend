@@ -13,6 +13,8 @@ Este conjunto acompaña la demo del proyecto para una entrevista de documentaci�
 7. [Consultas e integración del equipo](Actualizacion-consultas-y-documento-2026-10-01.md) — diez consultas en cinco pares, ejemplos, procedencia y cambios de Yair.
 8. [Verificación de la entrega](Revision-entrega-consultas-yair-2026-10-01.md) — requisitos del backend comprobados y evidencias pendientes de la entrega.
 
+9. [Lombok y lambdas de clase](Lombok-y-lambdas-demoSI.md) — métodos generados, archivos y patrones de seguridad de demoSI_seguridad.
+
 ## Cómo presentarlo en cinco minutos
 
 1. Explica el problema: los avisos informales pierden ubicación, categoría y seguimiento.

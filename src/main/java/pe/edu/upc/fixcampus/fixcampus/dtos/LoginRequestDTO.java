@@ -1,8 +1,13 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
 
+@Getter
+@Setter
 public class LoginRequestDTO {
 
     @NotBlank @Email
@@ -13,19 +18,4 @@ public class LoginRequestDTO {
     public LoginRequestDTO() {
     }
 
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }
