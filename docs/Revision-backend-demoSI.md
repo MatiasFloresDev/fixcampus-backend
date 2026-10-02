@@ -167,13 +167,13 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 ## Comprobación
 
 - Compilación y empaquetado mediante Maven.
-- Cinco pruebas automatizadas que cubren arranque, Swagger, registro/login, CRUD de ocho entidades, permisos, consultas y eliminación con relaciones.
+- Una sola clase de prueba básica, FixcampusApplicationTests, con contextLoads como en demoSI. Los CRUD, seguridad y consultas se comprueban mediante peticiones HTTP y Swagger.
 - Pruebas HTTP adicionales contra PostgreSQL local con datos temporales y limpieza posterior.
 - CRUD de metadatos de adjuntos; FK que impide borrar un reporte en uso y eliminación posterior en el orden correcto.
 - Revisión de fuentes con solo las cinco lambdas de seguridad del demo, sin streams ni referencias a métodos y sin configuración Angular/Firebase.
 
 Los cambios corresponden al proyecto local. Las comprobaciones locales no garantizan que Render ya ejecute esta versión: se requiere publicar y desplegar los cambios para eso.
 
-La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). La verificación actual comprobó 54 operaciones, 121 peticiones HTTP y 83 archivos Java con las cinco lambdas de seguridad autorizadas y sin las demás construcciones restringidas.
+La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). La verificación actual comprobó 54 operaciones, 121 peticiones HTTP y 78 archivos Java con las cinco lambdas de seguridad autorizadas y sin las demás construcciones restringidas.
 
 Lombok se incorporó posteriormente por pedido del usuario: Getter/Setter en las ocho entidades y 26 DTO; los constructores se mantienen. Ver [explicación y referencias](Lombok-y-lambdas-demoSI.md).

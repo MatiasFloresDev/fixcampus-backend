@@ -52,4 +52,4 @@ Referencias oficiales: [Maven](https://projectlombok.org/setup/maven), [Getter y
 
 ## Comprobación de esta actualización
 
-Maven clean verify compiló y empaquetó la aplicación: cinco pruebas, cero errores y cero fallos. La inspección de las clases compiladas confirmó los getters y setters generados. Las pruebas HTTP sobre PostgreSQL local verificaron 54 operaciones de Swagger con 121 peticiones: ocho CRUD, diez consultas, registro, login, HS512 y permisos. Los datos temporales fueron eliminados y los conteos iniciales restaurados.
+La verificación inicial de Lombok aprobó cinco pruebas. Posteriormente, para ajustar la estructura a la solicitada por el usuario, se conservó únicamente FixcampusApplicationTests.contextLoads y se retiraron las clases adicionales. Maven clean verify comprueba ahora esa única prueba de arranque. La inspección de las clases compiladas confirmó los getters y setters generados. Las pruebas HTTP sobre PostgreSQL local verificaron 54 operaciones de Swagger con 121 peticiones: ocho CRUD, diez consultas, registro, login, HS512 y permisos. Los datos temporales fueron eliminados y los conteos iniciales restaurados.

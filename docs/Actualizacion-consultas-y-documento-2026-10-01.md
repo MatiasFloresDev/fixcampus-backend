@@ -81,11 +81,11 @@ Se siguió `demoSI_seguridad`: la clave utiliza `HmacSHA512`; el token se firma 
 
 ## Comprobaciones de esta versión
 
-`mvnw.cmd clean verify` compiló y empaquetó el backend con cinco pruebas automatizadas aprobadas. Se probaron las ocho entidades con crear, listar, consultar por ID, actualizar y eliminar; registro/login; permisos; los cinco filtros simples y las cinco agrupaciones; protección por FK y errores esperados.
+`mvnw.cmd clean verify` compila y empaqueta el backend conservando una sola prueba básica: FixcampusApplicationTests.contextLoads, con la estructura del ejemplo demoSI. La comprobación HTTP externa al código del proyecto verifica los ocho CRUD, registro/login, permisos, las diez consultas y protección por FK.
 
 Sobre PostgreSQL local, se verificaron **54/54 operaciones documentadas y 121 peticiones HTTP**, comprobando datos y conteos, no solo respuestas 200. Se validaron agrupaciones con dos incidencias y categorías/incidencias con conteos de cero. Se rechazaron HS256 y firmas alteradas; se comprobó HS512 con clave local de 64 bytes. Los datos temporales se eliminaron y los conteos iniciales se restauraron.
 
-La revisión de los **83 archivos Java** encuentra únicamente cinco lambdas, todas en SecurityConfig y presentes en el ejemplo de seguridad. No hay referencias a métodos, ternarios ni streams. Hay ocho entidades, ocho repositorios y ocho controladores de entidades más LoginController. `configs` contiene únicamente ModelMapperConfig. Hay 26 DTO utilizados: 16 de CRUD, dos de login, dos de registro, cinco de resultados agrupados y uno de errores.
+La revisión de los **78 archivos Java** encuentra únicamente cinco lambdas, todas en SecurityConfig y presentes en el ejemplo de seguridad. No hay referencias a métodos, ternarios ni streams. Hay ocho entidades, ocho repositorios y ocho controladores de entidades más LoginController. `configs` contiene únicamente ModelMapperConfig. Hay 26 DTO utilizados: 16 de CRUD, dos de login, dos de registro, cinco de resultados agrupados y uno de errores.
 
 Estos resultados validan la versión local. La publicación GitHub no confirma que Render ya ejecute la misma versión. Render necesita `JWT_SECRET` privada de al menos 64 bytes y sus variables de conexión a PostgreSQL.
 

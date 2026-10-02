@@ -10,10 +10,10 @@ Se contrastó esta actualización con el enunciado del trabajo final disponible,
 | Protección de información de usuarios | GET /api/users sin parámetros; las respuestas no contienen contraseña ni hash |
 | Diez consultas / dos por integrante | Cinco pares documentados: una consulta de una tabla y una con exactamente un JOIN más COUNT por par. Los responsables asignados se distinguen de la autoría en Git |
 | Tema FixCampus | Incidencias, campus, categorías, usuarios reportantes, recomendaciones manuales de mantenimiento y comentarios; filtros/indicadores pertinentes |
-| Código compatible con la restricción solicitada | 83 fuentes Java: únicamente cinco lambdas de SecurityConfig presentes en demoSI_seguridad; sin streams, referencias a métodos ni ternarios; conversión de DTO con for |
+| Código compatible con la restricción solicitada | 78 fuentes Java: únicamente cinco lambdas de SecurityConfig presentes en demoSI_seguridad; sin streams, referencias a métodos ni ternarios; conversión de DTO con for |
 | Configuración y carga inicial | Solo ModelMapperConfig en configs; seguridad en securities; sin DataInitializer ni carga automática de registros |
 | Documentación de endpoints | Swagger: 54 operaciones y descripciones de Consulta 1 a Consulta 10, sin números repetidos |
-| Pruebas y lógica | Maven clean verify: cinco pruebas aprobadas; PostgreSQL local: 121 peticiones, ocho CRUD, diez consultas, agrupaciones de varios registros y conteos de cero; datos temporales eliminados |
+| Pruebas y lógica | Maven clean verify: una prueba básica de arranque aprobada; PostgreSQL local: 121 peticiones, ocho CRUD, diez consultas, agrupaciones de varios registros y conteos de cero; datos temporales eliminados |
 | Historial del equipo | Integración de main 46949df y yair-refactor 9445874; commits originales preservados; correcciones de compatibilidad documentadas |
 
 ## Lo que esta verificación no acredita por sí sola
