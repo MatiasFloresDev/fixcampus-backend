@@ -29,9 +29,11 @@ Se conserva la lógica validada: nueva incidencia ABIERTO, autor obtenido del to
 
 La integración no adopta cada modificación de Yair sin ajustes: las variantes incompatibles con los requisitos se corrigieron. Los cambios de sus entidades y DTO, además de sus commits originales, permanecen en el resultado integrado. La procedencia de una consulta se distingue de su responsable asignado en la tabla siguiente.
 
+El 02/10 se integró además dd36bce de Yair / Lender06: dos consultas de usuarios, adaptadas a los contratos actuales y documentadas en [Integración de Yair](Integracion-consultas-Yair-2026-10-02.md). Esta integración modifica únicamente main; la rama de Yair permanece intacta.
+
 ## Diez consultas: cinco pares
 
-El reparto siguiente identifica al responsable de explicar y mantener cada par. **Asignación no significa autoría histórica**: los commits originales permanecen en Git. Q4 se adaptó en esta actualización y Q8, Q9 y Q10 se implementaron aquí; no se atribuyen retrospectivamente a un compañero.
+El reparto siguiente identifica al responsable de explicar y mantener cada par. **Asignación no significa autoría histórica**: los commits originales permanecen en Git. Q4 se adaptó en esta actualización y Q8 se implementó aquí. Desde el 02/10, Q9 y Q10 corresponden al aporte real de Yair / Lender06 en dd36bce, sustituyendo las dos consultas provisionales de comentarios.
 
 Todas se ejecutan con GET en Swagger. Obtener un token en `POST /login` y pegarlo en **Authorize**. Las estadísticas y consultas administrativas requieren ADMIN. Q5 admite también USUARIO.
 
@@ -45,8 +47,8 @@ Todas se ejecutan con GET en Swagger. Obtener un token en `POST /login` y pegarl
 | Jeffrey | 6 | Un LEFT JOIN + COUNT: incidencias por categoría, incluidas categorías sin incidencias | `/api/categories/reporte-por-categoria`; sin parámetros | Aporte previo de Jeffrey (`e46e0de`) |
 | Mauricio | 7 | Simple: recomendaciones por prioridad sugerida | `/api/recomendaciones/prioridad?prioridad=ALTA` | Aporte previo de Mauricio (`b88cc7c`) |
 | Mauricio | 8 | Un JOIN + COUNT: recomendaciones según la prioridad de la incidencia | `/api/recomendaciones/estadisticas/por-prioridad-reporte`; sin parámetros | Nueva en esta actualización; asignada a Mauricio |
-| Yair | 9 | Simple: comentarios que contienen un texto | `/api/comments/buscar-texto?texto=lampara` | Nueva en esta actualización; asignada a Yair |
-| Yair | 10 | Un LEFT JOIN + COUNT: comentarios por incidencia, incluyendo cero | `/api/comments/estadisticas/por-reporte`; sin parámetros | Nueva en esta actualización; asignada a Yair |
+| Yair | 9 | Simple: usuarios por nombre exacto | `/api/users/nombre?nombre=Matias` | Aporte de Yair / Lender06 (`dd36bce`) |
+| Yair | 10 | Un INNER JOIN + COUNT: usuarios registrados por rol | `/api/users/por-rol`; sin parámetros | Aporte de Yair / Lender06 (`dd36bce`) |
 
 Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4, Q6, Q8 y Q10 tienen exactamente una cláusula JOIN y una agregación COUNT; no se encadenan dos JOIN.
 
@@ -60,10 +62,10 @@ Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4
 - **Q6:** `categoria LEFT JOIN reporte` por `id_categoria`; agrupa cada categoría y cuenta `id_reporte`. El LEFT JOIN conserva las categorías sin incidencias; COUNT de la columna del reporte devuelve cero para ellas. Devuelve `idCategoria`, `nombre`, `descripcion`, `totalReportes`.
 - **Q7:** filtra `prioridadSugerida` de recomendación. `ALTA` muestra recomendaciones de mantenimiento urgentes; la recomendación es registrada por el administrador.
 - **Q8:** `recomendacion JOIN reporte` por `id_reporte`; agrupa por la prioridad real del reporte y cuenta recomendaciones. Dos recomendaciones asociadas a incidencias ALTA y una a MEDIA producen cantidades 2 y 1. Se usa la prioridad de la incidencia, que puede diferir de la sugerida. Devuelve `prioridad`, `cantidad`.
-- **Q9:** el método `findByTextoComentarioContainingIgnoreCase` genera la búsqueda por una parte del texto de un comentario. `texto=lampara` encuentra textos que contengan esa palabra; la búsqueda ignora mayúsculas, pero no elimina acentos.
-- **Q10:** `reporte LEFT JOIN comentario` por `id_reporte`; agrupa por ID y título y cuenta `id_comentario`. Una incidencia con dos comentarios devuelve `cantidad: 2`; otra sin comentarios devuelve `cantidad: 0`. Devuelve `reporteId`, `titulo`, `cantidad`.
+- **Q9:** `findByNombre` busca el nombre exacto en usuario, sin JOIN ni agregado. `nombre=Matias` devuelve los usuarios con ese nombre; distingue mayúsculas y no busca fragmentos. Devuelve los campos públicos de UsuarioDTOList, sin contraseña ni hash. Requiere ADMIN.
+- **Q10:** `usuario INNER JOIN rol` por `id_rol`; `GROUP BY r.nombre` agrupa usuarios según su rol y `COUNT(u.id_usuario)` los cuenta. Ordena por cantidad descendente. Un rol USUARIO con ocho usuarios devuelve `nombreRol: USUARIO, cantidadUsuarios: 8`. No incluye roles sin usuarios; cuenta todos los estados. No pide parámetros y requiere ADMIN.
 
-Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. Estas conversiones mantienen ciclos for y no utilizan lambdas ni streams. Las cinco lambdas permitidas se encuentran únicamente en SecurityConfig, siguiendo demoSI_seguridad.
+Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las agrupaciones se convierten a DTO con ciclos `for` en servicios; la conversión de usuarios por rol se realiza en UsuarioController; cada posición coincide con el orden del SELECT. Estas conversiones mantienen ciclos for y no utilizan lambdas ni streams. Las cinco lambdas permitidas se encuentran únicamente en SecurityConfig, siguiendo demoSI_seguridad.
 
 ### Métodos auxiliares
 
@@ -83,7 +85,7 @@ Se siguió `demoSI_seguridad`: la clave utiliza `HmacSHA512`; el token se firma 
 
 `mvnw.cmd clean verify` compila y empaqueta el backend conservando una sola prueba básica: FixcampusApplicationTests.contextLoads, con la estructura del ejemplo demoSI. La comprobación HTTP externa al código del proyecto verifica los ocho CRUD, registro/login, permisos, las diez consultas y protección por FK.
 
-Sobre PostgreSQL local, se verificaron **54/54 operaciones documentadas y 121 peticiones HTTP**, comprobando datos y conteos, no solo respuestas 200. Se validaron agrupaciones con dos incidencias y categorías/incidencias con conteos de cero. Se rechazaron HS256 y firmas alteradas; se comprobó HS512 con clave local de 64 bytes. Los datos temporales se eliminaron y los conteos iniciales se restauraron.
+Sobre PostgreSQL local, se verificaron **54/54 operaciones documentadas y 124 peticiones HTTP**, comprobando datos y conteos, no solo respuestas 200. Se validaron agrupaciones con dos incidencias y categorías con conteos de cero y usuarios por rol. Se rechazaron HS256 y firmas alteradas; se comprobó HS512 con clave local de 64 bytes. Los datos temporales se eliminaron y los conteos iniciales se restauraron.
 
 La revisión de los **78 archivos Java** encuentra únicamente cinco lambdas, todas en SecurityConfig y presentes en el ejemplo de seguridad. No hay referencias a métodos, ternarios ni streams. Hay ocho entidades, ocho repositorios y ocho controladores de entidades más LoginController. `configs` contiene únicamente ModelMapperConfig. Hay 26 DTO utilizados: 16 de CRUD, dos de login, dos de registro, cinco de resultados agrupados y uno de errores.
 

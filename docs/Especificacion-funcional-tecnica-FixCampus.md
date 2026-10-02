@@ -70,7 +70,7 @@ OpenAPI: `http://localhost:8080/v3/api-docs`
 | Adjuntos | `GET/POST/PUT/DELETE /api/attachments`; `GET /api/attachments/reporte/{reporteId}` | CRUD admin; consulta por reporte propio o admin |
 | Comentarios | `GET/POST/PUT/DELETE /api/comments` | Admin |
 | Recomendaciones | `GET/POST/PUT/DELETE /api/recomendaciones` | Admin |
-| Indicadores | Incidencias por usuario/mes, campus/estado y categoría; recomendaciones por prioridad de incidencia; comentarios por incidencia | Admin |
+| Indicadores | Incidencias por usuario/mes, campus/estado y categoría; recomendaciones por prioridad de incidencia; usuarios por rol | Admin |
 
 ## 6. Contrato de creación de reporte
 

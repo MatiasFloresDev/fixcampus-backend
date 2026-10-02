@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroResponseDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuariosPorRolDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 
@@ -74,6 +75,26 @@ public class UsuarioController {
         RegistroResponseDTO response = new RegistroResponseDTO(
                 guardado.getIdUsuario(), guardado.getCorreo(), "Cuenta creada correctamente");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/api/users/nombre")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Buscar usuarios por nombre", description = "Consulta 9, simple: lista usuarios cuyo nombre coincide exactamente con el parámetro nombre. Ejemplo: nombre=Matias. No devuelve contraseñas. Solo administradores.")
+    public List<UsuarioDTOList> buscarPorNombre(@RequestParam String nombre) {
+        return convertirLista(service.buscarPorNombre(nombre));
+    }
+
+    @GetMapping("/api/users/por-rol")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Contar usuarios por rol", description = "Consulta 10: un INNER JOIN y COUNT. Cuenta los usuarios registrados de cada rol y ordena de mayor a menor cantidad. Incluye solo roles con usuarios. No pide parámetros. Solo administradores.")
+    public List<UsuariosPorRolDTO> contarUsuariosPorRol() {
+        List<UsuariosPorRolDTO> lista = new ArrayList<>();
+        for (Object[] fila : service.contarUsuariosPorRol()) {
+            UsuariosPorRolDTO dto = new UsuariosPorRolDTO(
+                    (String) fila[0], ((Number) fila[1]).longValue());
+            lista.add(dto);
+        }
+        return lista;
     }
 
     private UsuarioDTOList convertir(Usuario usuario) {

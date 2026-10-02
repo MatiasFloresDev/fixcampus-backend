@@ -1,7 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import java.util.ArrayList;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import org.springframework.stereotype.Service;
@@ -67,12 +65,4 @@ public class ComentarioServiceImplement implements IComentarioService {
     }
 
     public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
-    public List<ComentariosPorReporteDTO> contarPorReporte() {
-        List<ComentariosPorReporteDTO> lista = new ArrayList<>();
-        for (Object[] fila : repository.contarPorReporte()) {
-            lista.add(new ComentariosPorReporteDTO(((Number) fila[0]).longValue(), (String) fila[1], ((Number) fila[2]).longValue()));
-        }
-        return lista;
-    }
-    public List<Comentario> buscarPorTexto(String texto) { return repository.findByTextoComentarioContainingIgnoreCase(texto); }
 }

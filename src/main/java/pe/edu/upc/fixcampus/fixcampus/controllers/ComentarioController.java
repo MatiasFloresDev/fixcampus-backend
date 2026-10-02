@@ -1,6 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -67,16 +66,5 @@ public class ComentarioController {
             lista.add(convertir(comentario));
         }
         return lista;
-    }
-    @GetMapping("/estadisticas/por-reporte")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Contar comentarios por incidencia", description = "Consulta 10: un LEFT JOIN y COUNT. Cuenta comentarios por incidencia e incluye las incidencias sin comentarios. No pide parámetros. Solo administradores.")
-    public List<ComentariosPorReporteDTO> contarPorReporte() {
-        return service.contarPorReporte();
-    }
-    @GetMapping("/buscar-texto")
-    @Operation(summary = "Buscar comentarios por texto", description = "Consulta 9, simple: busca comentarios que contengan la palabra indicada. Ejemplo: texto=lámpara. Solo administradores.")
-    public List<ComentarioDTOList> buscarPorTexto(@RequestParam String texto) {
-        return convertirLista(service.buscarPorTexto(texto));
     }
 }

@@ -13,13 +13,13 @@ Se contrastó esta actualización con el enunciado del trabajo final disponible,
 | Código compatible con la restricción solicitada | 78 fuentes Java: únicamente cinco lambdas de SecurityConfig presentes en demoSI_seguridad; sin streams, referencias a métodos ni ternarios; conversión de DTO con for |
 | Configuración y carga inicial | Solo ModelMapperConfig en configs; seguridad en securities; sin DataInitializer ni carga automática de registros |
 | Documentación de endpoints | Swagger: 54 operaciones y descripciones de Consulta 1 a Consulta 10, sin números repetidos |
-| Pruebas y lógica | Maven clean verify: una prueba básica de arranque aprobada; PostgreSQL local: 121 peticiones, ocho CRUD, diez consultas, agrupaciones de varios registros y conteos de cero; datos temporales eliminados |
-| Historial del equipo | Integración de main 46949df y yair-refactor 9445874; commits originales preservados; correcciones de compatibilidad documentadas |
+| Pruebas y lógica | Maven clean verify: una prueba básica de arranque aprobada; PostgreSQL local: 124 peticiones, ocho CRUD, diez consultas, agrupaciones de varios registros y conteos de cero; datos temporales eliminados |
+| Historial del equipo | Integración previa de main 46949df y yair-refactor 9445874, más dd36bce de Yair el 02/10 en main; commits originales preservados; correcciones de compatibilidad documentadas |
 
 ## Lo que esta verificación no acredita por sí sola
 
 - El informe Word/Google Docs y Trello necesitan reflejar estos pares y responsabilidades. Esta tarea actualizó los documentos del repositorio, sin modificar esas aplicaciones.
-- Para la revisión individual, cada integrante debe explicar y evidenciar su trabajo. Q4 se adaptó aquí; Q8–Q10 se añadieron aquí y se asignaron para el reparto. La asignación no crea evidencia de autoría previa.
+- Para la revisión individual, cada integrante debe explicar y evidenciar su trabajo. Q4 se adaptó aquí; Q8 se añadió aquí y se asignó para el reparto. Q9 y Q10 provienen del commit dd36bce de Yair / Lender06. La asignación no crea evidencia de autoría previa.
 - El enunciado del trabajo final incluye interfaz web, otros servicios y requisitos de entregas posteriores. Esta actualización se limita al backend y respeta las restricciones expresas del usuario para esta etapa; no certifica la totalidad del trabajo final.
 - La prueba de PostgreSQL local no acredita que Render esté ejecutando la nueva versión. Revisar el despliegue, JWT_SECRET de al menos 64 bytes, variables de BD, Swagger publicado y capturas reales para evidenciarlo.
 

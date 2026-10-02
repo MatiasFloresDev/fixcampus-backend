@@ -66,6 +66,10 @@ public class UsuarioServiceImplement implements IUsuarioService {
 
         return repository.save(usuario);
     }
+    @Override
+    public List<Usuario> buscarPorNombre(String nombre) {
+        return repository.findByNombre(nombre);
+    }
 
     public Usuario buscarPorId(Long id) {
         Optional<Usuario> encontrado = repository.findById(id);
@@ -99,5 +103,10 @@ public class UsuarioServiceImplement implements IUsuarioService {
             }
             usuario.setContrasenaHash(passwordEncoder.encode(datos.getPassword()));
         }
+    }
+
+    @Override
+    public List<Object[]> contarUsuariosPorRol() {
+        return repository.contarUsuariosPorRol();
     }
 }

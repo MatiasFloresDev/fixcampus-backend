@@ -15,6 +15,8 @@ Este conjunto acompaña la demo del proyecto para una entrevista de documentaci�
 
 9. [Lombok y lambdas de clase](Lombok-y-lambdas-demoSI.md) — métodos generados, archivos y patrones de seguridad de demoSI_seguridad.
 
+10. [Consultas nuevas de Yair](Integracion-consultas-Yair-2026-10-02.md) — integración en main, explicación, ejemplos y comprobaciones locales.
+
 ## Cómo presentarlo en cinco minutos
 
 1. Explica el problema: los avisos informales pierden ubicación, categoría y seguimiento.

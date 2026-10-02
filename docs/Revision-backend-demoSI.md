@@ -73,7 +73,7 @@ Con la reorganización de Yair, la carpeta se llama `configs` y solo contiene `M
 
 ## Diez consultas: cinco pares
 
-El reparto siguiente identifica al responsable de explicar y mantener cada par. **Asignación no significa autoría histórica**: los commits originales permanecen en Git. Q4 se adaptó en esta actualización y Q8, Q9 y Q10 se implementaron aquí; no se atribuyen retrospectivamente a un compañero.
+El reparto siguiente identifica al responsable de explicar y mantener cada par. **Asignación no significa autoría histórica**: los commits originales permanecen en Git. Q4 se adaptó en esta actualización y Q8 se implementó aquí. Desde el 02/10, Q9 y Q10 corresponden al aporte real de Yair / Lender06 en dd36bce, sustituyendo las dos consultas provisionales de comentarios.
 
 Todas se ejecutan con GET en Swagger. Obtener un token en `POST /login` y pegarlo en **Authorize**. Las estadísticas y consultas administrativas requieren ADMIN. Q5 admite también USUARIO.
 
@@ -87,8 +87,8 @@ Todas se ejecutan con GET en Swagger. Obtener un token en `POST /login` y pegarl
 | Jeffrey | 6 | Un LEFT JOIN + COUNT: incidencias por categoría, incluidas categorías sin incidencias | `/api/categories/reporte-por-categoria`; sin parámetros | Aporte previo de Jeffrey (`e46e0de`) |
 | Mauricio | 7 | Simple: recomendaciones por prioridad sugerida | `/api/recomendaciones/prioridad?prioridad=ALTA` | Aporte previo de Mauricio (`b88cc7c`) |
 | Mauricio | 8 | Un JOIN + COUNT: recomendaciones según la prioridad de la incidencia | `/api/recomendaciones/estadisticas/por-prioridad-reporte`; sin parámetros | Nueva en esta actualización; asignada a Mauricio |
-| Yair | 9 | Simple: comentarios que contienen un texto | `/api/comments/buscar-texto?texto=lampara` | Nueva en esta actualización; asignada a Yair |
-| Yair | 10 | Un LEFT JOIN + COUNT: comentarios por incidencia, incluyendo cero | `/api/comments/estadisticas/por-reporte`; sin parámetros | Nueva en esta actualización; asignada a Yair |
+| Yair | 9 | Simple: usuarios por nombre exacto | `/api/users/nombre?nombre=Matias` | Aporte de Yair / Lender06 (`dd36bce`) |
+| Yair | 10 | Un INNER JOIN + COUNT: usuarios registrados por rol | `/api/users/por-rol`; sin parámetros | Aporte de Yair / Lender06 (`dd36bce`) |
 
 Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4, Q6, Q8 y Q10 tienen exactamente una cláusula JOIN y una agregación COUNT; no se encadenan dos JOIN.
 
@@ -102,10 +102,10 @@ Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4
 - **Q6:** `categoria LEFT JOIN reporte` por `id_categoria`; agrupa cada categoría y cuenta `id_reporte`. El LEFT JOIN conserva las categorías sin incidencias; COUNT de la columna del reporte devuelve cero para ellas. Devuelve `idCategoria`, `nombre`, `descripcion`, `totalReportes`.
 - **Q7:** filtra `prioridadSugerida` de recomendación. `ALTA` muestra recomendaciones de mantenimiento urgentes; la recomendación es registrada por el administrador.
 - **Q8:** `recomendacion JOIN reporte` por `id_reporte`; agrupa por la prioridad real del reporte y cuenta recomendaciones. Dos recomendaciones asociadas a incidencias ALTA y una a MEDIA producen cantidades 2 y 1. Se usa la prioridad de la incidencia, que puede diferir de la sugerida. Devuelve `prioridad`, `cantidad`.
-- **Q9:** el método `findByTextoComentarioContainingIgnoreCase` genera la búsqueda por una parte del texto de un comentario. `texto=lampara` encuentra textos que contengan esa palabra; la búsqueda ignora mayúsculas, pero no elimina acentos.
-- **Q10:** `reporte LEFT JOIN comentario` por `id_reporte`; agrupa por ID y título y cuenta `id_comentario`. Una incidencia con dos comentarios devuelve `cantidad: 2`; otra sin comentarios devuelve `cantidad: 0`. Devuelve `reporteId`, `titulo`, `cantidad`.
+- **Q9:** `findByNombre` busca el nombre exacto en usuario, sin JOIN ni agregado. `nombre=Matias` devuelve los usuarios con ese nombre; distingue mayúsculas y no busca fragmentos. Devuelve los campos públicos de UsuarioDTOList, sin contraseña ni hash. Requiere ADMIN.
+- **Q10:** `usuario INNER JOIN rol` por `id_rol`; `GROUP BY r.nombre` agrupa usuarios según su rol y `COUNT(u.id_usuario)` los cuenta. Ordena por cantidad descendente. Un rol USUARIO con ocho usuarios devuelve `nombreRol: USUARIO, cantidadUsuarios: 8`. No incluye roles sin usuarios; cuenta todos los estados. No pide parámetros y requiere ADMIN.
 
-Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. Estas conversiones mantienen ciclos for y no utilizan lambdas ni streams. Las cinco lambdas permitidas se encuentran únicamente en SecurityConfig, siguiendo demoSI_seguridad.
+Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las agrupaciones se convierten a DTO con ciclos `for` en servicios; la conversión de usuarios por rol se realiza en UsuarioController; cada posición coincide con el orden del SELECT. Estas conversiones mantienen ciclos for y no utilizan lambdas ni streams. Las cinco lambdas permitidas se encuentran únicamente en SecurityConfig, siguiendo demoSI_seguridad.
 
 ### Métodos auxiliares
 
@@ -174,6 +174,6 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 
 Los cambios corresponden al proyecto local. Las comprobaciones locales no garantizan que Render ya ejecute esta versión: se requiere publicar y desplegar los cambios para eso.
 
-La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). La verificación actual comprobó 54 operaciones, 121 peticiones HTTP y 78 archivos Java con las cinco lambdas de seguridad autorizadas y sin las demás construcciones restringidas.
+La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). El 02/10 se incorporaron las dos consultas reales de usuarios de Yair (dd36bce), manteniendo su rama intacta. La verificación actual comprobó 54 operaciones, 124 peticiones HTTP y 78 archivos Java con las cinco lambdas de seguridad autorizadas y sin las demás construcciones restringidas.
 
 Lombok se incorporó posteriormente por pedido del usuario: Getter/Setter en las ocho entidades y 26 DTO; los constructores se mantienen. Ver [explicación y referencias](Lombok-y-lambdas-demoSI.md).
