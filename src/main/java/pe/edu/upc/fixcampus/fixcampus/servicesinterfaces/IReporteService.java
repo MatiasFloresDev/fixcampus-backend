@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
@@ -17,5 +18,5 @@ public interface IReporteService {
     List<Reporte> buscarPorCorreoReportante(String correo);
     List<IncidenciasPorMesDTO> contarPorUsuarioYMes();
     List<Reporte> buscarPorPrioridad(String prioridad);
-    List<Reporte> buscarPorCampus(String campus);
+    List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado);
 }

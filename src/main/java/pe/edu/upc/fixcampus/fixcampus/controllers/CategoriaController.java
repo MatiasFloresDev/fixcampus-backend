@@ -64,7 +64,7 @@ public class CategoriaController {
         return ResponseEntity.created(location).body(response);
     }
     @GetMapping("/buscar-descripcion")
-    @Operation(summary = "Buscar por descripción", description = "Consulta 6, simple: busca categorías que contengan una palabra en su descripción. Ejemplo: luces.")
+    @Operation(summary = "Buscar por descripción", description = "Consulta 5, simple: busca categorías que contengan una palabra en su descripción. Ejemplo: luces.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
             @Parameter(description = "Palabra clave a buscar en la descripción") @RequestParam String palabraClave) {
@@ -78,7 +78,7 @@ public class CategoriaController {
     @GetMapping("/reporte-por-categoria")
     @Operation(
         summary = "Reportes por categoría",
-        description = "Consulta 7: LEFT JOIN y COUNT. Cuenta todos los reportes por categoría e incluye las que tienen cero. No filtra por fechas. Solo administradores."
+        description = "Consulta 6: LEFT JOIN y COUNT. Cuenta todos los reportes por categoría e incluye las que tienen cero. No filtra por fechas. Solo administradores."
     )
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CategoriaConReportesDTO>> contarReportesPorCategoria() {

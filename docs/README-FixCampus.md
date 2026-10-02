@@ -10,12 +10,14 @@ Este conjunto acompaña la demo del proyecto para una entrevista de documentaci�
 4. [Especificación funcional y técnica](Especificacion-funcional-tecnica-FixCampus.md) — alcance, permisos, API, datos, arquitectura y pruebas.
 5. [Modelo entidad-relación](MER-FixCampus.md) — relaciones principales de la base de datos.
 6. [Guion de entrevista](Guion-entrevista-FixCampus.md) — orden sugerido para explicar el proyecto y separar evidencia real de propuesta.
+7. [Consultas e integración del equipo](Actualizacion-consultas-y-documento-2026-10-01.md) — diez consultas en cinco pares, ejemplos, procedencia y cambios de Yair.
+8. [Verificación de la entrega](Revision-entrega-consultas-yair-2026-10-01.md) — requisitos del backend comprobados y evidencias pendientes de la entrega.
 
 ## Cómo presentarlo en cinco minutos
 
 1. Explica el problema: los avisos informales pierden ubicación, categoría y seguimiento.
 2. Muestra HU-03 y CU-01: son el mismo flujo visto desde dos niveles de detalle.
-3. Abre la web: registro, login, categorías, ubicación, envío y Mis reportes.
+3. Demuestra en Swagger registro, login, categorías, ubicaciones, creación y consulta de reportes propios.
 4. Enseña Swagger: contrato `POST /api/reports`, respuesta `201` y permisos.
 5. Cierra con HU-06, HU-09 y HU-11 como evolución: evidencia, responsable/SLA y línea de tiempo.
 

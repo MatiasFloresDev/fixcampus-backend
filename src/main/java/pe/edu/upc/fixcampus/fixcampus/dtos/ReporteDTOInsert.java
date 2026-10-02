@@ -72,4 +72,3 @@ public class ReporteDTOInsert {
     public void setEstado(String estado) {
         this.estado = estado; }
 }
-

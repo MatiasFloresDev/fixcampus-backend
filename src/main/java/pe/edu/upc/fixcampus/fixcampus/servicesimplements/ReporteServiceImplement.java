@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
@@ -105,11 +106,6 @@ public class ReporteServiceImplement implements IReporteService {
         return reporteRepository.findByPrioridad(prioridad);
     }
 
-    @Override
-    public List<Reporte> buscarPorCampus(String campus) {
-        return reporteRepository.findByCampus(campus);
-    }
-
     private void copiarDatos(Reporte reporte, ReporteDTOInsert dto) {
         Optional<Usuario> usuarioEncontrado = usuarioRepository.findById(dto.getUsuarioReportanteId());
         if (usuarioEncontrado.isEmpty()) {
@@ -159,5 +155,12 @@ public class ReporteServiceImplement implements IReporteService {
             reporte.setFechaResolucion(null);
         }
         reporte.setEstado(dto.getEstado());
+    }
+    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado) {
+        List<IncidenciasPorCampusDTO> lista = new ArrayList<>();
+        for (Object[] fila : reporteRepository.contarPorCampusYEstado(estado)) {
+            lista.add(new IncidenciasPorCampusDTO((String) fila[0], ((Number) fila[1]).longValue()));
+        }
+        return lista;
     }
 }

@@ -11,6 +11,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
@@ -98,7 +99,10 @@ class ReporteRepositoryTests {
         assertThat(porMes.get(0).getCantidad()).isEqualTo(1L);
 
         assertThat(reportRepository.findByPrioridad("media")).hasSize(1);
-        assertThat(reportRepository.findByCampus("upc san miguel")).hasSize(1);
-        assertThat(reportRepository.findByCampus("otro campus")).isEmpty();
+        List<IncidenciasPorCampusDTO> porCampus = reportService.contarPorCampusYEstado("abierto");
+        assertThat(porCampus).hasSize(1);
+        assertThat(porCampus.get(0).getCampus()).isEqualTo("UPC San Miguel");
+        assertThat(porCampus.get(0).getCantidad()).isEqualTo(1L);
+        assertThat(reportService.contarPorCampusYEstado("RESUELTO")).isEmpty();
     }
 }

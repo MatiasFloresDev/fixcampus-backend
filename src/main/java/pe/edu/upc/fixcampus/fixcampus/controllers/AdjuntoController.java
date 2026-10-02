@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 
@@ -25,7 +26,7 @@ public class AdjuntoController {
     @GetMapping("/reporte/{reporteId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Listar evidencias de un reporte", description = "Solo permite consultar evidencias del propio reporte o de un administrador.")
-    public List<AdjuntoDTO> listarPorReporte(@PathVariable Long reporteId, Authentication authentication) {
+    public List<AdjuntoDTOList> listarPorReporte(@PathVariable Long reporteId, Authentication authentication) {
         Reporte reporte = service.buscarReporte(reporteId);
         verificarPermiso(reporte, authentication);
         return convertirLista(service.buscarPorReporte(reporteId));
@@ -48,25 +49,25 @@ public class AdjuntoController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar adjuntos", description = "Muestra todos los adjuntos sin parámetros. Solo administradores.")
-    public List<AdjuntoDTO> listar() {
+    public List<AdjuntoDTOList> listar() {
         return convertirLista(service.listar());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public AdjuntoDTO buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
+    public AdjuntoDTOList buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdjuntoDTO> crear(@Valid @RequestBody AdjuntoDTO datos) {
+    public ResponseEntity<AdjuntoDTOList> crear(@Valid @RequestBody AdjuntoDTOInsert datos) {
         Adjunto guardado = service.registrar(datos);
-        AdjuntoDTO respuesta = convertir(guardado);
+        AdjuntoDTOList respuesta = convertir(guardado);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public AdjuntoDTO actualizar(@PathVariable Long id, @Valid @RequestBody AdjuntoDTO datos) {
+    public AdjuntoDTOList actualizar(@PathVariable Long id, @Valid @RequestBody AdjuntoDTOInsert datos) {
         return convertir(service.actualizar(id, datos));
     }
 
@@ -77,8 +78,8 @@ public class AdjuntoController {
         return ResponseEntity.noContent().build();
     }
 
-    private AdjuntoDTO convertir(Adjunto adjunto) {
-        AdjuntoDTO dto = new AdjuntoDTO();
+    private AdjuntoDTOList convertir(Adjunto adjunto) {
+        AdjuntoDTOList dto = new AdjuntoDTOList();
         dto.setIdAdjunto(adjunto.getIdAdjunto());
         dto.setReporteId(adjunto.getReporte().getIdReporte());
         dto.setNombreArchivo(adjunto.getNombreArchivo());
@@ -88,8 +89,8 @@ public class AdjuntoController {
         return dto;
     }
 
-    private List<AdjuntoDTO> convertirLista(List<Adjunto> adjuntos) {
-        List<AdjuntoDTO> lista = new ArrayList<>();
+    private List<AdjuntoDTOList> convertirLista(List<Adjunto> adjuntos) {
+        List<AdjuntoDTOList> lista = new ArrayList<>();
         for (Adjunto adjunto : adjuntos) {
             lista.add(convertir(adjunto));
         }

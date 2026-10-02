@@ -61,8 +61,8 @@ class ApiSwaggerTests {
         assertThat(paths.get("/registro").get("post").get("security").size()).isZero();
         assertThat(paths.get("/login").get("post").get("security").size()).isZero();
         assertThat(paths.get("/api/reports/estadisticas/por-categoria")).isNull();
-        assertThat(paths.get("/api/reports/estadisticas/por-campus")).isNull();
-        assertThat(paths.get("/api/comments/estadisticas/por-reporte")).isNull();
+        assertThat(paths.get("/api/reports/estadisticas/por-campus")).isNotNull();
+        assertThat(paths.get("/api/comments/estadisticas/por-reporte")).isNotNull();
         assertThat(paths.get("/api/users/estado")).isNull();
         assertThat(paths.get("/api/attachments/estadisticas/por-usuario")).isNull();
         for (String ruta : new String[] {"/api/categories", "/api/reports", "/api/users",
@@ -77,14 +77,32 @@ class ApiSwaggerTests {
         assertThat(paths.get("/api/comments").get("get").has("parameters")).isFalse();
         assertThat(paths.get("/api/reports").get("get").get("parameters").size()).isEqualTo(1);
         int cantidadConsultas = 0;
+        int cantidadAgregadas = 0;
+        boolean[] numerosEncontrados = new boolean[11];
         for (JsonNode ruta : paths) {
             for (JsonNode operacion : ruta) {
                 if (operacion.path("description").asText().startsWith("Consulta ")) {
                     cantidadConsultas++;
+                    Matcher numero = Pattern.compile("Consulta ([0-9]+)").matcher(operacion.path("description").asText());
+                    assertThat(numero.find()).isTrue();
+                    int identificador = Integer.parseInt(numero.group(1));
+                    assertThat(identificador).isBetween(1, 10);
+                    assertThat(numerosEncontrados[identificador]).isFalse();
+                    numerosEncontrados[identificador] = true;
+                    if (operacion.path("description").asText().contains("COUNT")) {
+                        cantidadAgregadas++;
+                        assertThat(operacion.path("description").asText()).contains("JOIN");
+                    }
                 }
             }
         }
         assertThat(cantidadConsultas).isEqualTo(10);
+        assertThat(cantidadAgregadas).isEqualTo(5);
+        assertThat(paths.get("/api/locations").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/api/recomendaciones/estadisticas/por-prioridad-reporte")).isNotNull();
+        assertThat(paths.get("/api/comments/buscar-texto")).isNotNull();
+        assertThat(paths.get("/api/recomendaciones/por-categoria")).isNull();
+        assertThat(paths.get("/api/recomendaciones/reporte/{reporteId}")).isNull();
 
         HttpResponse<String> login = client.send(
                 HttpRequest.newBuilder(URI.create(base + "/login"))

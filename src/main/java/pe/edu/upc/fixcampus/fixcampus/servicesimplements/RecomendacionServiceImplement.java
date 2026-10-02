@@ -1,12 +1,14 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
+import java.util.ArrayList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionesPorPrioridadDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTOInsert;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +25,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
 
     public List<Recomendacion> listar() { return repository.findAll(); }
     public List<Recomendacion> buscarPorPrioridad(String prioridad) { return repository.findByPrioridadSugeridaIgnoreCase(prioridad); }
-    public List<Recomendacion> buscarPorCategoria(String nombre) { return repository.findByCategoriaDelReporte(nombre); }
-
-    public Recomendacion registrar(RecomendacionDTO datos) {
+    public Recomendacion registrar(RecomendacionDTOInsert datos) {
         if (repository.existsByReporte_IdReporte(datos.getReporteId())) {
             throw new IllegalArgumentException("Este reporte ya tiene una recomendación");
         }
@@ -35,7 +35,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         return repository.save(recomendacion);
     }
 
-    public Recomendacion actualizar(Long id, RecomendacionDTO datos) {
+    public Recomendacion actualizar(Long id, RecomendacionDTOInsert datos) {
         Recomendacion recomendacion = buscarPorId(id);
         if (!recomendacion.getReporte().getIdReporte().equals(datos.getReporteId())
                 && repository.existsByReporte_IdReporte(datos.getReporteId())) {
@@ -53,15 +53,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         return encontrado.get();
     }
 
-    public Recomendacion buscarPorReporte(Long reporteId) {
-        Optional<Recomendacion> encontrado = repository.findByReporte_IdReporte(reporteId);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Este reporte no tiene una recomendación registrada");
-        }
-        return encontrado.get();
-    }
-
-    private void copiarDatos(Recomendacion recomendacion, RecomendacionDTO datos) {
+    private void copiarDatos(Recomendacion recomendacion, RecomendacionDTOInsert datos) {
         Optional<Reporte> reporte =
                 reporteRepository.findById(datos.getReporteId());
         if (reporte.isEmpty()) {
@@ -75,4 +67,11 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
     }
 
     public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    public List<RecomendacionesPorPrioridadDTO> contarPorPrioridadReporte() {
+        List<RecomendacionesPorPrioridadDTO> lista = new ArrayList<>();
+        for (Object[] fila : repository.contarPorPrioridadReporte()) {
+            lista.add(new RecomendacionesPorPrioridadDTO((String) fila[0], ((Number) fila[1]).longValue()));
+        }
+        return lista;
+    }
 }

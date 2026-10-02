@@ -1,16 +1,16 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionesPorPrioridadDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTOInsert;
 import java.util.List;
 
 public interface IRecomendacionService {
     List<Recomendacion> listar();
     List<Recomendacion> buscarPorPrioridad(String prioridad);
-    List<Recomendacion> buscarPorCategoria(String nombre);
     Recomendacion buscarPorId(Long id);
-    Recomendacion buscarPorReporte(Long reporteId);
-    Recomendacion registrar(RecomendacionDTO datos);
-    Recomendacion actualizar(Long id, RecomendacionDTO datos);
+    Recomendacion registrar(RecomendacionDTOInsert datos);
+    Recomendacion actualizar(Long id, RecomendacionDTOInsert datos);
     void eliminar(Long id);
+    List<RecomendacionesPorPrioridadDTO> contarPorPrioridadReporte();
 }

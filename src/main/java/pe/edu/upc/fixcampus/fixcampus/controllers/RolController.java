@@ -2,44 +2,60 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RolDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RolDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {
     private final IRolService service;
+    private final ModelMapper modelMapper;
 
-    public RolController(IRolService service) { this.service = service; }
+    public RolController(IRolService service, ModelMapper modelMapper) {
+        this.service = service;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
-    @Operation(summary = "Listar roles", description = "Muestra todos los roles sin parámetros. Solo administradores.")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Rol> listar() {
-        return service.listar();
+    @Operation(summary = "Listar roles", description = "Muestra todos los registros sin parámetros.")
+    public List<RolDTOList> listar() {
+        List<RolDTOList> lista = new ArrayList<>();
+        for (Rol registro : service.listar()) {
+            lista.add(modelMapper.map(registro, RolDTOList.class));
+        }
+        return lista;
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Rol buscar(@PathVariable Long id) { return service.buscarPorId(id); }
+    public RolDTOList buscar(@PathVariable Long id) {
+        return modelMapper.map(service.buscarPorId(id), RolDTOList.class);
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Rol> crear(@Valid @RequestBody Rol datos) {
-        Rol guardado = service.registrar(datos);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+    public ResponseEntity<RolDTOList> crear(@Valid @RequestBody RolDTOInsert datos) {
+        Rol registro = modelMapper.map(datos, Rol.class);
+        Rol guardado = service.registrar(registro);
+        RolDTOList respuesta = modelMapper.map(guardado, RolDTOList.class);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Rol actualizar(@PathVariable Long id, @Valid @RequestBody Rol datos) {
-        return service.actualizar(id, datos);
+    public RolDTOList actualizar(@PathVariable Long id, @Valid @RequestBody RolDTOInsert datos) {
+        Rol registro = modelMapper.map(datos, Rol.class);
+        return modelMapper.map(service.actualizar(id, registro), RolDTOList.class);
     }
 
     @DeleteMapping("/{id}")

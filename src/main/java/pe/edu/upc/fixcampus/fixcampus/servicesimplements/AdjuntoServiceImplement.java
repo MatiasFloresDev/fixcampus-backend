@@ -6,7 +6,7 @@ import pe.edu.upc.fixcampus.fixcampus.repositories.*;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTO;
+import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOInsert;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -30,14 +30,14 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
     public List<Adjunto> buscarPorReporte(Long reporteId) { return repository.findByReporte_IdReporte(reporteId); }
 
 
-    public Adjunto registrar(AdjuntoDTO datos) {
+    public Adjunto registrar(AdjuntoDTOInsert datos) {
         Adjunto adjunto = new Adjunto();
         copiarDatos(adjunto, datos);
         adjunto.setFechaSubida(LocalDateTime.now());
         return repository.save(adjunto);
     }
 
-    public Adjunto actualizar(Long id, AdjuntoDTO datos) {
+    public Adjunto actualizar(Long id, AdjuntoDTOInsert datos) {
         Adjunto adjunto = buscarPorId(id);
         copiarDatos(adjunto, datos);
         return repository.save(adjunto);
@@ -51,7 +51,7 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
         return encontrado.get();
     }
 
-    private void copiarDatos(Adjunto adjunto, AdjuntoDTO datos) {
+    private void copiarDatos(Adjunto adjunto, AdjuntoDTOInsert datos) {
         adjunto.setReporte(buscarReporte(datos.getReporteId()));
         adjunto.setNombreArchivo(datos.getNombreArchivo());
         adjunto.setUrlArchivo(datos.getUrlArchivo());

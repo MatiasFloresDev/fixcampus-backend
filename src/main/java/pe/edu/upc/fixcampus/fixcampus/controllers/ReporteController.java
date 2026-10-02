@@ -1,5 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
+import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import java.util.ArrayList;
 import org.springframework.security.core.GrantedAuthority;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
@@ -65,17 +66,10 @@ public class ReporteController {
 
 
     @GetMapping("/prioridad/{prioridad}")
-    @Operation(summary = "Buscar reportes por prioridad", description = "Consulta 4, simple: lista las incidencias de la prioridad indicada. Ejemplo: ALTA.")
+    @Operation(summary = "Buscar reportes por prioridad", description = "Consulta 3, simple: lista las incidencias de la prioridad indicada. Ejemplo: ALTA.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(@PathVariable String prioridad) {
         return ResponseEntity.ok(convertirLista(service.buscarPorPrioridad(prioridad)));
-    }
-
-    @GetMapping("/campus/{campus}")
-    @Operation(summary = "Buscar reportes por campus", description = "Consulta 5 con JOIN: relaciona reportes y ubicaciones para buscar por campus. Ejemplo: Monterrico.")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<List<ReporteDTOList>> buscarPorCampus(@PathVariable String campus) {
-        return ResponseEntity.ok(convertirLista(service.buscarPorCampus(campus)));
     }
 
     @GetMapping("/{id}")
@@ -182,5 +176,11 @@ public class ReporteController {
             lista.add(convertirDto(reporte));
         }
         return lista;
+    }
+    @GetMapping("/estadisticas/por-campus")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Contar incidencias por campus y estado", description = "Consulta 4: un JOIN y COUNT. Cuenta incidencias por campus del estado indicado. Ejemplo: estado=ABIERTO. Solo administradores.")
+    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(@RequestParam String estado) {
+        return service.contarPorCampusYEstado(estado);
     }
 }

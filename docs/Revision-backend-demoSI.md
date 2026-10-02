@@ -18,7 +18,7 @@
 | `@RequestBody`, `@PathVariable`, `@RequestParam` | JSON de entrada, ID en la ruta y filtros de consultas |
 | DTO y validaciones | Datos de entrada/salida; usuario de salida sin contraseña |
 | `findBy...`, `@Query`, JOIN y GROUP BY | Búsquedas y estadísticas documentadas |
-| SQL nativo + `List<Object[]>` | Dos agrupaciones convertidas a DTO mediante `for`; se evita usar streams o lambdas para recorrer sus resultados |
+| SQL nativo + `List<Object[]>` | Cinco agrupaciones convertidas a DTO mediante `for`; se evita usar streams o lambdas para recorrer sus resultados |
 | BCrypt y JWT | Registro, login y acceso mediante Bearer token HS512 |
 | `@PreAuthorize` | Permiso ADMIN/USUARIO por operación |
 | OpenAPI | Swagger con descripciones de consultas y rutas públicas sin candado |
@@ -44,7 +44,7 @@ En `ComentarioController` se separan los pasos para leerlos con claridad:
 
 ```java
 Comentario guardado = service.registrar(datos);
-ComentarioDTO respuesta = convertir(guardado);
+ComentarioDTOList respuesta = convertir(guardado);
 return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 ```
 
@@ -56,17 +56,9 @@ Hay ocho controladores de entidades, más `LoginController` para autenticar: nue
 
 La retroalimentación revisada no establece una cantidad máxima de DTO. El ejemplo demoSI también separa `CropDTOInsert` y `CropDTOList`: recibir datos y devolverlos pueden necesitar campos distintos.
 
-La carpeta `dtos` contiene 16 clases, todas utilizadas, después de retirar cuatro DTO correspondientes a consultas eliminadas:
+La carpeta `dtos` contiene 26 clases utilizadas. El refactor de Yair separa entradas y salidas, como el ejemplo CropDTOInsert/CropDTOList: 16 clases para los ocho CRUD, dos para login, dos para registro, cinco para resultados agrupados y una para errores. Los DTO de salida excluyen contraseña, permiten devolver IDs/fechas y evitan exponer entidades relacionadas completas.
 
-| Uso | Cantidad | Motivo |
-|---|---|---|
-| CRUD de categoría, reporte, usuario, comentario, adjunto y recomendación | 9 | Seleccionar campos y validar entradas. Usuario mantiene una salida sin contraseña y una entrada distinta para crear o actualizar |
-| Login | 2 | La entrada recibe correo y contraseña; la salida entrega token y datos de sesión |
-| Registro público | 2 | La entrada no permite escoger rol ni estado; la salida confirma la cuenta sin devolver contraseña |
-| Estadísticas | 2 | Cada consulta agrupada devuelve columnas diferentes; son resultados de consultas, no nuevas tablas |
-| ErrorResponse | 1 | Mantiene una respuesta de error consistente con estado, mensaje y ruta |
-
-Se conservan los DTO que usa cada contrato; solo se eliminaron los cuatro que dejaron de tener una consulta asociada. Con la reorganización de Yair, la carpeta se llama `configs` y solo contiene `ModelMapperConfig`; la seguridad sigue en `securities`. Las interfaces usan prefijo `I` y las implementaciones se encuentran en `servicesimplements`.
+Con la reorganización de Yair, la carpeta se llama `configs` y solo contiene `ModelMapperConfig`; la seguridad sigue en `securities`. Las interfaces usan prefijo `I` y las implementaciones se encuentran en `servicesimplements`.
 
 ## Correcciones funcionales
 
@@ -79,45 +71,47 @@ Se conservan los DTO que usa cada contrato; solo se eliminaron los cuatro que de
 - Login valida correo y contraseña; registro conserva el mínimo de seis caracteres y BCrypt.
 - Las consultas agrupadas usan SQL explícito y conversión por columnas. Se corrigió la numeración repetida de consultas.
 
-## Diez consultas funcionales
+## Diez consultas: cinco pares
 
-Todas se prueban con GET y un token obtenido en `POST /login`. En Swagger, pegarlo en **Authorize**. Base local: `http://localhost:8080`. Los IDs deben corresponder a registros existentes.
+El reparto siguiente identifica al responsable de explicar y mantener cada par. **Asignación no significa autoría histórica**: los commits originales permanecen en Git. Q4 se adaptó en esta actualización y Q8, Q9 y Q10 se implementaron aquí; no se atribuyen retrospectivamente a un compañero.
 
-| Q | Qué hace / tipo | Autor registrado en Git | Ruta y ejemplo |
-|---|---|---|---|
-| 1 | Filtra incidencias por estado; simple | Matias inicialmente (`b5b759c`); José también trabajó el repositorio de reportes | `/api/reports?estado=ABIERTO` |
-| 2 | Cuenta incidencias de cada usuario por año y mes; JOIN, GROUP BY y COUNT | Matias (`472e19b`) | `/api/reports/estadisticas/por-usuario-mes` |
-| 3 | Busca ubicaciones por parte del campus; simple | José (`6a90b79`), sobre una consulta inicialmente de Matias (`ec488ea`) | `/api/locations?campus=Monterrico` |
-| 4 | Filtra incidencias por prioridad; simple | José Ponce (`27395a9`) | `/api/reports/prioridad/ALTA` |
-| 5 | Busca incidencias por campus exacto; JOIN | José Ponce (`27395a9`) | `/api/reports/campus/Monterrico` |
-| 6 | Busca categorías por parte de la descripción; simple | Jeffrey (`45a7fa8`) | `/api/categories/buscar-descripcion?palabraClave=luces` |
-| 7 | Cuenta reportes por categoría, incluyendo categorías sin reportes; LEFT JOIN y COUNT | Jeffrey (`e46e0de`) | `/api/categories/reporte-por-categoria` |
-| 8 | Filtra recomendaciones de mantenimiento por prioridad; simple | Mauricio (`b88cc7c`) | `/api/recomendaciones/prioridad?prioridad=ALTA` |
-| 9 | Busca recomendaciones por la categoría de la incidencia; JOIN | Mauricio (`b88cc7c`) | `/api/recomendaciones/por-categoria?nombre=Electricidad` |
-| 10 | Busca la recomendación de una incidencia; relación por FK | Mauricio: endpoint (`5477018`); el método auxiliar ya existía en `f32f774` | `/api/recomendaciones/reporte/1` |
+Todas se ejecutan con GET en Swagger. Obtener un token en `POST /login` y pegarlo en **Authorize**. Las estadísticas y consultas administrativas requieren ADMIN. Q5 admite también USUARIO.
 
-Se conservaron las dos consultas seleccionadas para Matias (Q1 y Q2) y ocho existentes con aportes de sus compañeros. La numeración de Swagger y repositorios ahora va de 1 a 10. Se retiraron once consultas y cuatro DTO de estadísticas sin uso; los ocho CRUD siguen disponibles.
+| Responsable del par | Q | Tipo y finalidad | Ruta / parámetros de ejemplo | Procedencia |
+|---|---|---|---|---|
+| Matias | 1 | Simple: listar incidencias por estado | `/api/reports?estado=ABIERTO` | Aporte previo de Matias (`b5b759c`) |
+| Matias | 2 | Un JOIN + COUNT: incidencias por usuario, año y mes | `/api/reports/estadisticas/por-usuario-mes`; sin parámetros | Aporte previo de Matias (`472e19b`) |
+| José | 3 | Simple: listar incidencias por prioridad | `/api/reports/prioridad/ALTA` | Aporte previo de José (`27395a9`) |
+| José | 4 | Un JOIN + COUNT: cantidad de incidencias por campus de un estado | `/api/reports/estadisticas/por-campus?estado=ABIERTO` | Adaptada aquí a un JOIN; asignada a José |
+| Jeffrey | 5 | Simple: categorías cuya descripción contiene una palabra | `/api/categories/buscar-descripcion?palabraClave=luces` | Aporte previo de Jeffrey (`45a7fa8`) |
+| Jeffrey | 6 | Un LEFT JOIN + COUNT: incidencias por categoría, incluidas categorías sin incidencias | `/api/categories/reporte-por-categoria`; sin parámetros | Aporte previo de Jeffrey (`e46e0de`) |
+| Mauricio | 7 | Simple: recomendaciones por prioridad sugerida | `/api/recomendaciones/prioridad?prioridad=ALTA` | Aporte previo de Mauricio (`b88cc7c`) |
+| Mauricio | 8 | Un JOIN + COUNT: recomendaciones según la prioridad de la incidencia | `/api/recomendaciones/estadisticas/por-prioridad-reporte`; sin parámetros | Nueva en esta actualización; asignada a Mauricio |
+| Yair | 9 | Simple: comentarios que contienen un texto | `/api/comments/buscar-texto?texto=lampara` | Nueva en esta actualización; asignada a Yair |
+| Yair | 10 | Un LEFT JOIN + COUNT: comentarios por incidencia, incluyendo cero | `/api/comments/estadisticas/por-reporte`; sin parámetros | Nueva en esta actualización; asignada a Yair |
 
-### Cómo explicar las consultas
+Las consultas Q1, Q3, Q5, Q7 y Q9 consultan una sola tabla. Las consultas Q2, Q4, Q6, Q8 y Q10 tienen exactamente una cláusula JOIN y una agregación COUNT; no se encadenan dos JOIN.
 
-- **Q1:** `WHERE` compara el estado de la incidencia; devuelve sus datos, sin agrupar. Ejemplo: `ABIERTO` muestra incidencias pendientes de atención.
-- **Q2:** une reporte con usuario mediante la FK; obtiene año y mes de la fecha de creación; `GROUP BY` reúne usuario, año y mes; `COUNT` cuenta reportes. Si Ana creó tres incidencias en septiembre y una en octubre, aparecen dos filas con cantidades 3 y 1. Devuelve `usuarioId`, `nombre`, `apellido`, `anio`, `mes` y `cantidad`. No necesita parámetros.
-- **Q3:** compara el campus con un texto parcial, sin distinguir mayúsculas. `Monterrico` permite encontrar las ubicaciones de ese campus.
-- **Q4:** compara la prioridad del reporte. `ALTA` permite revisar incidencias urgentes.
-- **Q5:** relaciona reporte con ubicación y compara el campus completo. `Monterrico` devuelve incidencias de ese campus; no calcula un total.
-- **Q6:** busca un texto dentro de la descripción de la categoría. `luces` identifica categorías cuya descripción contiene esa palabra.
-- **Q7:** parte de categoría y hace `LEFT JOIN` con reporte. `GROUP BY` reúne cada categoría y `COUNT` cuenta los reportes existentes. Electricidad con dos incidencias devuelve `totalReportes: 2`; una categoría sin incidencias devuelve `totalReportes: 0`. Devuelve `idCategoria`, `nombre`, `descripcion` y `totalReportes`. No necesita parámetros.
-- **Q8:** compara la prioridad sugerida en la recomendación de mantenimiento. `ALTA` permite revisar las recomendaciones urgentes.
-- **Q9:** relaciona recomendación, reporte y categoría, y compara el nombre de categoría. `Electricidad` muestra sus recomendaciones de mantenimiento; no es una agregación.
-- **Q10:** busca por la FK del reporte. Usar un ID obtenido en `GET /api/reports`; devuelve una recomendación o `404` si no existe.
+### Estructura y ejemplos para explicar
 
-Las dos agrupaciones (Q2 y Q7) devuelven filas `Object[]`. El servicio convierte cada columna en el campo de su DTO con ciclos `for`. El orden de las posiciones coincide con el `SELECT`.
+- **Q1:** compara `estado` sin distinguir mayúsculas; devuelve los reportes coincidentes. Si se omite estado, el CRUD lista todos. `ABIERTO` permite revisar incidencias pendientes de atención.
+- **Q2:** `reporte JOIN usuario` mediante `id_usuario_reportante`; `EXTRACT` obtiene año y mes; `GROUP BY` forma grupos por persona y periodo; `COUNT(*)` cuenta incidencias. Ana con tres incidencias en septiembre y una en octubre produce dos filas: cantidades 3 y 1. Devuelve `usuarioId`, `nombre`, `apellido`, `anio`, `mes`, `cantidad`.
+- **Q3:** compara la prioridad del reporte. `ALTA` devuelve incidencias urgentes sin sumar ni agrupar.
+- **Q4:** `reporte JOIN ubicacion` por `id_ubicacion`; `WHERE` filtra el estado solicitado; `GROUP BY campus` y `COUNT(id_reporte)` cuentan incidencias por campus. Con `estado=ABIERTO`, Monterrico con cuatro incidencias abiertas devuelve `campus: Monterrico, cantidad: 4`. Los campus sin coincidencias no aparecen.
+- **Q5:** compara la descripción de categoría con un texto parcial, sin distinguir mayúsculas. `luces` busca las categorías relacionadas con iluminación.
+- **Q6:** `categoria LEFT JOIN reporte` por `id_categoria`; agrupa cada categoría y cuenta `id_reporte`. El LEFT JOIN conserva las categorías sin incidencias; COUNT de la columna del reporte devuelve cero para ellas. Devuelve `idCategoria`, `nombre`, `descripcion`, `totalReportes`.
+- **Q7:** filtra `prioridadSugerida` de recomendación. `ALTA` muestra recomendaciones de mantenimiento urgentes; la recomendación es registrada por el administrador.
+- **Q8:** `recomendacion JOIN reporte` por `id_reporte`; agrupa por la prioridad real del reporte y cuenta recomendaciones. Dos recomendaciones asociadas a incidencias ALTA y una a MEDIA producen cantidades 2 y 1. Se usa la prioridad de la incidencia, que puede diferir de la sugerida. Devuelve `prioridad`, `cantidad`.
+- **Q9:** el método `findByTextoComentarioContainingIgnoreCase` genera la búsqueda por una parte del texto de un comentario. `texto=lampara` encuentra textos que contengan esa palabra; la búsqueda ignora mayúsculas, pero no elimina acentos.
+- **Q10:** `reporte LEFT JOIN comentario` por `id_reporte`; agrupa por ID y título y cuenta `id_comentario`. Una incidencia con dos comentarios devuelve `cantidad: 2`; otra sin comentarios devuelve `cantidad: 0`. Devuelve `reporteId`, `titulo`, `cantidad`.
 
-### Métodos auxiliares y requisito individual
+Cada consulta está comentada en su repositorio y tiene una descripción breve en Swagger. Los resultados `Object[]` de las cinco agrupaciones se convierten a DTO en los servicios con ciclos `for`; cada posición coincide con el orden del SELECT. No se utilizan lambdas ni streams.
 
-Los métodos de login, registro, acceso a reportes propios, consulta de adjuntos de un reporte, conteo de usuarios y operaciones de `JpaRepository` siguen disponibles: son dependencias de los CRUD y de la seguridad, no nuevas consultas numeradas del catálogo académico. `GET /api/users` lista todos los usuarios sin parámetros ni contraseñas.
+### Métodos auxiliares
 
-La autoría proviene del historial de Git, no de una asignación inventada. Yair tiene aportes de refactor, pero no una nueva consulta identificada. Hay diez consultas en total y dos agrupaciones con COUNT; esto **no acredita una simple y otra con agregación por cada uno de los cinco integrantes**. Q5 y Q9 usan JOIN pero no COUNT/SUM/AVG. Conservar las ocho existentes fue la selección solicitada; el equipo debe contrastar el reparto con la profesora y Trello.
+Login, registro, CRUD, consulta de reportes propios, adjuntos de un reporte y conteo de usuarios siguen disponibles. Son operaciones necesarias para seguridad y CRUD; no se añaden al catálogo de diez consultas académicas. `GET /api/users` lista todos, sin parámetros y sin contraseña.
+
+Se retiraron los filtros anteriores por campus de ubicación, reportes por campus sin agregación, recomendaciones por categoría con dos JOIN y recomendación por reporte. Sus ocho CRUD continúan funcionando; para leer una recomendación concreta se usa `GET /api/recomendaciones/{id}`.
 
 ## Probar en Swagger local
 
@@ -158,7 +152,7 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 ## Qué explicar a la profesora
 
 - **CRUD:** crear con POST, leer con GET, actualizar con PUT y eliminar con DELETE. El ID se utiliza para buscar, actualizar o borrar un registro; no para listar todos.
-- **DTO:** selecciona qué datos recibe/devuelve la API. `RegistroRequestDTO` recibe la contraseña; `UsuarioDTO` la excluye. Los DTO de estadísticas contienen las columnas del resultado, no una tabla nueva.
+- **DTO:** selecciona qué datos recibe/devuelve la API. `RegistroRequestDTO` recibe la contraseña; `UsuarioDTOList` la excluye. Los DTO de estadísticas contienen las columnas del resultado, no una tabla nueva.
 - **API:** FixCampus es una API REST desarrollada por el equipo. Render aloja esa API; PostgreSQL guarda sus datos. Swagger la documenta y permite probarla. Esto no equivale a consumir una API externa de terceros.
 - **Autenticación:** `AuthenticationManager` valida las credenciales con el usuario cargado por `JwtUserDetailsService` y con BCrypt.
 - **Autorización:** `@PreAuthorize` comprueba el rol antes de ejecutar una operación. Un token de USUARIO produce 403 al listar usuarios.
@@ -179,3 +173,5 @@ Estos pasos se ejecutan manualmente una vez. El código no promueve usuarios ni 
 - Revisión de fuentes sin lambdas/streams/referencias a métodos y sin configuración Angular/Firebase.
 
 Los cambios corresponden al proyecto local. Las comprobaciones locales no garantizan que Render ya ejecute esta versión: se requiere publicar y desplegar los cambios para eso.
+
+La integración posterior de `yair-refactor` hasta `9445874` y sus correcciones se describen en [Actualización de consultas](Actualizacion-consultas-y-documento-2026-10-01.md). La verificación actual comprobó 54 operaciones, 121 peticiones HTTP y 83 archivos Java sin las construcciones restringidas.

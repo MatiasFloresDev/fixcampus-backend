@@ -16,10 +16,6 @@ public class UbicacionServiceImplement implements IUbicacionService {
 
     public List<Ubicacion> listar() { return repository.findAll(); }
 
-    public List<Ubicacion> buscarPorCampus(String campus) {
-        return repository.findByCampusContainingIgnoreCase(campus);
-    }
-
     public Ubicacion buscarPorId(Long id) {
         Optional<Ubicacion> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {

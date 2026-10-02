@@ -15,7 +15,7 @@ FixCampus centraliza incidencias de espacios del campus. El sistema captura el c
 - CRUD de entidades principales en la API protegido por roles.
 - Documentación OpenAPI disponible en Swagger.
 - CRUD de metadatos de evidencias: nombre del archivo, URL, tipo y fecha. Consulta por reporte con permiso de su propietario o administrador.
-- Diez consultas funcionales, incluyendo dos agrupaciones con JOIN y COUNT para analizar las incidencias.
+- Diez consultas funcionales, cinco simples y cinco agrupaciones con un JOIN y COUNT para analizar las incidencias.
 
 ### Fuera del alcance de la API actual
 
@@ -70,7 +70,7 @@ OpenAPI: `http://localhost:8080/v3/api-docs`
 | Adjuntos | `GET/POST/PUT/DELETE /api/attachments`; `GET /api/attachments/reporte/{reporteId}` | CRUD admin; consulta por reporte propio o admin |
 | Comentarios | `GET/POST/PUT/DELETE /api/comments` | Admin |
 | Recomendaciones | `GET/POST/PUT/DELETE /api/recomendaciones` | Admin |
-| Indicadores | Incidencias por usuario/año/mes y total por categoría incluyendo cero | Admin |
+| Indicadores | Incidencias por usuario/mes, campus/estado y categoría; recomendaciones por prioridad de incidencia; comentarios por incidencia | Admin |
 
 ## 6. Contrato de creación de reporte
 

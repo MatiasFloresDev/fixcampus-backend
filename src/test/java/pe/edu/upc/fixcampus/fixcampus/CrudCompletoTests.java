@@ -54,7 +54,6 @@ class CrudCompletoTests {
                 + ",\"titulo\":\"Luz averiada prueba\",\"descripcion\":\"No enciende\",\"prioridad\":\"MEDIA\",\"estado\":\"RESUELTO\"}";
         long reporte = crear("/api/reports", datosReporte, "idReporte", token);
         assertThat(leer("/api/categories/reporte-por-categoria", token).get(0).get("totalReportes").asLong()).isEqualTo(1);
-        assertThat(peticion("GET", "/api/recomendaciones/reporte/" + reporte, null, token).statusCode()).isEqualTo(404);
         JsonNode creado = leer("/api/reports/" + reporte, token);
         assertThat(creado.get("estado").asText()).isEqualTo("ABIERTO");
         assertThat(creado.get("fechaAsignacion").isNull()).isFalse();
@@ -64,7 +63,6 @@ class CrudCompletoTests {
         long comentario = crear("/api/comments", "{\"reporteId\":" + reporte + ",\"usuarioId\":" + usuario + ",\"textoComentario\":\"Necesita revisión\"}", "idComentario", token);
         long adjunto = crear("/api/attachments", "{\"reporteId\":" + reporte + ",\"nombreArchivo\":\"luz.jpg\",\"urlArchivo\":\"https://example.com/luz.jpg\",\"tipoArchivo\":\"image/jpeg\"}", "idAdjunto", token);
         long recomendacion = crear("/api/recomendaciones", "{\"reporteId\":" + reporte + ",\"tituloSugerido\":\"Revisar lámpara\",\"resumen\":\"Cambio de lámpara\",\"prioridadSugerida\":\"MEDIA\",\"justificacion\":\"Aula sin luz\"}", "idRecomendacion", token);
-        assertThat(leer("/api/recomendaciones/reporte/" + reporte, token).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
 
         String[] rutas = {"/api/roles", "/api/categories", "/api/locations", "/api/users", "/api/reports", "/api/comments", "/api/attachments", "/api/recomendaciones"};
         long[] ids = {rol, categoria, ubicacion, usuario, reporte, comentario, adjunto, recomendacion};
@@ -85,22 +83,29 @@ class CrudCompletoTests {
         assertThat(actualizado.get("estado").asText()).isEqualTo("RESUELTO");
         assertThat(actualizado.get("fechaResolucion").isNull()).isFalse();
 
-        // Las diez consultas conservadas en Swagger.
+        // Cinco consultas simples y cinco consultas con un JOIN y COUNT.
         assertThat(leer("/api/reports?estado=RESUELTO", token).get(0).get("idReporte").asLong()).isEqualTo(reporte);
         assertThat(leer("/api/reports/estadisticas/por-usuario-mes", token).get(0).get("cantidad").asLong()).isEqualTo(1);
-        assertThat(leer("/api/locations?campus=prueba", token).get(0).get("idUbicacion").asLong()).isEqualTo(ubicacion);
         assertThat(leer("/api/reports/prioridad/MEDIA", token).get(0).get("idReporte").asLong()).isEqualTo(reporte);
-        assertThat(leer("/api/reports/campus/Campus%20prueba", token).get(0).get("idReporte").asLong()).isEqualTo(reporte);
+        JsonNode campus = leer("/api/reports/estadisticas/por-campus?estado=RESUELTO", token);
+        assertThat(campus.get(0).get("campus").asText()).isEqualTo("Campus prueba");
+        assertThat(campus.get(0).get("cantidad").asLong()).isEqualTo(1);
+        assertThat(leer("/api/reports/estadisticas/por-campus?estado=ABIERTO", token).isEmpty()).isTrue();
         assertThat(leer("/api/categories/buscar-descripcion?palabraClave=Luces", token).get(0).get("idCategoria").asLong()).isEqualTo(categoria);
         assertThat(leer("/api/categories/reporte-por-categoria", token).get(0).get("totalReportes").asLong()).isEqualTo(1);
         assertThat(leer("/api/recomendaciones/prioridad?prioridad=MEDIA", token).get(0).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
-        assertThat(leer("/api/recomendaciones/por-categoria?nombre=Electricidad%20prueba%20CRUD", token).get(0).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
-        assertThat(leer("/api/recomendaciones/reporte/" + reporte, token).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
+        JsonNode prioridades = leer("/api/recomendaciones/estadisticas/por-prioridad-reporte", token);
+        assertThat(prioridades.get(0).get("prioridad").asText()).isEqualTo("MEDIA");
+        assertThat(prioridades.get(0).get("cantidad").asLong()).isEqualTo(1);
+        assertThat(leer("/api/comments/buscar-texto?texto=Necesita", token).get(0).get("idComentario").asLong()).isEqualTo(comentario);
+        JsonNode comentarios = leer("/api/comments/estadisticas/por-reporte", token);
+        assertThat(comentarios.get(0).get("reporteId").asLong()).isEqualTo(reporte);
+        assertThat(comentarios.get(0).get("cantidad").asLong()).isEqualTo(1);
 
         String usuarioToken = login("usuario@fixcampus.com", "usuario123");
         assertThat(peticion("GET", "/api/users", null, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("GET", "/api/recomendaciones", null, usuarioToken).statusCode()).isEqualTo(403);
-        assertThat(peticion("GET", "/api/recomendaciones/reporte/" + reporte, null, usuarioToken).statusCode()).isEqualTo(403);
+        assertThat(peticion("GET", "/api/recomendaciones/estadisticas/por-prioridad-reporte", null, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("GET", "/api/categories/reporte-por-categoria", null, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("PUT", "/api/reports/" + reporte, datosReporte, usuarioToken).statusCode()).isEqualTo(403);
         assertThat(peticion("GET", "/api/users", null, null).statusCode()).isEqualTo(401);
@@ -113,6 +118,7 @@ class CrudCompletoTests {
         for (int i = 5; i < rutas.length; i++) {
             assertThat(peticion("DELETE", rutas[i] + "/" + ids[i], null, token).statusCode()).isEqualTo(204);
         }
+        assertThat(leer("/api/comments/estadisticas/por-reporte", token).get(0).get("cantidad").asLong()).isZero();
         assertThat(peticion("DELETE", "/api/reports/" + reporte, null, token).statusCode()).isEqualTo(204);
         for (int i = 4; i < rutas.length; i++) {
             assertThat(peticion("GET", rutas[i] + "/" + ids[i], null, token).statusCode()).isEqualTo(404);
