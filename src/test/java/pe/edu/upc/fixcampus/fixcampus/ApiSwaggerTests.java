@@ -9,6 +9,7 @@ import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.net.URI;
@@ -22,6 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApiSwaggerTests {
+
+    @Autowired
+    private JwtDecoder jwtDecoder;
 
     @Autowired
     private IRolRepository rolesDePrueba;
@@ -56,17 +60,31 @@ class ApiSwaggerTests {
         assertThat(paths.get("/api/recomendaciones").get("get").has("parameters")).isFalse();
         assertThat(paths.get("/registro").get("post").get("security").size()).isZero();
         assertThat(paths.get("/login").get("post").get("security").size()).isZero();
-        assertThat(paths.get("/api/reports/estadisticas/por-categoria")).isNotNull();
-        assertThat(paths.get("/api/attachments/estadisticas/por-usuario")).isNotNull();
+        assertThat(paths.get("/api/reports/estadisticas/por-categoria")).isNull();
+        assertThat(paths.get("/api/reports/estadisticas/por-campus")).isNull();
+        assertThat(paths.get("/api/comments/estadisticas/por-reporte")).isNull();
+        assertThat(paths.get("/api/users/estado")).isNull();
+        assertThat(paths.get("/api/attachments/estadisticas/por-usuario")).isNull();
         for (String ruta : new String[] {"/api/categories", "/api/reports", "/api/users",
                 "/api/roles", "/api/locations", "/api/comments",
                 "/api/attachments", "/api/recomendaciones"}) {
             assertThat(docs.body()).contains(ruta);
         }
         assertThat(docs.body()).contains("Contar incidencias por usuario y mes");
-        assertThat(docs.body()).contains("Nombre exacto de la categoría; consulta con JOIN");
-        assertThat(docs.body()).contains("/api/reports/estadisticas/por-campus");
-        assertThat(docs.body()).contains("/api/comments/estadisticas/por-reporte");
+        assertThat(paths.get("/api/categories").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/api/roles").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/api/attachments").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/api/comments").get("get").has("parameters")).isFalse();
+        assertThat(paths.get("/api/reports").get("get").get("parameters").size()).isEqualTo(1);
+        int cantidadConsultas = 0;
+        for (JsonNode ruta : paths) {
+            for (JsonNode operacion : ruta) {
+                if (operacion.path("description").asText().startsWith("Consulta ")) {
+                    cantidadConsultas++;
+                }
+            }
+        }
+        assertThat(cantidadConsultas).isEqualTo(10);
 
         HttpResponse<String> login = client.send(
                 HttpRequest.newBuilder(URI.create(base + "/login"))
@@ -77,6 +95,7 @@ class ApiSwaggerTests {
         assertThat(login.statusCode()).isEqualTo(200);
         Matcher token = Pattern.compile("\"token\":\"([^\"]+)\"").matcher(login.body());
         assertThat(token.find()).isTrue();
+        assertThat(jwtDecoder.decode(token.group(1)).getHeaders().get("alg")).isEqualTo("HS512");
 
         HttpResponse<String> usuarios = client.send(
                 HttpRequest.newBuilder(URI.create(base + "/api/users"))

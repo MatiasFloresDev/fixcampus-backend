@@ -39,8 +39,17 @@ public class JwtTokenService {
                 .claim("roles", roles)
                 .build();
 
-        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims))
+        JwsHeader header = JwsHeader
+                .with(MacAlgorithm.HS512)
+                .build();
+
+        return jwtEncoder
+                .encode(
+                        JwtEncoderParameters.from(
+                                header,
+                                claims
+                        )
+                )
                 .getTokenValue();
     }
 }

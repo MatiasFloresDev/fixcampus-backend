@@ -40,7 +40,7 @@ public class LoginController {
 
     @PostMapping
     @SecurityRequirements
-    @Operation(summary = "Iniciar sesión", description = "Ruta pública. Valida correo y contraseña con BCrypt. Devuelve un token JWT con los roles; credenciales incorrectas producen 401.")
+    @Operation(summary = "Iniciar sesión", description = "Ruta pública. Valida correo y contraseña con BCrypt. Devuelve un token JWT firmado con HS512 y los roles; credenciales incorrectas producen 401.")
     public ResponseEntity<LoginResponseDTO> login(
             @Valid @RequestBody LoginRequestDTO request) {
         Authentication authentication = authenticationManager.authenticate(

@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,7 @@ class CrudCompletoTests {
     private final HttpClient client = HttpClient.newHttpClient();
 
     @Test
-    void verificaOchoCrudCincoAgrupacionesYPermisos() throws Exception {
+    void verificaOchoCrudDiezConsultasYPermisos() throws Exception {
         String token = login("admin@fixcampus.com", "admin123");
         String correo = "crud" + System.nanoTime() + "@example.com";
         long rol = crear("/api/roles", "{\"nombre\":\"PRUEBA\",\"nivelAcceso\":\"BASICO\"}", "idRol", token);
@@ -86,22 +85,17 @@ class CrudCompletoTests {
         assertThat(actualizado.get("estado").asText()).isEqualTo("RESUELTO");
         assertThat(actualizado.get("fechaResolucion").isNull()).isFalse();
 
-        assertThat(leer("/api/reports/estadisticas/por-usuario-mes", token).size()).isPositive();
-        assertThat(leer("/api/reports/estadisticas/por-campus?estado=RESUELTO", token).get(0).get("cantidad").asLong()).isEqualTo(1);
-        assertThat(leer("/api/comments/estadisticas/por-reporte?correo=" + correo, token).get(0).get("cantidad").asLong()).isEqualTo(1);
-        LocalDate hoy = LocalDate.now();
-        assertThat(leer("/api/reports/estadisticas/por-categoria?desde=" + hoy + "&hasta=" + hoy.plusDays(1), token).size()).isPositive();
-        JsonNode evidencias = leer("/api/attachments/estadisticas/por-usuario?correo=admin@fixcampus.com", token);
-        boolean tieneEvidencia = false;
-        for (JsonNode fila : evidencias) {
-            if (fila.get("usuarioId").asLong() == autor) {
-                assertThat(fila.get("cantidadEvidencias").asLong()).isEqualTo(1);
-                tieneEvidencia = true;
-            }
-        }
-        assertThat(tieneEvidencia).isTrue();
-        assertThat(peticion("GET", "/api/attachments/estadisticas/por-usuario?correo=", null, token).statusCode()).isEqualTo(400);
-        assertThat(peticion("GET", "/api/reports/estadisticas/por-categoria?desde=" + hoy + "&hasta=" + hoy, null, token).statusCode()).isEqualTo(400);
+        // Las diez consultas conservadas en Swagger.
+        assertThat(leer("/api/reports?estado=RESUELTO", token).get(0).get("idReporte").asLong()).isEqualTo(reporte);
+        assertThat(leer("/api/reports/estadisticas/por-usuario-mes", token).get(0).get("cantidad").asLong()).isEqualTo(1);
+        assertThat(leer("/api/locations?campus=prueba", token).get(0).get("idUbicacion").asLong()).isEqualTo(ubicacion);
+        assertThat(leer("/api/reports/prioridad/MEDIA", token).get(0).get("idReporte").asLong()).isEqualTo(reporte);
+        assertThat(leer("/api/reports/campus/Campus%20prueba", token).get(0).get("idReporte").asLong()).isEqualTo(reporte);
+        assertThat(leer("/api/categories/buscar-descripcion?palabraClave=Luces", token).get(0).get("idCategoria").asLong()).isEqualTo(categoria);
+        assertThat(leer("/api/categories/reporte-por-categoria", token).get(0).get("totalReportes").asLong()).isEqualTo(1);
+        assertThat(leer("/api/recomendaciones/prioridad?prioridad=MEDIA", token).get(0).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
+        assertThat(leer("/api/recomendaciones/por-categoria?nombre=Electricidad%20prueba%20CRUD", token).get(0).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
+        assertThat(leer("/api/recomendaciones/reporte/" + reporte, token).get("idRecomendacion").asLong()).isEqualTo(recomendacion);
 
         String usuarioToken = login("usuario@fixcampus.com", "usuario123");
         assertThat(peticion("GET", "/api/users", null, usuarioToken).statusCode()).isEqualTo(403);

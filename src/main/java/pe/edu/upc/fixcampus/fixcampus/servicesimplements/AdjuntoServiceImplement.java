@@ -1,7 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import java.util.ArrayList;
-import pe.edu.upc.fixcampus.fixcampus.dtos.EvidenciasPorUsuarioDTO;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IAdjuntoService;
 import pe.edu.upc.fixcampus.fixcampus.repositories.*;
@@ -15,18 +13,6 @@ import java.util.Optional;
 
 @Service
 public class AdjuntoServiceImplement implements IAdjuntoService {
-    public List<EvidenciasPorUsuarioDTO> contarEvidenciasPorUsuario(String correo) {
-        if (correo.isBlank()) {
-            throw new IllegalArgumentException("El correo es obligatorio");
-        }
-        List<EvidenciasPorUsuarioDTO> lista = new ArrayList<>();
-        for (Object[] fila : repository.contarEvidenciasPorUsuario(correo)) {
-            lista.add(new EvidenciasPorUsuarioDTO(
-                    ((Number) fila[0]).longValue(), (String) fila[1], (String) fila[2],
-                    ((Number) fila[3]).longValue()));
-        }
-        return lista;
-    }
     private final IAdjuntoRepository repository;
     private final IReporteRepository reporteRepository;
 
@@ -41,7 +27,6 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
     }
 
     public List<Adjunto> listar() { return repository.findAll(); }
-    public List<Adjunto> buscarPorTipo(String tipo) { return repository.findByTipoArchivoContainingIgnoreCase(tipo); }
     public List<Adjunto> buscarPorReporte(Long reporteId) { return repository.findByReporte_IdReporte(reporteId); }
 
 

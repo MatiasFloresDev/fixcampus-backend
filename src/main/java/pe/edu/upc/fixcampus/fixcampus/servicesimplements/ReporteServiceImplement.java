@@ -1,11 +1,8 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import java.time.LocalDate;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
@@ -24,19 +21,6 @@ import java.util.Optional;
 
 @Service
 public class ReporteServiceImplement implements IReporteService {
-    @Override
-    public List<IncidenciasPorCategoriaDTO> contarPorCategoriaEntreFechas(
-            LocalDate desde, LocalDate hasta) {
-        if (!hasta.isAfter(desde)) {
-            throw new IllegalArgumentException("La fecha hasta debe ser posterior a desde");
-        }
-        List<IncidenciasPorCategoriaDTO> lista = new ArrayList<>();
-        for (Object[] fila : reporteRepository.contarPorCategoriaEntreFechas(desde.atStartOfDay(), hasta.atStartOfDay())) {
-            lista.add(new IncidenciasPorCategoriaDTO(
-                    ((Number) fila[0]).longValue(), (String) fila[1], ((Number) fila[2]).longValue()));
-        }
-        return lista;
-    }
 
     private final IReporteRepository reporteRepository;
     private final IUsuarioRepository usuarioRepository;
@@ -98,10 +82,6 @@ public class ReporteServiceImplement implements IReporteService {
         return reporteRepository.findByEstadoIgnoreCase(estado);
     }
 
-    @Override
-    public List<Reporte> buscarPorCategoria(String nombreCategoria) {
-        return reporteRepository.findByNombreCategoria(nombreCategoria);
-    }
 
     @Override
     public List<Reporte> buscarPorCorreoReportante(String correo) {
@@ -119,14 +99,6 @@ public class ReporteServiceImplement implements IReporteService {
         return lista;
     }
 
-    @Override
-    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado) {
-        List<IncidenciasPorCampusDTO> lista = new ArrayList<>();
-        for (Object[] fila : reporteRepository.contarPorCampusYEstado(estado)) {
-            lista.add(new IncidenciasPorCampusDTO((String) fila[0], ((Number) fila[1]).longValue()));
-        }
-        return lista;
-    }
 
     @Override
     public List<Reporte> buscarPorPrioridad(String prioridad) {

@@ -20,14 +20,11 @@ public class CategoriaServiceImplement implements ICategoriaService {
 
         return repository.findAll();
     }
-    public List<Categoria> buscarPorNombre(String nombre) {
-        return repository.findByNombreContainingIgnoreCase(nombre);
-    }
     public List<Categoria> buscarPorDescripcion(String palabraClave) {
         return repository.buscarPorDescripcion(palabraClave);
     }
 
-    // Convierte las columnas de la consulta 20 a su DTO de salida.
+    // Convierte las columnas de la consulta 7 a su DTO de salida.
     public List<CategoriaConReportesDTO> contarReportesPorCategoria() {
         List<CategoriaConReportesDTO> lista = new ArrayList<>();
         for (Object[] fila : repository.contarReportesPorCategoria()) {

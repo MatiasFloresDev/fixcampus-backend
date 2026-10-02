@@ -20,7 +20,7 @@ public class UbicacionController {
     public UbicacionController(IUbicacionService service) { this.service = service; }
 
     @GetMapping
-    @Operation(summary = "Listar ubicaciones", description = "Si se indica campus, busca ubicaciones cuyo campus contenga ese texto, sin distinguir mayúsculas.")
+    @Operation(summary = "Listar ubicaciones", description = "Consulta 3, simple: busca ubicaciones por una parte del nombre del campus. Sin campus lista todas. Ejemplo: Monterrico.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public List<Ubicacion> listar(@Parameter(description = "Parte del nombre del campus") @RequestParam(required = false) String campus) {
         if (campus == null || campus.isBlank()) {

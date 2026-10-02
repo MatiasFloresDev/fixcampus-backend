@@ -2,9 +2,7 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import java.util.ArrayList;
 import org.springframework.security.core.GrantedAuthority;
-import pe.edu.upc.fixcampus.fixcampus.dtos.EvidenciasPorUsuarioDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -21,12 +19,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/attachments")
 public class AdjuntoController {
-    @GetMapping("/estadisticas/por-usuario")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Contar evidencias de un usuario", description = "Consulta 19: JOIN, LEFT JOIN y COUNT. Cuenta las evidencias de las incidencias del usuario indicado; si tiene incidencias sin evidencias devuelve cero. Ejemplo: correo=usuario@fixcampus.com.")
-    public List<EvidenciasPorUsuarioDTO> evidenciasPorUsuario(@RequestParam String correo) {
-        return service.contarEvidenciasPorUsuario(correo);
-    }
     private final IAdjuntoService service;
     public AdjuntoController(IAdjuntoService service) { this.service = service; }
 
@@ -55,15 +47,9 @@ public class AdjuntoController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar adjuntos", description = "Si se indica tipoArchivo, busca adjuntos cuyo tipo contenga ese texto, sin distinguir mayúsculas. Solo para administradores.")
-    public List<AdjuntoDTO> listar(@Parameter(description = "Parte del tipo de archivo, por ejemplo pdf") @RequestParam(required = false) String tipoArchivo) {
-        List<Adjunto> lista;
-        if (tipoArchivo == null || tipoArchivo.isBlank()) {
-            lista = service.listar();
-        } else {
-            lista = service.buscarPorTipo(tipoArchivo);
-        }
-        return convertirLista(lista);
+    @Operation(summary = "Listar adjuntos", description = "Muestra todos los adjuntos sin parámetros. Solo administradores.")
+    public List<AdjuntoDTO> listar() {
+        return convertirLista(service.listar());
     }
 
     @GetMapping("/{id}")

@@ -18,8 +18,8 @@
 | `@RequestBody`, `@PathVariable`, `@RequestParam` | JSON de entrada, ID en la ruta y filtros de consultas |
 | DTO y validaciones | Datos de entrada/salida; usuario de salida sin contraseña |
 | `findBy...`, `@Query`, JOIN y GROUP BY | Búsquedas y estadísticas documentadas |
-| SQL nativo + `List<Object[]>` | Seis agrupaciones convertidas a DTO mediante `for`; se evita usar streams o lambdas para recorrer sus resultados |
-| BCrypt y JWT | Registro, login y acceso mediante Bearer token |
+| SQL nativo + `List<Object[]>` | Dos agrupaciones convertidas a DTO mediante `for`; se evita usar streams o lambdas para recorrer sus resultados |
+| BCrypt y JWT | Registro, login y acceso mediante Bearer token HS512 |
 | `@PreAuthorize` | Permiso ADMIN/USUARIO por operación |
 | OpenAPI | Swagger con descripciones de consultas y rutas públicas sin candado |
 
@@ -56,21 +56,21 @@ Hay ocho controladores de entidades, más `LoginController` para autenticar: nue
 
 La retroalimentación revisada no establece una cantidad máxima de DTO. El ejemplo demoSI también separa `CropDTOInsert` y `CropDTOList`: recibir datos y devolverlos pueden necesitar campos distintos.
 
-La carpeta `dtos` contiene 20 clases, todas utilizadas, después de incorporar el resultado de la consulta por categoría de Jeffrey:
+La carpeta `dtos` contiene 16 clases, todas utilizadas, después de retirar cuatro DTO correspondientes a consultas eliminadas:
 
 | Uso | Cantidad | Motivo |
 |---|---|---|
 | CRUD de categoría, reporte, usuario, comentario, adjunto y recomendación | 9 | Seleccionar campos y validar entradas. Usuario mantiene una salida sin contraseña y una entrada distinta para crear o actualizar |
 | Login | 2 | La entrada recibe correo y contraseña; la salida entrega token y datos de sesión |
 | Registro público | 2 | La entrada no permite escoger rol ni estado; la salida confirma la cuenta sin devolver contraseña |
-| Estadísticas | 6 | Cada consulta agrupada devuelve columnas diferentes; son resultados de consultas, no nuevas tablas |
+| Estadísticas | 2 | Cada consulta agrupada devuelve columnas diferentes; son resultados de consultas, no nuevas tablas |
 | ErrorResponse | 1 | Mantiene una respuesta de error consistente con estado, mensaje y ruta |
 
-No se eliminan estas clases solo para reducir el número: hacerlo obligaría a mezclar contratos o devolver campos que no corresponden. Con la reorganización de Yair, la carpeta se llama `configs` y solo contiene `ModelMapperConfig`; la seguridad sigue en `securities`. Las interfaces usan prefijo `I` y las implementaciones se encuentran en `servicesimplements`.
+Se conservan los DTO que usa cada contrato; solo se eliminaron los cuatro que dejaron de tener una consulta asociada. Con la reorganización de Yair, la carpeta se llama `configs` y solo contiene `ModelMapperConfig`; la seguridad sigue en `securities`. Las interfaces usan prefijo `I` y las implementaciones se encuentran en `servicesimplements`.
 
 ## Correcciones funcionales
 
-- `GET /api/users`: lista todos sin parámetros; el filtro se usa en `/api/users/estado?estado=ACTIVO`.
+- `GET /api/users`: lista todos sin parámetros y sin contraseña. Se retiró el filtro por estado.
 - `GET /api/recomendaciones`: lista todas sin parámetros; prioridad es una operación separada.
 - La lógica de usuarios, roles, ubicaciones, comentarios, adjuntos y recomendaciones pasa a servicios.
 - El autor del reporte proviene del token y se conserva al actualizar. Un usuario no puede asignarse técnicos ni editar reportes ajenos.
@@ -79,63 +79,62 @@ No se eliminan estas clases solo para reducir el número: hacerlo obligaría a m
 - Login valida correo y contraseña; registro conserva el mínimo de seis caracteres y BCrypt.
 - Las consultas agrupadas usan SQL explícito y conversión por columnas. Se corrigió la numeración repetida de consultas.
 
-## Diez consultas para el requisito de cinco integrantes
+## Diez consultas funcionales
 
-La profesora pide una consulta simple y otra con JOIN y agregación por integrante. Esta selección cumple los tipos solicitados; el equipo debe asignar los responsables reales en Trello y conservar sus evidencias de participación.
+Todas se prueban con GET y un token obtenido en `POST /login`. En Swagger, pegarlo en **Authorize**. Base local: `http://localhost:8080`. Los IDs deben corresponder a registros existentes.
 
-| Par | Consulta simple | Consulta con JOIN y COUNT |
-|---|---|---|
-| 1 | Q1: categorías por nombre | Q18: incidencias por categoría entre fechas |
-| 2 | Q2: roles por nombre | Q10: incidencias por usuario, año y mes |
-| 3 | Q3: ubicaciones por campus | Q11: incidencias por campus y estado |
-| 4 | Q4: usuarios por estado | Q14: comentarios de un usuario por reporte |
-| 5 | Q5: adjuntos por tipo | Q19: evidencias de un usuario |
+| Q | Qué hace / tipo | Autor registrado en Git | Ruta y ejemplo |
+|---|---|---|---|
+| 1 | Filtra incidencias por estado; simple | Matias inicialmente (`b5b759c`); José también trabajó el repositorio de reportes | `/api/reports?estado=ABIERTO` |
+| 2 | Cuenta incidencias de cada usuario por año y mes; JOIN, GROUP BY y COUNT | Matias (`472e19b`) | `/api/reports/estadisticas/por-usuario-mes` |
+| 3 | Busca ubicaciones por parte del campus; simple | José (`6a90b79`), sobre una consulta inicialmente de Matias (`ec488ea`) | `/api/locations?campus=Monterrico` |
+| 4 | Filtra incidencias por prioridad; simple | José Ponce (`27395a9`) | `/api/reports/prioridad/ALTA` |
+| 5 | Busca incidencias por campus exacto; JOIN | José Ponce (`27395a9`) | `/api/reports/campus/Monterrico` |
+| 6 | Busca categorías por parte de la descripción; simple | Jeffrey (`45a7fa8`) | `/api/categories/buscar-descripcion?palabraClave=luces` |
+| 7 | Cuenta reportes por categoría, incluyendo categorías sin reportes; LEFT JOIN y COUNT | Jeffrey (`e46e0de`) | `/api/categories/reporte-por-categoria` |
+| 8 | Filtra recomendaciones de mantenimiento por prioridad; simple | Mauricio (`b88cc7c`) | `/api/recomendaciones/prioridad?prioridad=ALTA` |
+| 9 | Busca recomendaciones por la categoría de la incidencia; JOIN | Mauricio (`b88cc7c`) | `/api/recomendaciones/por-categoria?nombre=Electricidad` |
+| 10 | Busca la recomendación de una incidencia; relación por FK | Mauricio: endpoint (`5477018`); el método auxiliar ya existía en `f32f774` | `/api/recomendaciones/reporte/1` |
 
-Las búsquedas adicionales que ya estaban implementadas siguen disponibles. Q8, Q9, Q13 y Q17 tienen JOIN, pero **no sustituyen una consulta agrupada** porque no cuentan, suman ni calculan promedios.
+Se conservaron las dos consultas seleccionadas para Matias (Q1 y Q2) y ocho existentes con aportes de sus compañeros. La numeración de Swagger y repositorios ahora va de 1 a 10. Se retiraron once consultas y cuatro DTO de estadísticas sin uso; los ocho CRUD siguen disponibles.
 
-La actualización del 01/10/2026 incorpora Q20 de Jeffrey (total por categoría, incluidas categorías sin reportes) y Q21 de Mauricio (recomendación por reporte). La selección anterior de diez es una propuesta técnica: no acredita por sí sola que cada integrante haya desarrollado su par. La autoría registrada y los ejemplos completos están en `Actualizacion-consultas-y-documento-2026-10-01.md`.
+### Cómo explicar las consultas
+
+- **Q1:** `WHERE` compara el estado de la incidencia; devuelve sus datos, sin agrupar. Ejemplo: `ABIERTO` muestra incidencias pendientes de atención.
+- **Q2:** une reporte con usuario mediante la FK; obtiene año y mes de la fecha de creación; `GROUP BY` reúne usuario, año y mes; `COUNT` cuenta reportes. Si Ana creó tres incidencias en septiembre y una en octubre, aparecen dos filas con cantidades 3 y 1. Devuelve `usuarioId`, `nombre`, `apellido`, `anio`, `mes` y `cantidad`. No necesita parámetros.
+- **Q3:** compara el campus con un texto parcial, sin distinguir mayúsculas. `Monterrico` permite encontrar las ubicaciones de ese campus.
+- **Q4:** compara la prioridad del reporte. `ALTA` permite revisar incidencias urgentes.
+- **Q5:** relaciona reporte con ubicación y compara el campus completo. `Monterrico` devuelve incidencias de ese campus; no calcula un total.
+- **Q6:** busca un texto dentro de la descripción de la categoría. `luces` identifica categorías cuya descripción contiene esa palabra.
+- **Q7:** parte de categoría y hace `LEFT JOIN` con reporte. `GROUP BY` reúne cada categoría y `COUNT` cuenta los reportes existentes. Electricidad con dos incidencias devuelve `totalReportes: 2`; una categoría sin incidencias devuelve `totalReportes: 0`. Devuelve `idCategoria`, `nombre`, `descripcion` y `totalReportes`. No necesita parámetros.
+- **Q8:** compara la prioridad sugerida en la recomendación de mantenimiento. `ALTA` permite revisar las recomendaciones urgentes.
+- **Q9:** relaciona recomendación, reporte y categoría, y compara el nombre de categoría. `Electricidad` muestra sus recomendaciones de mantenimiento; no es una agregación.
+- **Q10:** busca por la FK del reporte. Usar un ID obtenido en `GET /api/reports`; devuelve una recomendación o `404` si no existe.
+
+Las dos agrupaciones (Q2 y Q7) devuelven filas `Object[]`. El servicio convierte cada columna en el campo de su DTO con ciclos `for`. El orden de las posiciones coincide con el `SELECT`.
+
+### Métodos auxiliares y requisito individual
+
+Los métodos de login, registro, acceso a reportes propios, consulta de adjuntos de un reporte, conteo de usuarios y operaciones de `JpaRepository` siguen disponibles: son dependencias de los CRUD y de la seguridad, no nuevas consultas numeradas del catálogo académico. `GET /api/users` lista todos los usuarios sin parámetros ni contraseñas.
+
+La autoría proviene del historial de Git, no de una asignación inventada. Yair tiene aportes de refactor, pero no una nueva consulta identificada. Hay diez consultas en total y dos agrupaciones con COUNT; esto **no acredita una simple y otra con agregación por cada uno de los cinco integrantes**. Q5 y Q9 usan JOIN pero no COUNT/SUM/AVG. Conservar las ocho existentes fue la selección solicitada; el equipo debe contrastar el reparto con la profesora y Trello.
 
 ## Probar en Swagger local
 
 1. Tener PostgreSQL activo en `localhost:5433`, base `fixcampus`.
 2. Ejecutar `FixcampusApplication` en IntelliJ o `mvnw.cmd spring-boot:run` desde la carpeta que contiene `pom.xml`.
 3. Abrir `http://localhost:8080/swagger-ui/index.html`.
-4. Ejecutar `POST /login` con una cuenta administradora existente. En la base local comprobada existe esta cuenta; ya no se crea automáticamente:
+4. Usar `POST /login` con una cuenta administradora existente. En la base local comprobada: `{"correo":"admin@fixcampus.com","password":"admin123"}`. El arranque no crea esta cuenta.
+5. Copiar el token en **Authorize** y probar los ejemplos de las diez consultas. Una lista vacía es válida si no hay coincidencias.
+6. Para crear incidencias, obtener primero IDs reales de categorías y ubicaciones mediante sus GET; no asumir que existe el ID 1.
 
-```json
-{"correo":"admin@fixcampus.com","password":"admin123"}
-```
+## JWT HS512 y clave
 
-5. Copiar `token` y pegarlo en **Authorize**. El esquema Bearer añade el prefijo automáticamente.
-6. Consultar categorías y ubicaciones y usar sus IDs reales para crear una incidencia. No asumir que el ID 1 existe.
-7. Probar estas consultas:
+Se siguió `demoSI_seguridad`: la clave utiliza `HmacSHA512`; el token se firma con `MacAlgorithm.HS512` y el decodificador acepta HS512. `JwtConfig` comprueba que la clave tenga al menos **64 bytes** al convertirla a UTF-8. Una clave corta detiene el arranque con un mensaje claro.
 
-| Consulta | Ruta y ejemplo |
-|---|---|
-| Q1 | `/api/categories?nombre=Electricidad` |
-| Q2 | `/api/roles?nombre=ADMIN` |
-| Q3 | `/api/locations?campus=Monterrico` |
-| Q4 | `/api/users/estado?estado=ACTIVO` |
-| Q5 | `/api/attachments?tipoArchivo=pdf` |
-| Q10 | `/api/reports/estadisticas/por-usuario-mes` |
-| Q11 | `/api/reports/estadisticas/por-campus?estado=ABIERTO` |
-| Q14 | `/api/comments/estadisticas/por-reporte?correo=usuario@fixcampus.com` |
-| Q18 | `/api/reports/estadisticas/por-categoria?desde=2026-09-01&hasta=2026-10-01` |
-| Q19 | `/api/attachments/estadisticas/por-usuario?correo=usuario@fixcampus.com` |
+`application.properties` contiene una clave local de prueba de 64 caracteres ASCII (64 bytes). `JWT_SECRET`, si está definida, reemplaza ese valor. En Render se configura una clave privada de al menos 64 bytes en **Environment → JWT_SECRET**; no se deben copiar las claves de prueba. Esta modificación local no cambia la variable ni despliega Render.
 
-Una lista vacía es válida cuando no hay datos coincidentes. Q18 incluye la fecha `desde` y excluye `hasta`: sirve para tomar un mes completo sin incluir el primero del siguiente.
-
-### Cómo explicar las dos nuevas consultas
-
-**Q18:** “Uno reporte con categoría usando la FK. `WHERE` selecciona el periodo, `GROUP BY` reúne cada categoría y `COUNT` cuenta sus incidencias. El resultado permite identificar el tipo de problema más frecuente en ese periodo”.
-
-Ejemplo: tres reportes de Electricidad y dos de Limpieza en septiembre generan dos filas, con cantidades 3 y 2. El DTO contiene `categoriaId`, `categoria` y `cantidad`.
-
-**Q19:** “Uno reporte con su usuario y hago LEFT JOIN con los adjuntos. Filtro por correo, agrupo por usuario y cuento `id_adjunto`. Si tiene incidencias sin archivos, esos valores nulos no aumentan el contador”.
-
-Ejemplo: un usuario tiene dos incidencias; la primera incluye dos archivos y la segunda ninguno. La consulta devuelve `cantidadEvidencias: 2`. Si aún no tiene incidencias, devuelve una lista vacía.
-
-**Conversión:** el repositorio devuelve cada fila como `Object[]`. Las posiciones siguen el orden del `SELECT`. El servicio usa `Number.longValue()` o `intValue()` para cantidades e IDs, crea el DTO y lo añade a una lista con un `for`.
+512 bits equivalen a 64 bytes; contar caracteres solo asegura esa longitud si son ASCII. El algoritmo firma el token, no cifra su contenido. Las contraseñas siguen usando BCrypt. Los tokens HS256 anteriores dejan de ser válidos: iniciar sesión otra vez después de reiniciar el backend.
 
 ## Base de datos nueva, sin carga automática
 

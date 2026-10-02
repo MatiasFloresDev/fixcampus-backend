@@ -21,60 +21,63 @@ Lista basada en la revisión previa del audio. Los tiempos son aproximados. Este
 
 | Autor registrado | Cambios | Referencias |
 |---|---|---|
-| Jeffrey De la Cruz | Q20: total por categoría, incluidas categorías con cero reportes; ruta explícita para la búsqueda por descripción Q15 | `e46e0de`, `235895a` |
-| Mauricio1608 | Q21: recomendación por ID del reporte; respuesta 404 cuando no tiene una registrada | `76b4a31`, `5477018` |
+| Jeffrey De la Cruz | Q7: total por categoría, incluidas categorías con cero reportes; ruta explícita para la búsqueda por descripción Q6 | `e46e0de`, `235895a` |
+| Mauricio1608 | Q10: recomendación por ID del reporte; respuesta 404 cuando no tiene una registrada | `76b4a31`, `5477018` |
 | Lender06 (Yair) | Interfaces/repositorios con prefijo I; carpeta servicesimplements; clases ServiceImplement; carpeta configs; formato y constructores de entidades | `d567e50` |
 | Matias Gerard Flores Flores | Integración, resolución de conflictos, sustitución de lambdas y adaptación a SQL por columnas | `b4de012`, `1044960`, `dfa21d2` |
 
 Se conservaron `@NotBlank` y `@Size` de Rol, que el refactor retiraba. Las novedades se integraron sin streams ni lambdas y manteniendo el listado de usuarios sin parámetros. Los conteos y recomendaciones requieren ADMIN. No se reincorporaron los archivos físicos ni el borrado automático de registros asociados.
 
-## Consultas funcionales numeradas
+## Diez consultas funcionales
 
-Todas las rutas se ejecutan con GET. Base local: `http://localhost:8080`. Obtener el token en POST `/login` y usar Authorize en Swagger. Reemplazar los IDs de ejemplo por los existentes.
+Todas se prueban con GET y un token obtenido en `POST /login`. En Swagger, pegarlo en **Authorize**. Base local: `http://localhost:8080`. Los IDs deben corresponder a registros existentes.
 
-| Q | Qué consulta / tipo | Autor registrado | Ruta y ejemplo |
+| Q | Qué hace / tipo | Autor registrado en Git | Ruta y ejemplo |
 |---|---|---|---|
-| 1 | Categorías por parte del nombre; simple | Matias, `ec488ea` | `/api/categories?nombre=Electricidad` |
-| 2 | Roles por parte del nombre; simple | Matias, `ec488ea` | `/api/roles?nombre=ADMIN` |
-| 3 | Ubicaciones por campus parcial; simple | Matias inicialmente, `ec488ea`; José también lo trabajó, `6a90b79` | `/api/locations?campus=Monterrico` |
-| 4 | Usuarios por estado; simple | Matias, `ec488ea` | `/api/users/estado?estado=ACTIVO` |
-| 5 | Adjuntos por tipo; simple | Matias, `ec488ea` | `/api/attachments?tipoArchivo=pdf` |
-| 6 | Comentarios de un reporte; relación FK | Matias, `ec488ea` | `/api/comments?reporteId=1` |
-| 7 | Reportes por estado; simple | Matias inicialmente, `b5b759c`; José trabajó ReporteRepository | `/api/reports?estado=ABIERTO` |
-| 8 | Reportes por nombre de categoría; JOIN | Matias inicialmente, `b5b759c`; José trabajó ReporteRepository | `/api/reports?categoria=Electricidad` |
-| 9 | Reportes por correo reportante; JOIN | Matias, `472e19b` | `/api/reports?correo=usuario@fixcampus.com` |
-| 10 | Cantidad por usuario/año/mes; JOIN y COUNT | Matias, `472e19b` | `/api/reports/estadisticas/por-usuario-mes` |
-| 11 | Cantidad por campus y estado; JOIN y COUNT | Matias, `d865d57` | `/api/reports/estadisticas/por-campus?estado=ABIERTO` |
-| 12 | Reportes por prioridad; simple | José Ponce, `27395a9` | `/api/reports/prioridad/ALTA` |
-| 13 | Reportes por campus exacto; JOIN | José Ponce, `27395a9` | `/api/reports/campus/Monterrico` |
-| 14 | Comentarios de un usuario por reporte; JOIN y COUNT | Matias, `d865d57` | `/api/comments/estadisticas/por-reporte?correo=usuario@fixcampus.com` |
-| 15 | Categorías por descripción; simple | Jeffrey, `45a7fa8` | `/api/categories/buscar-descripcion?palabraClave=luces` |
-| 16 | Recomendaciones por prioridad; simple | Mauricio, `b88cc7c` | `/api/recomendaciones/prioridad?prioridad=ALTA` |
-| 17 | Recomendaciones por categoría del reporte; JOIN | Mauricio, `b88cc7c` | `/api/recomendaciones/por-categoria?nombre=Electricidad` |
-| 18 | Cantidad por categoría entre fechas; JOIN y COUNT | Matias, `f32f774` | `/api/reports/estadisticas/por-categoria?desde=2026-09-01&hasta=2026-10-01` |
-| 19 | Adjuntos en reportes de un usuario; JOIN, LEFT JOIN y COUNT | Matias, `f32f774` | `/api/attachments/estadisticas/por-usuario?correo=usuario@fixcampus.com` |
-| 20 | Total por categoría incluyendo cero; LEFT JOIN y COUNT | Jeffrey, `e46e0de` | `/api/categories/reporte-por-categoria` |
-| 21 | Recomendación del reporte; relación FK | Mauricio: endpoint `5477018`; el método auxiliar ya existía como lista en `f32f774` | `/api/recomendaciones/reporte/1` |
+| 1 | Filtra incidencias por estado; simple | Matias inicialmente (`b5b759c`); José también trabajó el repositorio de reportes | `/api/reports?estado=ABIERTO` |
+| 2 | Cuenta incidencias de cada usuario por año y mes; JOIN, GROUP BY y COUNT | Matias (`472e19b`) | `/api/reports/estadisticas/por-usuario-mes` |
+| 3 | Busca ubicaciones por parte del campus; simple | José (`6a90b79`), sobre una consulta inicialmente de Matias (`ec488ea`) | `/api/locations?campus=Monterrico` |
+| 4 | Filtra incidencias por prioridad; simple | José Ponce (`27395a9`) | `/api/reports/prioridad/ALTA` |
+| 5 | Busca incidencias por campus exacto; JOIN | José Ponce (`27395a9`) | `/api/reports/campus/Monterrico` |
+| 6 | Busca categorías por parte de la descripción; simple | Jeffrey (`45a7fa8`) | `/api/categories/buscar-descripcion?palabraClave=luces` |
+| 7 | Cuenta reportes por categoría, incluyendo categorías sin reportes; LEFT JOIN y COUNT | Jeffrey (`e46e0de`) | `/api/categories/reporte-por-categoria` |
+| 8 | Filtra recomendaciones de mantenimiento por prioridad; simple | Mauricio (`b88cc7c`) | `/api/recomendaciones/prioridad?prioridad=ALTA` |
+| 9 | Busca recomendaciones por la categoría de la incidencia; JOIN | Mauricio (`b88cc7c`) | `/api/recomendaciones/por-categoria?nombre=Electricidad` |
+| 10 | Busca la recomendación de una incidencia; relación por FK | Mauricio: endpoint (`5477018`); el método auxiliar ya existía en `f32f774` | `/api/recomendaciones/reporte/1` |
 
-Q15 también se usa en `/api/categories?descripcion=luces`: son dos rutas para la misma consulta. Q9 se reutiliza en `/api/reports/mis-reportes`, obteniendo el correo del token.
+Se conservaron las dos consultas seleccionadas para Matias (Q1 y Q2) y ocho existentes con aportes de sus compañeros. La numeración de Swagger y repositorios ahora va de 1 a 10. Se retiraron once consultas y cuatro DTO de estadísticas sin uso; los ocho CRUD siguen disponibles.
 
-Q18 incluye desde y excluye hasta. Q20 no filtra fechas e incluye categorías sin reportes: no es la misma consulta. Q21 devuelve una recomendación o 404; no es una agregación.
+### Cómo explicar las consultas
 
-### Consultas auxiliares
+- **Q1:** `WHERE` compara el estado de la incidencia; devuelve sus datos, sin agrupar. Ejemplo: `ABIERTO` muestra incidencias pendientes de atención.
+- **Q2:** une reporte con usuario mediante la FK; obtiene año y mes de la fecha de creación; `GROUP BY` reúne usuario, año y mes; `COUNT` cuenta reportes. Si Ana creó tres incidencias en septiembre y una en octubre, aparecen dos filas con cantidades 3 y 1. Devuelve `usuarioId`, `nombre`, `apellido`, `anio`, `mes` y `cantidad`. No necesita parámetros.
+- **Q3:** compara el campus con un texto parcial, sin distinguir mayúsculas. `Monterrico` permite encontrar las ubicaciones de ese campus.
+- **Q4:** compara la prioridad del reporte. `ALTA` permite revisar incidencias urgentes.
+- **Q5:** relaciona reporte con ubicación y compara el campus completo. `Monterrico` devuelve incidencias de ese campus; no calcula un total.
+- **Q6:** busca un texto dentro de la descripción de la categoría. `luces` identifica categorías cuya descripción contiene esa palabra.
+- **Q7:** parte de categoría y hace `LEFT JOIN` con reporte. `GROUP BY` reúne cada categoría y `COUNT` cuenta los reportes existentes. Electricidad con dos incidencias devuelve `totalReportes: 2`; una categoría sin incidencias devuelve `totalReportes: 0`. Devuelve `idCategoria`, `nombre`, `descripcion` y `totalReportes`. No necesita parámetros.
+- **Q8:** compara la prioridad sugerida en la recomendación de mantenimiento. `ALTA` permite revisar las recomendaciones urgentes.
+- **Q9:** relaciona recomendación, reporte y categoría, y compara el nombre de categoría. `Electricidad` muestra sus recomendaciones de mantenimiento; no es una agregación.
+- **Q10:** busca por la FK del reporte. Usar un ID obtenido en `GET /api/reports`; devuelve una recomendación o `404` si no existe.
 
-- `IUsuarioRepository.findByCorreo`: login, validación del correo y usuario autenticado.
-- `IRolRepository.findByNombre`: rol USUARIO para el registro público.
-- `IRecomendacionRepository.existsByReporte_IdReporte`: evita dos recomendaciones para un reporte.
-- `IAdjuntoRepository.findByReporte_IdReporte`: adjuntos de `/api/attachments/reporte/{reporteId}`, propietario o ADMIN.
-- `JpaRepository.count`: total de usuarios en `/api/users/count`, ADMIN.
-- `JpaRepository.findAll` y `findById`: listados y búsqueda por ID de los ocho CRUD. GET `/api/users` lista todos sin parámetros y sin contraseñas.
+Las dos agrupaciones (Q2 y Q7) devuelven filas `Object[]`. El servicio convierte cada columna en el campo de su DTO con ciclos `for`. El orden de las posiciones coincide con el `SELECT`.
 
-### Requisito individual
+### Métodos auxiliares y requisito individual
 
-Hay seis agrupaciones con JOIN: Q10, Q11, Q14, Q18, Q19 y Q20. Q8, Q9, Q13 y Q17 relacionan tablas pero no cuentan, suman ni promedian.
+Los métodos de login, registro, acceso a reportes propios, consulta de adjuntos de un reporte, conteo de usuarios y operaciones de `JpaRepository` siguen disponibles: son dependencias de los CRUD y de la seguridad, no nuevas consultas numeradas del catálogo académico. `GET /api/users` lista todos los usuarios sin parámetros ni contraseñas.
 
-El número total supera diez; eso no acredita un par por integrante. El aporte nuevo identificado de Yair es el refactor; no se encontró una consulta nueva atribuida a él. Las consultas Q13 de José y Q17 de Mauricio tampoco acreditan una agrupación. Contrastar la asignación y las evidencias reales en Trello; no inventar autorías para completar el reparto.
+La autoría proviene del historial de Git, no de una asignación inventada. Yair tiene aportes de refactor, pero no una nueva consulta identificada. Hay diez consultas en total y dos agrupaciones con COUNT; esto **no acredita una simple y otra con agregación por cada uno de los cinco integrantes**. Q5 y Q9 usan JOIN pero no COUNT/SUM/AVG. Conservar las ocho existentes fue la selección solicitada; el equipo debe contrastar el reparto con la profesora y Trello.
+
+## JWT HS512 y clave
+
+Se siguió `demoSI_seguridad`: la clave utiliza `HmacSHA512`; el token se firma con `MacAlgorithm.HS512` y el decodificador acepta HS512. `JwtConfig` comprueba que la clave tenga al menos **64 bytes** al convertirla a UTF-8. Una clave corta detiene el arranque con un mensaje claro.
+
+`application.properties` contiene una clave local de prueba de 64 caracteres ASCII (64 bytes). `JWT_SECRET`, si está definida, reemplaza ese valor. En Render se configura una clave privada de al menos 64 bytes en **Environment → JWT_SECRET**; no se deben copiar las claves de prueba. Esta modificación local no cambia la variable ni despliega Render.
+
+512 bits equivalen a 64 bytes; contar caracteres solo asegura esa longitud si son ASCII. El algoritmo firma el token, no cifra su contenido. Las contraseñas siguen usando BCrypt. Los tokens HS256 anteriores dejan de ser válidos: iniciar sesión otra vez después de reiniciar el backend.
 
 ## Comprobaciones
 
-Maven compiló y empaquetó el proyecto. Las cinco pruebas automatizadas pasaron, incluyendo conteos con cero, búsquedas nuevas, permisos y validación de Rol. Los 77 archivos Java no contienen lambdas, referencias a métodos, ternarios ni streams. Las pruebas HTTP con PostgreSQL local también pasaron y sus registros temporales se eliminaron. Estos resultados corresponden al código local; no confirman un despliegue nuevo de Render.
+Maven compiló y empaquetó el proyecto; las cinco pruebas automatizadas pasaron. Las pruebas HTTP sobre PostgreSQL local verificaron **53/53 operaciones de Swagger, 116 peticiones, ocho CRUD y las diez consultas**. Se comprobó el token HS512, su firma de 64 bytes, el rechazo de HS256 y firmas alteradas, y los permisos ADMIN/USUARIO. Los registros temporales se eliminaron y los conteos originales se restauraron.
+
+La revisión de los 73 archivos Java no encontró lambdas, referencias a métodos, ternarios ni streams. Son resultados del código local; no confirman un nuevo despliegue de Render.

@@ -8,14 +8,14 @@ FixCampus centraliza incidencias de espacios del campus. El sistema captura el c
 
 ### Incluido y demostrable
 
-- Registro de cuenta y autenticación con token.
+- Registro de cuenta y autenticación con token JWT HS512.
 - Catálogos de categorías y ubicaciones consultados por la API.
 - Registro de incidencias con categoría, ubicación, detalle, descripción, prioridad y estado.
 - Consulta de reportes propios.
 - CRUD de entidades principales en la API protegido por roles.
 - Documentación OpenAPI disponible en Swagger.
 - CRUD de metadatos de evidencias: nombre del archivo, URL, tipo y fecha. Consulta por reporte con permiso de su propietario o administrador.
-- Seis consultas agrupadas con JOIN y COUNT para analizar las incidencias.
+- Diez consultas funcionales, incluyendo dos agrupaciones con JOIN y COUNT para analizar las incidencias.
 
 ### Fuera del alcance de la API actual
 
@@ -70,7 +70,7 @@ OpenAPI: `http://localhost:8080/v3/api-docs`
 | Adjuntos | `GET/POST/PUT/DELETE /api/attachments`; `GET /api/attachments/reporte/{reporteId}` | CRUD admin; consulta por reporte propio o admin |
 | Comentarios | `GET/POST/PUT/DELETE /api/comments` | Admin |
 | Recomendaciones | `GET/POST/PUT/DELETE /api/recomendaciones` | Admin |
-| Indicadores | Incidencias por usuario/mes, campus y categoría entre fechas; total por categoría incluyendo cero; comentarios por reporte; evidencias por usuario | Admin |
+| Indicadores | Incidencias por usuario/año/mes y total por categoría incluyendo cero | Admin |
 
 ## 6. Contrato de creación de reporte
 
@@ -137,7 +137,7 @@ PostgreSQL (base fixcampus)
 - `repositories`: acceso a PostgreSQL mediante JPA.
 - `entities`: entidades persistentes.
 - `dtos`: contratos de entrada y salida.
-- `config`: configuración de ModelMapper.
+- `configs`: configuración de ModelMapper.
 - `securities`: BCrypt, JWT, reglas de acceso y configuración de Swagger.
 
 ### Decisiones técnicas
@@ -146,7 +146,8 @@ PostgreSQL (base fixcampus)
 2. El backend valida el rol y el token; ocultar una opción del cliente no se considera seguridad.
 3. El arranque no crea datos de prueba. Roles y primera cuenta administradora se preparan manualmente en una base nueva; después los catálogos se gestionan por sus CRUD.
 4. La base local usa PostgreSQL en el puerto `5433`; las pruebas automáticas usan H2 aislado.
-5. Swagger sirve para revisar contratos y probar operaciones administrativas sin inventar una capacidad que todavía no existe.
+5. JWT utiliza HS512 para firmar y validar, con una clave de al menos 64 bytes UTF-8 configurada en `JWT_SECRET`. Las contraseñas siguen usando BCrypt.
+6. Swagger sirve para revisar contratos y probar operaciones administrativas sin inventar una capacidad que todavía no existe.
 
 ## 9. Requisitos no funcionales
 

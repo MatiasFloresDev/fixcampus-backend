@@ -16,9 +16,6 @@ public class RolServiceImplement implements IRolService {
 
     public List<Rol> listar() { return repository.findAll(); }
 
-    public List<Rol> buscarPorNombre(String nombre) {
-        return repository.findByNombreContainingIgnoreCase(nombre);
-    }
 
     public Rol buscarPorId(Long id) {
         Optional<Rol> encontrado = repository.findById(id);

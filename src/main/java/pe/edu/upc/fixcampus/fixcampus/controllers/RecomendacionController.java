@@ -28,13 +28,13 @@ public class RecomendacionController {
     }
 
     @GetMapping("/prioridad")
-    @Operation(summary = "Buscar recomendaciones por prioridad", description = "Consulta 16: filtra recomendaciones por prioridad sugerida. Ejemplo: MEDIA.")
+    @Operation(summary = "Buscar recomendaciones por prioridad", description = "Consulta 8: filtra recomendaciones por prioridad sugerida. Ejemplo: MEDIA.")
     public List<RecomendacionDTO> buscarPorPrioridad(@RequestParam String prioridad) {
         return convertirLista(service.buscarPorPrioridad(prioridad));
     }
 
     @GetMapping("/por-categoria")
-    @Operation(summary = "Buscar recomendaciones por categoría", description = "Consulta 17 con JOIN: une recomendación, reporte y categoría. Ejemplo: Electricidad.")
+    @Operation(summary = "Buscar recomendaciones por categoría", description = "Consulta 9 con JOIN: une recomendación, reporte y categoría. Ejemplo: Electricidad.")
     public List<RecomendacionDTO> listarPorCategoria(@RequestParam String nombre) {
         return convertirLista(service.buscarPorCategoria(nombre));
     }
@@ -43,7 +43,7 @@ public class RecomendacionController {
     public RecomendacionDTO buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
 
     @GetMapping("/reporte/{reporteId}")
-    @Operation(summary = "Buscar recomendación por reporte", description = "Consulta 21: devuelve la recomendación del reporte indicado. Responde 404 si no tiene una registrada. Solo administradores.")
+    @Operation(summary = "Buscar recomendación por reporte", description = "Consulta 10: devuelve la recomendación del reporte indicado. Responde 404 si no tiene una registrada. Solo administradores.")
     public RecomendacionDTO buscarPorReporte(@PathVariable Long reporteId) {
         Recomendacion recomendacion = service.buscarPorReporte(reporteId);
         return convertir(recomendacion);

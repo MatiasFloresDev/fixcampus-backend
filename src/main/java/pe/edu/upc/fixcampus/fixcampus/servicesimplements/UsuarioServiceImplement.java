@@ -26,7 +26,6 @@ public class UsuarioServiceImplement implements IUsuarioService {
     }
 
     public List<Usuario> listar() { return repository.findAll(); }
-    public List<Usuario> buscarPorEstado(String estado) { return repository.findByEstadoIgnoreCase(estado); }
     public long contarRegistrados() { return repository.count(); }
     public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
 

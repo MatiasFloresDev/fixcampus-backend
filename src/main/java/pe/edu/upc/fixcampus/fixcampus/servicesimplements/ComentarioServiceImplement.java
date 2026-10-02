@@ -11,8 +11,6 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
-import java.util.ArrayList;
 
 @Service
 public class ComentarioServiceImplement implements IComentarioService {
@@ -27,15 +25,6 @@ public class ComentarioServiceImplement implements IComentarioService {
     }
 
     public List<Comentario> listar() { return repository.findAll(); }
-    public List<Comentario> buscarPorReporte(Long reporteId) { return repository.findByReporte_IdReporte(reporteId); }
-    public List<ComentariosPorReporteDTO> contarPorReporteYCorreo(String correo) {
-        List<ComentariosPorReporteDTO> lista = new ArrayList<>();
-        for (Object[] fila : repository.contarPorReporteYCorreo(correo)) {
-            lista.add(new ComentariosPorReporteDTO(((Number) fila[0]).longValue(),
-                    (String) fila[1], ((Number) fila[2]).longValue()));
-        }
-        return lista;
-    }
 
     public Comentario registrar(ComentarioDTO datos) {
         Comentario comentario = new Comentario();

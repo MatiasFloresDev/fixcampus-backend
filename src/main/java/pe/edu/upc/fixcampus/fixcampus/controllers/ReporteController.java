@@ -1,10 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
@@ -30,14 +26,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/reports")
 public class ReporteController {
-    @GetMapping("/estadisticas/por-categoria")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Contar incidencias por categoría entre fechas", description = "Consulta 18: JOIN y COUNT. Incluye desde y excluye hasta. Ejemplo: desde=2026-09-01, hasta=2026-10-01.")
-    public List<IncidenciasPorCategoriaDTO> incidenciasPorCategoria(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
-        return service.contarPorCategoriaEntreFechas(desde, hasta);
-    }
 
     private final IReporteService service;
     private final IUsuarioRepository usuarioRepository;
@@ -55,51 +43,36 @@ public class ReporteController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar reportes", description = "Sin filtros lista todos. Con estado filtra por estado; con categoria busca reportes de esa categoría; con correo busca los creados por ese usuario. Si se envían varios filtros, se aplica primero estado, luego categoria y luego correo.")
+    @Operation(summary = "Listar reportes por estado", description = "Consulta 1, simple: filtra las incidencias por estado. Sin estado lista todos. Ejemplo: ABIERTO.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<ReporteDTOList>> listar(
-            @Parameter(description = "Estado del reporte, por ejemplo ABIERTO") @RequestParam(required = false) String estado,
-            @Parameter(description = "Nombre exacto de la categoría; consulta con JOIN") @RequestParam(required = false) String categoria,
-            @Parameter(description = "Correo exacto del usuario reportante; consulta con JOIN") @RequestParam(required = false) String correo) {
-
+            @Parameter(description = "Estado del reporte, por ejemplo ABIERTO") @RequestParam(required = false) String estado) {
         List<Reporte> reportes;
         if (estado != null && !estado.isBlank()) {
             reportes = service.buscarPorEstado(estado);
-        } else if (categoria != null && !categoria.isBlank()) {
-            reportes = service.buscarPorCategoria(categoria);
-        } else if (correo != null && !correo.isBlank()) {
-            reportes = service.buscarPorCorreoReportante(correo);
         } else {
             reportes = service.listar();
         }
-
         return ResponseEntity.ok(convertirLista(reportes));
     }
 
     @GetMapping("/estadisticas/por-usuario-mes")
-    @Operation(summary = "Contar incidencias por usuario y mes", description = "Agrupa los reportes por usuario, año y mes de creación, y cuenta cuántos hizo cada uno. Consulta con JOIN. Solo para administradores.")
+    @Operation(summary = "Contar incidencias por usuario y mes", description = "Consulta 2: JOIN, GROUP BY y COUNT. Cuenta incidencias por usuario, año y mes. Solo administradores.")
     @PreAuthorize("hasRole('ADMIN')")
     public List<IncidenciasPorMesDTO> incidenciasPorUsuarioYMes() {
         return service.contarPorUsuarioYMes();
     }
 
-    @GetMapping("/estadisticas/por-campus")
-    @Operation(summary = "Contar incidencias por campus y estado", description = "Une reportes con ubicaciones y cuenta cuántos reportes del estado indicado hay en cada campus. Solo para administradores.")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<IncidenciasPorCampusDTO> incidenciasPorCampus(
-            @Parameter(description = "Estado del reporte, por ejemplo ABIERTO") @RequestParam String estado) {
-        return service.contarPorCampusYEstado(estado);
-    }
 
     @GetMapping("/prioridad/{prioridad}")
-    @Operation(summary = "Buscar reportes por prioridad", description = "Lista las incidencias que tienen la prioridad indicada.")
+    @Operation(summary = "Buscar reportes por prioridad", description = "Consulta 4, simple: lista las incidencias de la prioridad indicada. Ejemplo: ALTA.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(@PathVariable String prioridad) {
         return ResponseEntity.ok(convertirLista(service.buscarPorPrioridad(prioridad)));
     }
 
     @GetMapping("/campus/{campus}")
-    @Operation(summary = "Buscar reportes por campus", description = "Lista las incidencias cuya ubicación pertenece al campus indicado. Usa una consulta JOIN.")
+    @Operation(summary = "Buscar reportes por campus", description = "Consulta 5 con JOIN: relaciona reportes y ubicaciones para buscar por campus. Ejemplo: Monterrico.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<ReporteDTOList>> buscarPorCampus(@PathVariable String campus) {
         return ResponseEntity.ok(convertirLista(service.buscarPorCampus(campus)));

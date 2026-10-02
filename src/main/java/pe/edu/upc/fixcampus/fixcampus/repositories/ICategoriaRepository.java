@@ -10,14 +10,12 @@ import java.util.List;
 @Repository
 public interface ICategoriaRepository extends JpaRepository<Categoria, Long> {
 
-    // Consulta 1: busca categorías por parte del nombre.
-    List<Categoria> findByNombreContainingIgnoreCase(String nombre);
 
-    // Consulta 15: busca categorías cuya descripción contenga la palabra indicada.
+    // Consulta 6: busca categorías cuya descripción contenga la palabra indicada.
     @Query("SELECT c FROM Categoria c WHERE lower(c.descripcion) LIKE lower(concat('%', :palabraClave, '%'))")
     List<Categoria> buscarPorDescripcion(@Param("palabraClave") String palabraClave);
 
-    // Consulta 20: LEFT JOIN y COUNT; incluye categorías que tienen cero reportes.
+    // Consulta 7: LEFT JOIN y COUNT; incluye categorías que tienen cero reportes.
     @Query(value = """
             SELECT c.id_categoria, c.nombre, c.descripcion, COUNT(r.id_reporte)
             FROM categoria c LEFT JOIN reporte r ON r.id_categoria = c.id_categoria

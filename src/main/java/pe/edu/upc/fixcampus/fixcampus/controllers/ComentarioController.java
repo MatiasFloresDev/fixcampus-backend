@@ -2,14 +2,12 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
@@ -24,23 +22,11 @@ public class ComentarioController {
     public ComentarioController(IComentarioService service) { this.service = service; }
 
     @GetMapping
-    @Operation(summary = "Listar comentarios", description = "Si se indica reporteId, muestra solo los comentarios de ese reporte. Solo para administradores.")
-    public List<ComentarioDTO> listar(@Parameter(description = "ID del reporte del que se quieren ver comentarios") @RequestParam(required = false) Long reporteId) {
-        List<Comentario> lista;
-        if (reporteId == null) {
-            lista = service.listar();
-        } else {
-            lista = service.buscarPorReporte(reporteId);
-        }
-        return convertirLista(lista);
+    @Operation(summary = "Listar comentarios", description = "Muestra todos los comentarios sin parámetros. Solo administradores.")
+    public List<ComentarioDTO> listar() {
+        return convertirLista(service.listar());
     }
 
-    @GetMapping("/estadisticas/por-reporte")
-    @Operation(summary = "Contar comentarios de un usuario por reporte", description = "Une comentarios con reportes y usuarios. Para el correo indicado, cuenta cuántos comentarios escribió en cada reporte. Solo para administradores.")
-    public List<ComentariosPorReporteDTO> comentariosPorReporte(
-            @Parameter(description = "Correo del usuario que escribió los comentarios") @RequestParam String correo) {
-        return service.contarPorReporteYCorreo(correo);
-    }
 
     @GetMapping("/{id}")
     public ComentarioDTO buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }

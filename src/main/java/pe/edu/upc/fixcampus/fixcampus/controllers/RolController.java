@@ -1,7 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -20,14 +19,10 @@ public class RolController {
     public RolController(IRolService service) { this.service = service; }
 
     @GetMapping
-    @Operation(summary = "Listar roles", description = "Si se indica nombre, busca roles que contengan ese texto, sin distinguir mayúsculas.")
+    @Operation(summary = "Listar roles", description = "Muestra todos los roles sin parámetros. Solo administradores.")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Rol> listar(@Parameter(description = "Parte del nombre del rol") @RequestParam(required = false) String nombre) {
-        if (nombre == null || nombre.isBlank()) {
-            return service.listar();
-        } else {
-            return service.buscarPorNombre(nombre);
-        }
+    public List<Rol> listar() {
+        return service.listar();
     }
 
     @GetMapping("/{id}")

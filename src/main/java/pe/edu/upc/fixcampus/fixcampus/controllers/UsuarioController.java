@@ -31,12 +31,6 @@ public class UsuarioController {
         return convertirLista(service.listar());
     }
 
-    @GetMapping("/api/users/estado")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Buscar usuarios por estado", description = "Consulta 4: filtra usuarios por estado, por ejemplo ACTIVO. Solo para administradores.")
-    public List<UsuarioDTO> buscarPorEstado(@RequestParam String estado) {
-        return convertirLista(service.buscarPorEstado(estado));
-    }
 
     @GetMapping("/api/users/count")
     @PreAuthorize("hasRole('ADMIN')")

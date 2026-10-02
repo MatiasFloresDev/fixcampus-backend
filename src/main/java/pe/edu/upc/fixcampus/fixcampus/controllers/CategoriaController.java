@@ -31,20 +31,10 @@ public class CategoriaController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar categorías", description = "Permite buscar por parte del nombre o por una palabra de la descripción.")
+    @Operation(summary = "Listar categorías", description = "Muestra todas las categorías sin parámetros.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<List<CategoriaDTOList>> listar(
-            @Parameter(description = "Parte del nombre de la categoría") @RequestParam(required = false) String nombre,
-            @Parameter(description = "Palabra que debe aparecer en la descripción") @RequestParam(required = false) String descripcion) {
-        List<Categoria> categorias;
-        if (nombre != null && !nombre.isBlank()) {
-            categorias = service.buscarPorNombre(nombre);
-        } else if (descripcion != null && !descripcion.isBlank()) {
-            categorias = service.buscarPorDescripcion(descripcion);
-        } else {
-            categorias = service.listar();
-        }
-        return ResponseEntity.ok(convertirLista(categorias));
+    public ResponseEntity<List<CategoriaDTOList>> listar() {
+        return ResponseEntity.ok(convertirLista(service.listar()));
     }
 
     @GetMapping("/{id}")
@@ -74,7 +64,7 @@ public class CategoriaController {
         return ResponseEntity.created(location).body(response);
     }
     @GetMapping("/buscar-descripcion")
-    @Operation(summary = "Buscar por descripción", description = "Busca categorías que contengan una palabra clave en su descripción.")
+    @Operation(summary = "Buscar por descripción", description = "Consulta 6, simple: busca categorías que contengan una palabra en su descripción. Ejemplo: luces.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
             @Parameter(description = "Palabra clave a buscar en la descripción") @RequestParam String palabraClave) {
@@ -88,7 +78,7 @@ public class CategoriaController {
     @GetMapping("/reporte-por-categoria")
     @Operation(
         summary = "Reportes por categoría",
-        description = "Consulta 20: LEFT JOIN y COUNT. Cuenta todos los reportes por categoría e incluye las que tienen cero. No filtra por fechas. Solo administradores."
+        description = "Consulta 7: LEFT JOIN y COUNT. Cuenta todos los reportes por categoría e incluye las que tienen cero. No filtra por fechas. Solo administradores."
     )
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CategoriaConReportesDTO>> contarReportesPorCategoria() {

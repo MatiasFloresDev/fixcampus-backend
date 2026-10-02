@@ -5,18 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
-import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentariosPorReporteDTO;
 import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IComentarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IRolRepository;
@@ -32,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReporteRepositoryTests {
 
     @Autowired private IReporteService reportService;
-    @Autowired private IComentarioService commentService;
 
     @Autowired
     private IRolRepository roleRepository;
@@ -49,11 +43,9 @@ class ReporteRepositoryTests {
     @Autowired
     private IReporteRepository reportRepository;
 
-    @Autowired
-    private IComentarioRepository commentRepository;
 
     @Test
-    void debeBuscarReportePorEstadoYConJoinDeCategoria() {
+    void debeFiltrarPorEstadoYAgruparPorUsuarioYMes() {
         Rol role = new Rol();
         role.setNombre("ESTUDIANTE");
         role.setNivelAcceso("BASICO");
@@ -89,14 +81,11 @@ class ReporteRepositoryTests {
         report.setTitulo("Luz apagada");
         report.setDescripcion("La luz del aula no enciende");
         report.setEstado("ABIERTO");
+        report.setPrioridad("MEDIA");
         report.setFechaCreacion(LocalDateTime.now());
         reportRepository.save(report);
 
         assertThat(reportRepository.findByEstadoIgnoreCase("abierto")).hasSize(1);
-        List<Reporte> porCategoria = reportRepository.findByNombreCategoria("limpieza de prueba");
-        assertThat(porCategoria).hasSize(1);
-        assertThat(porCategoria.get(0).getTitulo()).isEqualTo("Luz apagada");
-
         List<Reporte> porCorreo = reportRepository.findByCorreoReportante("MATIAS.PRUEBA@UPC.EDU.PE");
         assertThat(porCorreo).hasSize(1);
         assertThat(porCorreo.get(0).getTitulo()).isEqualTo("Luz apagada");
@@ -108,27 +97,8 @@ class ReporteRepositoryTests {
         assertThat(porMes.get(0).getMes()).isEqualTo(LocalDateTime.now().getMonthValue());
         assertThat(porMes.get(0).getCantidad()).isEqualTo(1L);
 
-        List<IncidenciasPorCampusDTO> porCampus = reportService.contarPorCampusYEstado("abierto");
-        assertThat(porCampus).hasSize(1);
-        assertThat(porCampus.get(0).getCampus()).isEqualTo("UPC San Miguel");
-        assertThat(porCampus.get(0).getCantidad()).isEqualTo(1L);
-        assertThat(reportRepository.contarPorCampusYEstado("CERRADO")).isEmpty();
-
-        for (String texto : new String[] {"Revisar lámpara", "Sigue sin funcionar"}) {
-            Comentario comentario = new Comentario();
-            comentario.setReporte(report);
-            comentario.setUsuario(user);
-            comentario.setTextoComentario(texto);
-            comentario.setFechaComentario(LocalDateTime.now());
-            commentRepository.save(comentario);
-        }
-
-        List<ComentariosPorReporteDTO> comentariosPorReporte =
-                commentService.contarPorReporteYCorreo("MATIAS.PRUEBA@UPC.EDU.PE");
-        assertThat(comentariosPorReporte).hasSize(1);
-        assertThat(comentariosPorReporte.get(0).getReporteId()).isEqualTo(report.getIdReporte());
-        assertThat(comentariosPorReporte.get(0).getTituloReporte()).isEqualTo("Luz apagada");
-        assertThat(comentariosPorReporte.get(0).getCantidad()).isEqualTo(2L);
-        assertThat(commentRepository.contarPorReporteYCorreo("otro@upc.edu.pe")).isEmpty();
+        assertThat(reportRepository.findByPrioridad("media")).hasSize(1);
+        assertThat(reportRepository.findByCampus("upc san miguel")).hasSize(1);
+        assertThat(reportRepository.findByCampus("otro campus")).isEmpty();
     }
 }

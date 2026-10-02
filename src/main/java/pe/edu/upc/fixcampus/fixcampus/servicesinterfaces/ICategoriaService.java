@@ -8,7 +8,6 @@ public interface ICategoriaService {
 
     List<Categoria> listar();
 
-    List<Categoria> buscarPorNombre(String nombre);
     List<Categoria> buscarPorDescripcion(String palabraClave);
 
     // Query 2: JOIN con Reporte y COUNT
