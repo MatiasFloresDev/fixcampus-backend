@@ -40,7 +40,7 @@ public class AdjuntoController {
                 break;
             }
         }
-        if (!admin && !reporte.getUsuarioReportante().getCorreo().equalsIgnoreCase(authentication.getName())) {
+        if (!admin && !reporte.getUsuarioReportante().getIdUsuario().equals(Long.valueOf(authentication.getName()))) {
             throw new org.springframework.security.access.AccessDeniedException("No tienes permiso para ver esta evidencia");
         }
     }

@@ -48,13 +48,12 @@ public class LoginController {
                         request.getCorreo(), request.getPassword()));
 
         UserDetails usuario = (UserDetails) authentication.getPrincipal();
-        String token = jwtTokenService.generarToken(usuario);
-
         Optional<Usuario> usuarioEncontrado = usuarioRepository.findByCorreo(usuario.getUsername());
         if (usuarioEncontrado.isEmpty()) {
             throw new BadCredentialsException("Usuario no encontrado");
         }
         Long idUsuario = usuarioEncontrado.get().getIdUsuario();
+        String token = jwtTokenService.generarToken(usuario, idUsuario);
         return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getUsername(), idUsuario));
     }
 }

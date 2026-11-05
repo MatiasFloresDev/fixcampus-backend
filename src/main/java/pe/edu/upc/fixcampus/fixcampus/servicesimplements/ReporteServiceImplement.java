@@ -1,7 +1,9 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
@@ -64,8 +66,21 @@ public class ReporteServiceImplement implements IReporteService {
     }
 
     @Override
-    public Reporte actualizar(Long id, ReporteDTOInsert dto) {
-        Reporte reporte = buscarPorId(id);
+    @Transactional
+    public Reporte actualizar(Long id, ReporteDTOInsert dto, Long idUsuario, boolean administrador) {
+        Reporte reporte = reporteRepository.findByIdParaActualizar(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado"));
+        Long idReportante = reporte.getUsuarioReportante().getIdUsuario();
+        if (!administrador && !idReportante.equals(idUsuario)) {
+            throw new AccessDeniedException("Solo puedes editar tus propios reportes");
+        }
+        dto.setUsuarioReportanteId(idReportante);
+        if (!administrador) {
+            dto.setPrioridad(reporte.getPrioridad());
+            dto.setEstado(reporte.getEstado());
+            Usuario tecnico = reporte.getTecnicoAsignado();
+            dto.setTecnicoAsignadoId(tecnico == null ? null : tecnico.getIdUsuario());
+        }
         copiarDatos(reporte, dto);
         return reporteRepository.save(reporte);
     }
@@ -85,8 +100,18 @@ public class ReporteServiceImplement implements IReporteService {
 
 
     @Override
-    public List<Reporte> buscarPorCorreoReportante(String correo) {
-        return reporteRepository.findByCorreoReportante(correo);
+    public List<Reporte> buscarPorReportante(Long idUsuario) {
+        return reporteRepository.findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(idUsuario);
+    }
+
+    @Override
+    public List<Reporte> buscarPropiosPorEstado(Long idUsuario, String estado) {
+        return reporteRepository.findByUsuarioReportante_IdUsuarioAndEstadoIgnoreCase(idUsuario, estado);
+    }
+
+    @Override
+    public List<Reporte> buscarPropiosPorPrioridad(Long idUsuario, String prioridad) {
+        return reporteRepository.findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(idUsuario, prioridad);
     }
 
     @Override
