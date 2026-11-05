@@ -12,10 +12,12 @@ public interface IReporteService {
     List<Reporte> listar();
     Reporte buscarPorId(Long id);
     Reporte registrar(ReporteDTOInsert dto);
-    Reporte actualizar(Long id, ReporteDTOInsert dto);
+    Reporte actualizar(Long id, ReporteDTOInsert dto, Long idUsuario, boolean administrador);
     void eliminar(Long id);
     List<Reporte> buscarPorEstado(String estado);
-    List<Reporte> buscarPorCorreoReportante(String correo);
+    List<Reporte> buscarPorReportante(Long idUsuario);
+    List<Reporte> buscarPropiosPorEstado(Long idUsuario, String estado);
+    List<Reporte> buscarPropiosPorPrioridad(Long idUsuario, String prioridad);
     List<IncidenciasPorMesDTO> contarPorUsuarioYMes();
     List<Reporte> buscarPorPrioridad(String prioridad);
     List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado);

@@ -2,8 +2,6 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import java.util.ArrayList;
-import org.springframework.security.core.GrantedAuthority;
-import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -22,7 +20,6 @@ import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -40,14 +37,21 @@ public class ReporteController {
     @Operation(summary = "Listar mis reportes", description = "Muestra solo las incidencias registradas por la cuenta que inició sesión.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public List<ReporteDTOList> misReportes(Authentication authentication) {
-        return convertirLista(service.buscarPorCorreoReportante(authentication.getName()));
+        return convertirLista(service.buscarPorReportante(idUsuario(authentication)));
     }
 
     @GetMapping
-    @Operation(summary = "Listar reportes por estado", description = "Consulta 1, simple: filtra las incidencias por estado. Sin estado lista todos. Ejemplo: ABIERTO.")
+    @Operation(summary = "Listar reportes por estado", description = "El administrador consulta todos los reportes y el usuario solo los propios. Filtro opcional, por ejemplo ABIERTO.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<ReporteDTOList>> listar(
-            @Parameter(description = "Estado del reporte, por ejemplo ABIERTO") @RequestParam(required = false) String estado) {
+            @Parameter(description = "Estado del reporte, por ejemplo ABIERTO") @RequestParam(required = false) String estado,
+            Authentication authentication) {
+        if (!esAdministrador(authentication)) {
+            List<Reporte> propios = estado == null || estado.isBlank()
+                    ? service.buscarPorReportante(idUsuario(authentication))
+                    : service.buscarPropiosPorEstado(idUsuario(authentication), estado);
+            return ResponseEntity.ok(convertirLista(propios));
+        }
         List<Reporte> reportes;
         if (estado != null && !estado.isBlank()) {
             reportes = service.buscarPorEstado(estado);
@@ -68,36 +72,34 @@ public class ReporteController {
     @GetMapping("/prioridad/{prioridad}")
     @Operation(summary = "Buscar reportes por prioridad", description = "Consulta 3, simple: lista las incidencias de la prioridad indicada. Ejemplo: ALTA.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(@PathVariable String prioridad) {
-        return ResponseEntity.ok(convertirLista(service.buscarPorPrioridad(prioridad)));
+    public ResponseEntity<List<ReporteDTOList>> buscarPorPrioridad(@PathVariable String prioridad,
+                                                                  Authentication authentication) {
+        List<Reporte> reportes = esAdministrador(authentication)
+                ? service.buscarPorPrioridad(prioridad)
+                : service.buscarPropiosPorPrioridad(idUsuario(authentication), prioridad);
+        return ResponseEntity.ok(convertirLista(reportes));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<ReporteDTOList> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(convertirDto(service.buscarPorId(id)));
+    public ResponseEntity<ReporteDTOList> buscarPorId(@PathVariable Long id, Authentication authentication) {
+        Reporte reporte = service.buscarPorId(id);
+        verificarAcceso(reporte, authentication);
+        return ResponseEntity.ok(convertirDto(reporte));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ReporteDTOList> registrar(@Valid @RequestBody ReporteDTOInsert dto,
                                                     Authentication authentication) {
-        Optional<Usuario> usuario =
-                usuarioRepository.findByCorreo(authentication.getName());
-        if (usuario.isEmpty()) {
+        Long idUsuario = idUsuario(authentication);
+        if (!usuarioRepository.existsById(idUsuario)) {
             throw new AccessDeniedException("Usuario autenticado no encontrado");
         }
-        Long idUsuario = usuario.get().getIdUsuario();
         dto.setUsuarioReportanteId(idUsuario);
-        boolean administrador = false;
-        for (GrantedAuthority autoridad : authentication.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(autoridad.getAuthority())) {
-                administrador = true;
-                break;
-            }
-        }
-        if (!administrador) {
+        if (!esAdministrador(authentication)) {
             dto.setTecnicoAsignadoId(null);
+            dto.setPrioridad(null);
         }
         Reporte guardado = service.registrar(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -113,31 +115,8 @@ public class ReporteController {
             @PathVariable Long id,
             @Valid @RequestBody ReporteDTOInsert dto,
             Authentication authentication) {
-        Reporte existente = service.buscarPorId(id);
-        boolean administrador = false;
-        for (GrantedAuthority autoridad : authentication.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(autoridad.getAuthority())) {
-                administrador = true;
-                break;
-            }
-        }
-        boolean esPropietario = existente.getUsuarioReportante().getCorreo()
-                .equalsIgnoreCase(authentication.getName());
-        if (!administrador && !esPropietario) {
-            throw new AccessDeniedException("Solo puedes editar tus propios reportes");
-        }
-        // El autor original se conserva también cuando actualiza un administrador.
-        dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
-        if (!administrador) {
-            dto.setUsuarioReportanteId(existente.getUsuarioReportante().getIdUsuario());
-            if (existente.getTecnicoAsignado() == null) {
-                dto.setTecnicoAsignadoId(null);
-            } else {
-                dto.setTecnicoAsignadoId(existente.getTecnicoAsignado().getIdUsuario());
-            }
-            dto.setEstado(existente.getEstado());
-        }
-        return ResponseEntity.ok(convertirDto(service.actualizar(id, dto)));
+        Reporte reporte = service.actualizar(id, dto, idUsuario(authentication), esAdministrador(authentication));
+        return ResponseEntity.ok(convertirDto(reporte));
     }
 
     @DeleteMapping("/{id}")
@@ -145,6 +124,22 @@ public class ReporteController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean esAdministrador(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(autoridad -> "ROLE_ADMIN".equals(autoridad.getAuthority()));
+    }
+
+    private Long idUsuario(Authentication authentication) {
+        return Long.valueOf(authentication.getName());
+    }
+
+    private void verificarAcceso(Reporte reporte, Authentication authentication) {
+        if (!esAdministrador(authentication)
+                && !reporte.getUsuarioReportante().getIdUsuario().equals(idUsuario(authentication))) {
+            throw new AccessDeniedException("Solo puedes acceder a tus propios reportes");
+        }
     }
 
     private ReporteDTOList convertirDto(Reporte reporte) {

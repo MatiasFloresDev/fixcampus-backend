@@ -23,7 +23,7 @@ public class JwtTokenService {
         this.jwtEncoder = jwtEncoder;
     }
 
-    public String generarToken(UserDetails usuario) {
+    public String generarToken(UserDetails usuario, Long idUsuario) {
         Instant ahora = Instant.now();
         List<String> nombresRoles = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class JwtTokenService {
 
         String roles = String.join(",", nombresRoles);
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(usuario.getUsername())
+                .subject(idUsuario.toString())
                 .issuedAt(ahora)
                 .expiresAt(ahora.plusSeconds(TIEMPO_TOKEN))
                 .claim("roles", roles)
