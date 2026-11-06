@@ -1,5 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import java.math.BigDecimal;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +15,9 @@ public class UbicacionDTOList {
     private Integer piso;
     private String zona;
     private String tipo;
+
+    private BigDecimal latitud;
+    private BigDecimal longitud;
 
     public UbicacionDTOList() {
     }

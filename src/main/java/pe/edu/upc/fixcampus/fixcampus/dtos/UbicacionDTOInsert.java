@@ -1,5 +1,9 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
+import java.math.BigDecimal;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +30,14 @@ public class UbicacionDTOInsert {
     @NotBlank(message = "El tipo es obligatorio")
     @Size(max = 50, message = "El tipo no puede superar los 50 caracteres")
     private String tipo;
+
+    @DecimalMin("-90")
+    @DecimalMax("90")
+    private BigDecimal latitud;
+
+    @DecimalMin("-180")
+    @DecimalMax("180")
+    private BigDecimal longitud;
 
     public UbicacionDTOInsert() {
     }

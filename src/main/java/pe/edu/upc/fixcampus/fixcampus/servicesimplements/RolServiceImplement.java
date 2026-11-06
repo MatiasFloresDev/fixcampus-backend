@@ -32,11 +32,24 @@ public class RolServiceImplement implements IRolService {
 
     public Rol actualizar(Long id, Rol datos) {
         Rol actual = buscarPorId(id);
+        if (esRolBase(actual) && !actual.getNombre().equals(datos.getNombre())) {
+            throw new IllegalArgumentException("No se puede cambiar el nombre de un rol del sistema.");
+        }
         actual.setNombre(datos.getNombre());
         actual.setNivelAcceso(datos.getNivelAcceso());
         actual.setDescripcion(datos.getDescripcion());
         return repository.save(actual);
     }
 
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    public void eliminar(Long id) {
+        Rol rol = buscarPorId(id);
+        if (esRolBase(rol)) {
+            throw new IllegalArgumentException("No se puede eliminar un rol del sistema.");
+        }
+        repository.delete(rol);
+    }
+
+    private boolean esRolBase(Rol rol) {
+        return "ADMIN".equals(rol.getNombre()) || "USUARIO".equals(rol.getNombre());
+    }
 }

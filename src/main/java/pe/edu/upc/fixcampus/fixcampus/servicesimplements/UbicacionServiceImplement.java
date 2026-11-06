@@ -25,19 +25,29 @@ public class UbicacionServiceImplement implements IUbicacionService {
     }
 
     public Ubicacion registrar(Ubicacion datos) {
+        validarCoordenadas(datos);
         datos.setIdUbicacion(null);
         return repository.save(datos);
     }
 
     public Ubicacion actualizar(Long id, Ubicacion datos) {
         Ubicacion actual = buscarPorId(id);
+        validarCoordenadas(datos);
         actual.setCampus(datos.getCampus());
         actual.setEdificio(datos.getEdificio());
         actual.setPiso(datos.getPiso());
         actual.setZona(datos.getZona());
         actual.setTipo(datos.getTipo());
+        actual.setLatitud(datos.getLatitud());
+        actual.setLongitud(datos.getLongitud());
         return repository.save(actual);
     }
 
     public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+
+    private void validarCoordenadas(Ubicacion ubicacion) {
+        if ((ubicacion.getLatitud() == null) != (ubicacion.getLongitud() == null)) {
+            throw new IllegalArgumentException("Ingresa latitud y longitud juntas.");
+        }
+    }
 }
