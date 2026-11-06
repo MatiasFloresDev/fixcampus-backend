@@ -28,3 +28,28 @@ Este conjunto acompaña la demo del proyecto para una entrevista de documentaci�
 ## Nota de autoría
 
 Antes de la entrevista, reemplaza cualquier frase genérica por tu aporte real y agrega fechas o enlaces de tus evidencias. No atribuyas al proyecto una prueba, reunión o decisión que no puedas explicar.
+
+## Demo de sugerencia de categoría
+
+La opción **Sugerir categoría con IA** aparece en **Nueva incidencia**. Angular envía solo el campo
+`descripcion` a Spring cuando pulsas el botón. Spring consulta Gemini 3.1 Flash-Lite con el
+catálogo de categorías y devuelve un ID válido o `null`. El formulario permite usar la sugerencia
+y cambiarla antes de guardar la incidencia.
+
+1. Genera una clave en [Google AI Studio](https://aistudio.google.com/apikey) con un proyecto del
+   nivel gratuito, sin vincular facturación. Usa descripciones ficticias, sin datos personales.
+2. En PowerShell, desde la carpeta del backend, carga la clave para esa terminal y arranca Spring:
+
+   ```powershell
+   $env:GEMINI_API_KEY = [System.Net.NetworkCredential]::new('', (Read-Host 'Clave de Gemini' -AsSecureString)).Password
+   .\mvnw.cmd spring-boot:run
+   ```
+
+   Si ejecutas Spring desde IntelliJ, configura `GEMINI_API_KEY` en las variables de entorno de la
+   ejecución. Conserva la clave fuera del repositorio y de la configuración de Angular.
+3. Abre **Nueva incidencia** con una sesión de FixCampus y prueba con un ejemplo ficticio,
+   como «Se apagó una lámpara del pasillo». El catálogo debe contener una categoría pertinente.
+4. En Swagger, el contrato es `POST /api/reports/sugerir-categoria` con JWT de `ADMIN` o `USUARIO`
+   y un cuerpo como `{"descripcion":"Se apagó una lámpara del pasillo"}`.
+   Una cuota agotada devuelve `429`. Sin clave o sin conexión, la consulta devuelve `503`.
+   La selección manual está disponible en todos esos casos.
