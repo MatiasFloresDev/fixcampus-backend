@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface IComentarioService {
     List<Comentario> listar();
+
+    List<Comentario> listarPorReporte(Long reporteId);
     Comentario buscarPorId(Long id);
     Comentario registrar(ComentarioDTOInsert datos);
     Comentario actualizar(Long id, ComentarioDTOInsert datos);

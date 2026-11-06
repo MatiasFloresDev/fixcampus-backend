@@ -26,6 +26,11 @@ public class ComentarioServiceImplement implements IComentarioService {
 
     public List<Comentario> listar() { return repository.findAll(); }
 
+    @Override
+    public List<Comentario> listarPorReporte(Long reporteId) {
+        return repository.findByReporte_IdReporteOrderByFechaComentarioDesc(reporteId);
+    }
+
     public Comentario registrar(ComentarioDTOInsert datos) {
         Comentario comentario = new Comentario();
         copiarDatos(comentario, datos);
