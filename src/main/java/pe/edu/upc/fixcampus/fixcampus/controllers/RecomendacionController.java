@@ -35,6 +35,14 @@ public class RecomendacionController {
         return convertirLista(service.buscarPorPrioridad(prioridad));
     }
 
+    @GetMapping("/reporte/{reporteId}")
+    @Operation(summary = "Obtener la recomendación asociada al reporte")
+    public ResponseEntity<RecomendacionDTOList> buscarPorReporte(@PathVariable Long reporteId) {
+        return service.buscarPorReporte(reporteId)
+                .map(recomendacion -> ResponseEntity.ok(convertir(recomendacion)))
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     @GetMapping("/{id}")
     public RecomendacionDTOList buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
 

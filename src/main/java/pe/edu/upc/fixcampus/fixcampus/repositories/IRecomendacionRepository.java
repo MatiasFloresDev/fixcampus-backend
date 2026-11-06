@@ -4,10 +4,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
 import java.util.List;
+import java.util.Optional;
 
 public interface IRecomendacionRepository extends JpaRepository<Recomendacion, Long> {
     // Auxiliar del CRUD: evita guardar dos recomendaciones para la misma incidencia.
     boolean existsByReporte_IdReporte(Long idReporte);
+
+    Optional<Recomendacion> findByReporte_IdReporte(Long reporteId);
 
     // Consulta 7 (simple): muestra recomendaciones de la prioridad sugerida indicada.
     List<Recomendacion> findByPrioridadSugeridaIgnoreCase(String prioridadSugerida);

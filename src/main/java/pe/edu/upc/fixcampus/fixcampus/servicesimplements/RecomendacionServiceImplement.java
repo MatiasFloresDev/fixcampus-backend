@@ -45,6 +45,11 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         return repository.save(recomendacion);
     }
 
+    @Override
+    public Optional<Recomendacion> buscarPorReporte(Long reporteId) {
+        return repository.findByReporte_IdReporte(reporteId);
+    }
+
     public Recomendacion buscarPorId(Long id) {
         Optional<Recomendacion> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {

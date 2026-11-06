@@ -3,6 +3,9 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +31,23 @@ public class ComentarioController {
         return convertirLista(service.listar());
     }
 
+
+    @GetMapping("/reporte/{reporteId}")
+    @Operation(summary = "Listar comentarios del reporte")
+    public List<ComentarioDTOList> listarPorReporte(@PathVariable Long reporteId) {
+        return convertirLista(service.listarPorReporte(reporteId));
+    }
+
+    @PostMapping("/reporte/{reporteId}")
+    @Operation(summary = "Comentar un reporte con la cuenta autenticada")
+    public ResponseEntity<ComentarioDTOList> comentar(@PathVariable Long reporteId,
+            @Valid @RequestBody TextoComentarioDTO texto, Authentication authentication) {
+        ComentarioDTOInsert datos = new ComentarioDTOInsert(reporteId, texto.textoComentario().trim());
+        datos.setUsuarioId(Long.valueOf(authentication.getName()));
+        return crear(datos);
+    }
+
+    public record TextoComentarioDTO(@NotBlank @Size(max = 2000) String textoComentario) {}
 
     @GetMapping("/{id}")
     public ComentarioDTOList buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
