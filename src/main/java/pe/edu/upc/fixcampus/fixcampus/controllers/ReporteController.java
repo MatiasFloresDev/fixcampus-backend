@@ -82,6 +82,13 @@ public class ReporteController {
         return ResponseEntity.ok(convertirLista(reportes));
     }
 
+    @GetMapping("/campus/{campus}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Buscar reportes por campus")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorCampus(@PathVariable String campus) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorCampus(campus)));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ReporteDTOList> buscarPorId(@PathVariable Long id, Authentication authentication) {

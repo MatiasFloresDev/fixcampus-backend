@@ -131,6 +131,11 @@ public class ReporteServiceImplement implements IReporteService {
         return reporteRepository.findByPrioridad(prioridad);
     }
 
+    @Override
+    public List<Reporte> buscarPorCampus(String campus) {
+        return reporteRepository.findByCampus(campus);
+    }
+
     private void copiarDatos(Reporte reporte, ReporteDTOInsert dto) {
         Optional<Usuario> usuarioEncontrado = usuarioRepository.findById(dto.getUsuarioReportanteId());
         if (usuarioEncontrado.isEmpty()) {
