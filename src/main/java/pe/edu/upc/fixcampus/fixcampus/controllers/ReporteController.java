@@ -33,6 +33,7 @@ public class ReporteController {
         this.usuarioRepository = usuarioRepository;
     }
 
+
     @GetMapping("/mis-reportes")
     @Operation(summary = "Listar mis reportes", description = "Muestra solo las incidencias registradas por la cuenta que inició sesión.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
@@ -40,6 +41,7 @@ public class ReporteController {
         return convertirLista(service.buscarPorReportante(idUsuario(authentication)));
     }
 
+    //matias
     @GetMapping
     @Operation(summary = "Listar reportes por estado", description = "El administrador consulta todos los reportes y el usuario solo los propios. Filtro opcional, por ejemplo ABIERTO.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
@@ -60,7 +62,7 @@ public class ReporteController {
         }
         return ResponseEntity.ok(convertirLista(reportes));
     }
-
+    //matias
     @GetMapping("/estadisticas/por-usuario-mes")
     @Operation(summary = "Contar incidencias por usuario y mes", description = "Consulta 2: JOIN, GROUP BY y COUNT. Cuenta incidencias por usuario, año y mes. Solo administradores.")
     @PreAuthorize("hasRole('ADMIN')")
