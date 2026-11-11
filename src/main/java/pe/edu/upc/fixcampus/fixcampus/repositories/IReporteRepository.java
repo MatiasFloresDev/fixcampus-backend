@@ -40,6 +40,9 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
     List<Reporte> findByUsuarioReportante_IdUsuarioAndEstadoIgnoreCase(Long idUsuario, String estado);
     List<Reporte> findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(Long idUsuario, String prioridad);
 
+    @Query("select r from Reporte r join r.ubicacion u where lower(u.campus) = lower(:campus)")
+    List<Reporte> findByCampus(@Param("campus") String campus);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Reporte r where r.idReporte = :id")
     Optional<Reporte> findByIdParaActualizar(@Param("id") Long id);
