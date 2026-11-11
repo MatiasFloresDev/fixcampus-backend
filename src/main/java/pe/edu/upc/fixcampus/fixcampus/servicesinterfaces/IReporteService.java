@@ -22,6 +22,4 @@ public interface IReporteService {
     List<Reporte> buscarPorPrioridad(String prioridad);
     List<Reporte> buscarPorCampus(String campus);
     List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado);
-    List<Reporte> buscarPorPrioridad(String prioridad);
-    List<Reporte> buscarPorCampus(String campus);
 }
