@@ -12,10 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface IReporteRepository extends JpaRepository<Reporte, Long> {
-    // Consulta 1 (simple): muestra las incidencias del estado indicado.
+    // Consulta 1 : muestra las incidencias del estado indicado.
     List<Reporte> findByEstadoIgnoreCase(String estado);
 
-    // Consulta 2 (un JOIN + COUNT): cuenta incidencias por usuario, año y mes.
+    // Consulta 2 : cuenta incidencias por usuario, año y mes.
     @Query(value = "SELECT u.id_usuario, u.nombre, u.apellido, " +
             "EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion), COUNT(*) " +
             "FROM reporte r INNER JOIN usuario u ON r.id_usuario_reportante = u.id_usuario " +
@@ -25,11 +25,11 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
             nativeQuery = true)
     List<Object[]> contarPorUsuarioYMes();
 
-    // Consulta 3 (simple): muestra las incidencias de una prioridad, por ejemplo ALTA.
+    // Consulta 3 : muestra las incidencias de una prioridad, por ejemplo ALTA.
     @Query("select r from Reporte r where lower(r.prioridad) = lower(:prioridad)")
     List<Reporte> findByPrioridad(@Param("prioridad") String prioridad);
 
-    // Consulta 4 (un JOIN + COUNT): cuenta incidencias por campus y estado.
+    // Consulta 4 : cuenta incidencias por campus y estado.
     @Query(value = "SELECT u.campus, COUNT(r.id_reporte) " +
             "FROM reporte r INNER JOIN ubicacion u ON r.id_ubicacion = u.id_ubicacion " +
             "WHERE LOWER(r.estado) = LOWER(:estado) " +
@@ -39,6 +39,9 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
     List<Reporte> findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(Long idUsuario);
     List<Reporte> findByUsuarioReportante_IdUsuarioAndEstadoIgnoreCase(Long idUsuario, String estado);
     List<Reporte> findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(Long idUsuario, String prioridad);
+
+    @Query("select r from Reporte r join r.ubicacion u where lower(u.campus) = lower(:campus)")
+    List<Reporte> findByCampus(@Param("campus") String campus);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Reporte r where r.idReporte = :id")
