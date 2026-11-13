@@ -1,4 +1,18 @@
-# Revisión de FixCampus con los ejemplos de clase — 30/09/2026
+# Revisión de FixCampus con demoSI
+
+La referencia vigente, revisada el 12/11/2026, es `C:/Users/Matias/Documents/FRONTENTD- ARQUI WEB/PC2/demoSI/demoSI`, el backend de CarbonFootprintAI del examen. Las notas del 30 de septiembre se conservan debajo como historial; sus indicaciones sobre Java 17, Lombok y evitar streams ya no describen la versión actual.
+
+FixCampus utiliza Java 21, tanto en Maven como en Docker. El SDK local de IntelliJ se dejó en 21. Para ejecutar Maven desde una terminal, JAVA_HOME también debe apuntar a un JDK 21. La compilación y las pruebas se verificaron con el mismo JDK Microsoft 21 instalado para la PC2.
+
+Se mantuvo el recorrido del ejemplo: controlador, interfaz de servicio, implementación y JpaRepository. Las dependencias se reciben por constructor. Las entidades y los DTO ahora tienen sus getters y setters escritos, sin Lombok. El texto de un comentario utiliza una clase DTO normal en lugar de un record dentro del controlador.
+
+Los controladores convierten las respuestas con ModelMapper y devuelven ResponseEntity. Los listados usan el mismo patrón stream, map y toList del CarbonFootprintAIController. Las consultas agrupadas conservan la conversión por columnas de sus resultados SQL. Login y reportes consultan el servicio de usuarios en lugar de acceder directamente al repositorio.
+
+El ejemplo del examen tiene una tabla independiente. FixCampus necesita relaciones, registro, permisos, consultas agrupadas y Gemini. Por eso conserva las comprobaciones de claves foráneas, el token con el ID del usuario y los DTO de entrada y salida. No se copiaron las rutas públicas de listado y eliminación de la práctica: las operaciones del proyecto mantienen sus permisos.
+
+Comprobaciones locales: seis pruebas de backend aprobadas con Java 21; 71 peticiones HTTP correctas, incluyendo los ocho CRUD, registro público, relaciones, validaciones, respuestas sin contraseña y restricciones 401, 403 y 409. Los datos temporales se eliminaron al terminar. El frontend conserva los mismos contratos y pasó 21 pruebas. Mapa y Gemini también se comprobaron desde Angular.
+
+## Historial del 30/09/2026
 
 ## Referencias utilizadas
 

@@ -66,7 +66,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Mismos patrones de lambda que SecurityConfig de demoSI_seguridad.
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())

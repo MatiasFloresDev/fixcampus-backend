@@ -11,7 +11,6 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,18 +27,17 @@ public class UbicacionController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Listar ubicaciones", description = "Muestra todos los registros sin parámetros.")
-    public List<UbicacionDTOList> listar() {
-        List<UbicacionDTOList> lista = new ArrayList<>();
-        for (Ubicacion registro : service.listar()) {
-            lista.add(modelMapper.map(registro, UbicacionDTOList.class));
-        }
-        return lista;
+    public ResponseEntity<List<UbicacionDTOList>> listar() {
+        List<UbicacionDTOList> lista = service.listar().stream()
+                .map(registro -> modelMapper.map(registro, UbicacionDTOList.class))
+                .toList();
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public UbicacionDTOList buscar(@PathVariable Long id) {
-        return modelMapper.map(service.buscarPorId(id), UbicacionDTOList.class);
+    public ResponseEntity<UbicacionDTOList> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(modelMapper.map(service.buscarPorId(id), UbicacionDTOList.class));
     }
 
     @PostMapping
@@ -53,9 +51,9 @@ public class UbicacionController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UbicacionDTOList actualizar(@PathVariable Long id, @Valid @RequestBody UbicacionDTOInsert datos) {
+    public ResponseEntity<UbicacionDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody UbicacionDTOInsert datos) {
         Ubicacion registro = modelMapper.map(datos, Ubicacion.class);
-        return modelMapper.map(service.actualizar(id, registro), UbicacionDTOList.class);
+        return ResponseEntity.ok(modelMapper.map(service.actualizar(id, registro), UbicacionDTOList.class));
     }
 
     @DeleteMapping("/{id}")

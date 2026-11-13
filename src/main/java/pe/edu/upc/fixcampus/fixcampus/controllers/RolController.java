@@ -11,7 +11,6 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.RolDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RolDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,18 +27,17 @@ public class RolController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar roles", description = "Muestra todos los registros sin parámetros.")
-    public List<RolDTOList> listar() {
-        List<RolDTOList> lista = new ArrayList<>();
-        for (Rol registro : service.listar()) {
-            lista.add(modelMapper.map(registro, RolDTOList.class));
-        }
-        return lista;
+    public ResponseEntity<List<RolDTOList>> listar() {
+        List<RolDTOList> lista = service.listar().stream()
+                .map(registro -> modelMapper.map(registro, RolDTOList.class))
+                .toList();
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public RolDTOList buscar(@PathVariable Long id) {
-        return modelMapper.map(service.buscarPorId(id), RolDTOList.class);
+    public ResponseEntity<RolDTOList> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(modelMapper.map(service.buscarPorId(id), RolDTOList.class));
     }
 
     @PostMapping
@@ -53,9 +51,9 @@ public class RolController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public RolDTOList actualizar(@PathVariable Long id, @Valid @RequestBody RolDTOInsert datos) {
+    public ResponseEntity<RolDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody RolDTOInsert datos) {
         Rol registro = modelMapper.map(datos, Rol.class);
-        return modelMapper.map(service.actualizar(id, registro), RolDTOList.class);
+        return ResponseEntity.ok(modelMapper.map(service.actualizar(id, registro), RolDTOList.class));
     }
 
     @DeleteMapping("/{id}")

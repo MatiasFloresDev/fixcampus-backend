@@ -12,11 +12,16 @@ import java.util.Optional;
 public class RolServiceImplement implements IRolService {
     private final IRolRepository repository;
 
-    public RolServiceImplement(IRolRepository repository) { this.repository = repository; }
+    public RolServiceImplement(IRolRepository repository) {
+        this.repository = repository;
+    }
 
-    public List<Rol> listar() { return repository.findAll(); }
+    @Override
+    public List<Rol> listar() {
+        return repository.findAll();
+    }
 
-
+    @Override
     public Rol buscarPorId(Long id) {
         Optional<Rol> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {
@@ -25,11 +30,13 @@ public class RolServiceImplement implements IRolService {
         return encontrado.get();
     }
 
+    @Override
     public Rol registrar(Rol datos) {
         datos.setIdRol(null);
         return repository.save(datos);
     }
 
+    @Override
     public Rol actualizar(Long id, Rol datos) {
         Rol actual = buscarPorId(id);
         if (esRolBase(actual) && !actual.getNombre().equals(datos.getNombre())) {
@@ -41,6 +48,7 @@ public class RolServiceImplement implements IRolService {
         return repository.save(actual);
     }
 
+    @Override
     public void eliminar(Long id) {
         Rol rol = buscarPorId(id);
         if (esRolBase(rol)) {

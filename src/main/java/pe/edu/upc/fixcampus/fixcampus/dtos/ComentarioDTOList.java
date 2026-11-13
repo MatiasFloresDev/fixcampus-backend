@@ -1,12 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
 public class ComentarioDTOList {
 
     private Long idComentario;
@@ -16,6 +11,7 @@ public class ComentarioDTOList {
     private LocalDateTime fechaComentario;
 
     public ComentarioDTOList() {
+
     }
 
     public ComentarioDTOList(Long idComentario, Long reporteId, Long usuarioId,
@@ -27,4 +23,43 @@ public class ComentarioDTOList {
         this.fechaComentario = fechaComentario;
     }
 
+    public Long getIdComentario() {
+        return idComentario;
+    }
+
+    public void setIdComentario(Long idComentario) {
+        this.idComentario = idComentario;
+    }
+
+    public Long getReporteId() {
+        return reporteId;
+    }
+
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public String getTextoComentario() {
+        return textoComentario;
+    }
+
+    public void setTextoComentario(String textoComentario) {
+        this.textoComentario = textoComentario;
+    }
+
+    public LocalDateTime getFechaComentario() {
+        return fechaComentario;
+    }
+
+    public void setFechaComentario(LocalDateTime fechaComentario) {
+        this.fechaComentario = fechaComentario;
+    }
 }

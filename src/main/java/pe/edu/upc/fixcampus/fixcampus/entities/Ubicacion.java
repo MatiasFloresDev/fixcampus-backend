@@ -2,15 +2,10 @@ package pe.edu.upc.fixcampus.fixcampus.entities;
 
 import java.math.BigDecimal;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ubicacion")
-@Getter
-@Setter
 public class Ubicacion {
 
     @Id
@@ -40,6 +35,7 @@ public class Ubicacion {
     private BigDecimal longitud;
 
     public Ubicacion() {
+
     }
 
     public Ubicacion(Long idUbicacion, String campus, String edificio,
@@ -52,4 +48,67 @@ public class Ubicacion {
         this.tipo = tipo;
     }
 
+    public Long getIdUbicacion() {
+        return idUbicacion;
+    }
+
+    public void setIdUbicacion(Long idUbicacion) {
+        this.idUbicacion = idUbicacion;
+    }
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public String getEdificio() {
+        return edificio;
+    }
+
+    public void setEdificio(String edificio) {
+        this.edificio = edificio;
+    }
+
+    public Integer getPiso() {
+        return piso;
+    }
+
+    public void setPiso(Integer piso) {
+        this.piso = piso;
+    }
+
+    public String getZona() {
+        return zona;
+    }
+
+    public void setZona(String zona) {
+        this.zona = zona;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public BigDecimal getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(BigDecimal latitud) {
+        this.latitud = latitud;
+    }
+
+    public BigDecimal getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(BigDecimal longitud) {
+        this.longitud = longitud;
+    }
 }

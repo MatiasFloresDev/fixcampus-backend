@@ -1,12 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
 public class RecomendacionDTOList {
 
     private Long idRecomendacion;
@@ -18,6 +13,7 @@ public class RecomendacionDTOList {
     private LocalDateTime fechaRecomendacion;
 
     public RecomendacionDTOList() {
+
     }
 
     public RecomendacionDTOList(Long idRecomendacion, Long reporteId,
@@ -33,4 +29,59 @@ public class RecomendacionDTOList {
         this.fechaRecomendacion = fechaRecomendacion;
     }
 
+    public Long getIdRecomendacion() {
+        return idRecomendacion;
+    }
+
+    public void setIdRecomendacion(Long idRecomendacion) {
+        this.idRecomendacion = idRecomendacion;
+    }
+
+    public Long getReporteId() {
+        return reporteId;
+    }
+
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
+    }
+
+    public String getTituloSugerido() {
+        return tituloSugerido;
+    }
+
+    public void setTituloSugerido(String tituloSugerido) {
+        this.tituloSugerido = tituloSugerido;
+    }
+
+    public String getResumen() {
+        return resumen;
+    }
+
+    public void setResumen(String resumen) {
+        this.resumen = resumen;
+    }
+
+    public String getPrioridadSugerida() {
+        return prioridadSugerida;
+    }
+
+    public void setPrioridadSugerida(String prioridadSugerida) {
+        this.prioridadSugerida = prioridadSugerida;
+    }
+
+    public String getJustificacion() {
+        return justificacion;
+    }
+
+    public void setJustificacion(String justificacion) {
+        this.justificacion = justificacion;
+    }
+
+    public LocalDateTime getFechaRecomendacion() {
+        return fechaRecomendacion;
+    }
+
+    public void setFechaRecomendacion(LocalDateTime fechaRecomendacion) {
+        this.fechaRecomendacion = fechaRecomendacion;
+    }
 }
