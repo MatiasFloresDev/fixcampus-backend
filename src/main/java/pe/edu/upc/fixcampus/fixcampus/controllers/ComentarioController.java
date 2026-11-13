@@ -1,12 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import pe.edu.upc.fixcampus.fixcampus.dtos.TextoComentarioDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,36 +20,39 @@ import java.util.List;
 @RequestMapping("/api/comments")
 @PreAuthorize("hasRole('ADMIN')")
 public class ComentarioController {
+    private final ModelMapper modelMapper;
     private final IComentarioService service;
 
-    public ComentarioController(IComentarioService service) { this.service = service; }
+    public ComentarioController(IComentarioService service, ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+        this.service = service;
+    }
 
     @GetMapping
     @Operation(summary = "Listar comentarios", description = "Muestra todos los comentarios sin parámetros. Solo administradores.")
-    public List<ComentarioDTOList> listar() {
-        return convertirLista(service.listar());
+    public ResponseEntity<List<ComentarioDTOList>> listar() {
+        return ResponseEntity.ok(convertirLista(service.listar()));
     }
-
 
     @GetMapping("/reporte/{reporteId}")
     @Operation(summary = "Listar comentarios del reporte")
-    public List<ComentarioDTOList> listarPorReporte(@PathVariable Long reporteId) {
-        return convertirLista(service.listarPorReporte(reporteId));
+    public ResponseEntity<List<ComentarioDTOList>> listarPorReporte(@PathVariable Long reporteId) {
+        return ResponseEntity.ok(convertirLista(service.listarPorReporte(reporteId)));
     }
 
     @PostMapping("/reporte/{reporteId}")
     @Operation(summary = "Comentar un reporte con la cuenta autenticada")
     public ResponseEntity<ComentarioDTOList> comentar(@PathVariable Long reporteId,
             @Valid @RequestBody TextoComentarioDTO texto, Authentication authentication) {
-        ComentarioDTOInsert datos = new ComentarioDTOInsert(reporteId, texto.textoComentario().trim());
+        ComentarioDTOInsert datos = new ComentarioDTOInsert(reporteId, texto.getTextoComentario().trim());
         datos.setUsuarioId(Long.valueOf(authentication.getName()));
         return crear(datos);
     }
 
-    public record TextoComentarioDTO(@NotBlank @Size(max = 2000) String textoComentario) {}
-
     @GetMapping("/{id}")
-    public ComentarioDTOList buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
+    public ResponseEntity<ComentarioDTOList> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(convertir(service.buscarPorId(id)));
+    }
 
     @PostMapping
     public ResponseEntity<ComentarioDTOList> crear(@Valid @RequestBody ComentarioDTOInsert datos) {
@@ -60,8 +62,8 @@ public class ComentarioController {
     }
 
     @PutMapping("/{id}")
-    public ComentarioDTOList actualizar(@PathVariable Long id, @Valid @RequestBody ComentarioDTOInsert datos) {
-        return convertir(service.actualizar(id, datos));
+    public ResponseEntity<ComentarioDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody ComentarioDTOInsert datos) {
+        return ResponseEntity.ok(convertir(service.actualizar(id, datos)));
     }
 
     @DeleteMapping("/{id}")
@@ -71,20 +73,15 @@ public class ComentarioController {
     }
 
     private ComentarioDTOList convertir(Comentario comentario) {
-        ComentarioDTOList dto = new ComentarioDTOList();
-        dto.setIdComentario(comentario.getIdComentario());
+        ComentarioDTOList dto = modelMapper.map(comentario, ComentarioDTOList.class);
         dto.setReporteId(comentario.getReporte().getIdReporte());
         dto.setUsuarioId(comentario.getUsuario().getIdUsuario());
-        dto.setTextoComentario(comentario.getTextoComentario());
-        dto.setFechaComentario(comentario.getFechaComentario());
         return dto;
     }
 
     private List<ComentarioDTOList> convertirLista(List<Comentario> comentarios) {
-        List<ComentarioDTOList> lista = new ArrayList<>();
-        for (Comentario comentario : comentarios) {
-            lista.add(convertir(comentario));
-        }
-        return lista;
+        return comentarios.stream()
+                .map(item -> convertir(item))
+                .toList();
     }
 }

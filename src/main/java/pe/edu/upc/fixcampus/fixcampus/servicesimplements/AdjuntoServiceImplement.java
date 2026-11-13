@@ -21,15 +21,22 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
         this.reporteRepository = reporteRepository;
     }
 
+    @Override
     public void eliminar(Long id) {
         Adjunto adjunto = buscarPorId(id);
         repository.delete(adjunto);
     }
 
-    public List<Adjunto> listar() { return repository.findAll(); }
-    public List<Adjunto> buscarPorReporte(Long reporteId) { return repository.findByReporte_IdReporte(reporteId); }
+    @Override
+    public List<Adjunto> listar() {
+        return repository.findAll();
+    }
+    @Override
+    public List<Adjunto> buscarPorReporte(Long reporteId) {
+        return repository.findByReporte_IdReporte(reporteId);
+    }
 
-
+    @Override
     public Adjunto registrar(AdjuntoDTOInsert datos) {
         Adjunto adjunto = new Adjunto();
         copiarDatos(adjunto, datos);
@@ -37,12 +44,14 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
         return repository.save(adjunto);
     }
 
+    @Override
     public Adjunto actualizar(Long id, AdjuntoDTOInsert datos) {
         Adjunto adjunto = buscarPorId(id);
         copiarDatos(adjunto, datos);
         return repository.save(adjunto);
     }
 
+    @Override
     public Adjunto buscarPorId(Long id) {
         Optional<Adjunto> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {
@@ -58,6 +67,7 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
         adjunto.setTipoArchivo(datos.getTipoArchivo());
     }
 
+    @Override
     public Reporte buscarReporte(Long id) {
         Optional<Reporte> encontrado = reporteRepository.findById(id);
         if (encontrado.isEmpty()) {

@@ -1,5 +1,7 @@
 # Lombok y lambdas de los ejemplos de clase
 
+Nota histórica. Desde el 12/11/2026 la referencia es el demoSI de la PC2, con getters y setters explícitos y Java 21. FixCampus ya no utiliza Lombok. La comparación y las comprobaciones vigentes están en [Revisión de FixCampus con demoSI](Revision-backend-demoSI.md). El contenido que sigue corresponde a los ejemplos anteriores de septiembre.
+
 ## Lambdas utilizadas
 
 Se revisaron los proyectos locales demoSI y demoSI_seguridad. FixCampus utiliza únicamente las cinco lambdas de configuración que aparecen en `demoSI_seguridad/demoSI/src/main/java/pe/edu/upc/demosi/securities/SecurityConfig.java`, líneas 58, 60, 66, 86 y 87.

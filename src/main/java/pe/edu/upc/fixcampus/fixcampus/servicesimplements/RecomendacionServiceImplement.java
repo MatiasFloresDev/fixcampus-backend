@@ -23,8 +23,15 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         this.reporteRepository = reporteRepository;
     }
 
-    public List<Recomendacion> listar() { return repository.findAll(); }
-    public List<Recomendacion> buscarPorPrioridad(String prioridad) { return repository.findByPrioridadSugeridaIgnoreCase(prioridad); }
+    @Override
+    public List<Recomendacion> listar() {
+        return repository.findAll();
+    }
+    @Override
+    public List<Recomendacion> buscarPorPrioridad(String prioridad) {
+        return repository.findByPrioridadSugeridaIgnoreCase(prioridad);
+    }
+    @Override
     public Recomendacion registrar(RecomendacionDTOInsert datos) {
         if (repository.existsByReporte_IdReporte(datos.getReporteId())) {
             throw new IllegalArgumentException("Este reporte ya tiene una recomendación");
@@ -35,6 +42,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         return repository.save(recomendacion);
     }
 
+    @Override
     public Recomendacion actualizar(Long id, RecomendacionDTOInsert datos) {
         Recomendacion recomendacion = buscarPorId(id);
         if (!recomendacion.getReporte().getIdReporte().equals(datos.getReporteId())
@@ -50,6 +58,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         return repository.findByReporte_IdReporte(reporteId);
     }
 
+    @Override
     public Recomendacion buscarPorId(Long id) {
         Optional<Recomendacion> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {
@@ -71,7 +80,11 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         recomendacion.setJustificacion(datos.getJustificacion());
     }
 
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    @Override
+    public void eliminar(Long id) {
+        repository.delete(buscarPorId(id));
+    }
+    @Override
     public List<RecomendacionesPorPrioridadDTO> contarPorPrioridadReporte() {
         List<RecomendacionesPorPrioridadDTO> lista = new ArrayList<>();
         for (Object[] fila : repository.contarPorPrioridadReporte()) {

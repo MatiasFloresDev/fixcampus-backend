@@ -2,6 +2,8 @@
 
 Este conjunto acompaña la demo del proyecto para una entrevista de documentación. La regla es sencilla: lo que está funcionando se marca como implementado; lo demás queda como propuesta con criterios listos para discutir y priorizar.
 
+El backend usa Java 21, como `PC2/demoSI/demoSI`. Configura el SDK del proyecto y JAVA_HOME con un JDK 21 antes de ejecutar `mvnw.cmd`. La estructura vigente y las pruebas se detallan en [Revisión de FixCampus con demoSI](Revision-backend-demoSI.md).
+
 ## Archivos
 
 1. [Historias de Usuario](Historias-de-usuario-FixCampus.md) — backlog priorizado, criterios de aceptación, dependencias y estado.
@@ -13,7 +15,7 @@ Este conjunto acompaña la demo del proyecto para una entrevista de documentaci�
 7. [Consultas e integración del equipo](Actualizacion-consultas-y-documento-2026-10-01.md) — diez consultas en cinco pares, ejemplos, procedencia y cambios de Yair.
 8. [Verificación de la entrega](Revision-entrega-consultas-yair-2026-10-01.md) — requisitos del backend comprobados y evidencias pendientes de la entrega.
 
-9. [Lombok y lambdas de clase](Lombok-y-lambdas-demoSI.md) — métodos generados, archivos y patrones de seguridad de demoSI_seguridad.
+9. [Lombok y lambdas de clase](Lombok-y-lambdas-demoSI.md) — apunte histórico de septiembre. La versión actual usa getters y setters explícitos.
 
 10. [Consultas nuevas de Yair](Integracion-consultas-Yair-2026-10-02.md) — integración en main, explicación, ejemplos y comprobaciones locales.
 

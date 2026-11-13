@@ -4,11 +4,14 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
 import java.util.List;
+import java.util.Optional;
 
 public interface IUsuarioService {
     List<Usuario> listar();
     long contarRegistrados();
     Usuario buscarPorId(Long id);
+    Optional<Usuario> buscarPorCorreo(String correo);
+    boolean existe(Long id);
     Usuario crear(UsuarioDTOInsert datos);
     Usuario actualizar(Long id, UsuarioDTOInsert datos);
     Usuario registrar(RegistroRequestDTO datos);

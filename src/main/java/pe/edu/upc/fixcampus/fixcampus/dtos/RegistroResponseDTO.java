@@ -1,8 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import lombok.Getter;
-
-@Getter
 public class RegistroResponseDTO {
 
     private Long idUsuario;
@@ -15,4 +12,15 @@ public class RegistroResponseDTO {
         this.mensaje = mensaje;
     }
 
+    public Long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public String getMensaje() {
+        return mensaje;
+    }
 }

@@ -1,11 +1,18 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public class SugerenciaCategoriaDTO {
 
-    private final Long categoriaId;
+    private Long categoriaId;
+
+    public SugerenciaCategoriaDTO() {
+
+    }
+
+    public SugerenciaCategoriaDTO(Long categoriaId) {
+        this.categoriaId = categoriaId;
+    }
+
+    public Long getCategoriaId() {
+        return categoriaId;
+    }
 }

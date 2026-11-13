@@ -30,7 +30,6 @@ public class ReporteServiceImplement implements IReporteService {
     private final ICategoriaRepository categoriaRepository;
     private final IUbicacionRepository ubicacionRepository;
 
-
     public ReporteServiceImplement(IReporteRepository reporteRepository,
                              IUsuarioRepository usuarioRepository,
                              ICategoriaRepository categoriaRepository,
@@ -43,7 +42,6 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public List<Reporte> listar() {
-
         return reporteRepository.findAll();
     }
 
@@ -94,10 +92,8 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public List<Reporte> buscarPorEstado(String estado) {
-
         return reporteRepository.findByEstadoIgnoreCase(estado);
     }
-
 
     @Override
     public List<Reporte> buscarPorReportante(Long idUsuario) {
@@ -124,7 +120,6 @@ public class ReporteServiceImplement implements IReporteService {
         }
         return lista;
     }
-
 
     @Override
     public List<Reporte> buscarPorPrioridad(String prioridad) {
@@ -186,6 +181,7 @@ public class ReporteServiceImplement implements IReporteService {
         }
         reporte.setEstado(dto.getEstado());
     }
+    @Override
     public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado) {
         List<IncidenciasPorCampusDTO> lista = new ArrayList<>();
         for (Object[] fila : reporteRepository.contarPorCampusYEstado(estado)) {

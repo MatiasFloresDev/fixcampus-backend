@@ -1,16 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "adjunto")
-@Getter
-@Setter
 public class Adjunto {
 
     @Id
@@ -35,6 +30,7 @@ public class Adjunto {
     private LocalDateTime fechaSubida;
 
     public Adjunto() {
+
     }
 
     public Adjunto(Long idAdjunto, Reporte reporte, String nombreArchivo,
@@ -47,4 +43,51 @@ public class Adjunto {
         this.fechaSubida = fechaSubida;
     }
 
+    public Long getIdAdjunto() {
+        return idAdjunto;
+    }
+
+    public void setIdAdjunto(Long idAdjunto) {
+        this.idAdjunto = idAdjunto;
+    }
+
+    public Reporte getReporte() {
+        return reporte;
+    }
+
+    public void setReporte(Reporte reporte) {
+        this.reporte = reporte;
+    }
+
+    public String getNombreArchivo() {
+        return nombreArchivo;
+    }
+
+    public void setNombreArchivo(String nombreArchivo) {
+        this.nombreArchivo = nombreArchivo;
+    }
+
+    public String getUrlArchivo() {
+        return urlArchivo;
+    }
+
+    public void setUrlArchivo(String urlArchivo) {
+        this.urlArchivo = urlArchivo;
+    }
+
+    public String getTipoArchivo() {
+        return tipoArchivo;
+    }
+
+    public void setTipoArchivo(String tipoArchivo) {
+        this.tipoArchivo = tipoArchivo;
+    }
+
+    public LocalDateTime getFechaSubida() {
+        return fechaSubida;
+    }
+
+    public void setFechaSubida(LocalDateTime fechaSubida) {
+        this.fechaSubida = fechaSubida;
+    }
 }

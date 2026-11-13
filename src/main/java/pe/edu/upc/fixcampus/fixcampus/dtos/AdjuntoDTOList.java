@@ -1,12 +1,7 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
 public class AdjuntoDTOList {
 
     private Long idAdjunto;
@@ -17,6 +12,7 @@ public class AdjuntoDTOList {
     private LocalDateTime fechaSubida;
 
     public AdjuntoDTOList() {
+
     }
 
     public AdjuntoDTOList(Long idAdjunto, Long reporteId,
@@ -30,4 +26,51 @@ public class AdjuntoDTOList {
         this.fechaSubida = fechaSubida;
     }
 
+    public Long getIdAdjunto() {
+        return idAdjunto;
+    }
+
+    public void setIdAdjunto(Long idAdjunto) {
+        this.idAdjunto = idAdjunto;
+    }
+
+    public Long getReporteId() {
+        return reporteId;
+    }
+
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
+    }
+
+    public String getNombreArchivo() {
+        return nombreArchivo;
+    }
+
+    public void setNombreArchivo(String nombreArchivo) {
+        this.nombreArchivo = nombreArchivo;
+    }
+
+    public String getUrlArchivo() {
+        return urlArchivo;
+    }
+
+    public void setUrlArchivo(String urlArchivo) {
+        this.urlArchivo = urlArchivo;
+    }
+
+    public String getTipoArchivo() {
+        return tipoArchivo;
+    }
+
+    public void setTipoArchivo(String tipoArchivo) {
+        this.tipoArchivo = tipoArchivo;
+    }
+
+    public LocalDateTime getFechaSubida() {
+        return fechaSubida;
+    }
+
+    public void setFechaSubida(LocalDateTime fechaSubida) {
+        this.fechaSubida = fechaSubida;
+    }
 }

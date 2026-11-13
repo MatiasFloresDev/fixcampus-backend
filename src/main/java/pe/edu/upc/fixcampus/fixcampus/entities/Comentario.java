@@ -1,16 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comentario")
-@Getter
-@Setter
 public class Comentario {
 
     @Id
@@ -33,6 +28,7 @@ public class Comentario {
     private LocalDateTime fechaComentario;
 
     public Comentario() {
+
     }
 
     public Comentario(Long idComentario, Reporte reporte, Usuario usuario,
@@ -44,4 +40,43 @@ public class Comentario {
         this.fechaComentario = fechaComentario;
     }
 
+    public Long getIdComentario() {
+        return idComentario;
+    }
+
+    public void setIdComentario(Long idComentario) {
+        this.idComentario = idComentario;
+    }
+
+    public Reporte getReporte() {
+        return reporte;
+    }
+
+    public void setReporte(Reporte reporte) {
+        this.reporte = reporte;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getTextoComentario() {
+        return textoComentario;
+    }
+
+    public void setTextoComentario(String textoComentario) {
+        this.textoComentario = textoComentario;
+    }
+
+    public LocalDateTime getFechaComentario() {
+        return fechaComentario;
+    }
+
+    public void setFechaComentario(LocalDateTime fechaComentario) {
+        this.fechaComentario = fechaComentario;
+    }
 }
