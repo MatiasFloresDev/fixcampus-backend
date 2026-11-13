@@ -12,10 +12,16 @@ import java.util.Optional;
 public class UbicacionServiceImplement implements IUbicacionService {
     private final IUbicacionRepository repository;
 
-    public UbicacionServiceImplement(IUbicacionRepository repository) { this.repository = repository; }
+    public UbicacionServiceImplement(IUbicacionRepository repository) {
+        this.repository = repository;
+    }
 
-    public List<Ubicacion> listar() { return repository.findAll(); }
+    @Override
+    public List<Ubicacion> listar() {
+        return repository.findAll();
+    }
 
+    @Override
     public Ubicacion buscarPorId(Long id) {
         Optional<Ubicacion> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {
@@ -24,12 +30,14 @@ public class UbicacionServiceImplement implements IUbicacionService {
         return encontrado.get();
     }
 
+    @Override
     public Ubicacion registrar(Ubicacion datos) {
         validarCoordenadas(datos);
         datos.setIdUbicacion(null);
         return repository.save(datos);
     }
 
+    @Override
     public Ubicacion actualizar(Long id, Ubicacion datos) {
         Ubicacion actual = buscarPorId(id);
         validarCoordenadas(datos);
@@ -43,7 +51,10 @@ public class UbicacionServiceImplement implements IUbicacionService {
         return repository.save(actual);
     }
 
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    @Override
+    public void eliminar(Long id) {
+        repository.delete(buscarPorId(id));
+    }
 
     private void validarCoordenadas(Ubicacion ubicacion) {
         if ((ubicacion.getLatitud() == null) != (ubicacion.getLongitud() == null)) {

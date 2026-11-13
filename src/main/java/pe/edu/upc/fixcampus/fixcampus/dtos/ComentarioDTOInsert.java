@@ -1,13 +1,8 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@Getter
-@Setter
 public class ComentarioDTOInsert {
 
     @NotNull(message = "El reporte es obligatorio")
@@ -20,6 +15,7 @@ public class ComentarioDTOInsert {
     private String textoComentario;
 
     public ComentarioDTOInsert() {
+
     }
 
     public ComentarioDTOInsert(Long reporteId, String textoComentario) {
@@ -27,4 +23,27 @@ public class ComentarioDTOInsert {
         this.textoComentario = textoComentario;
     }
 
+    public Long getReporteId() {
+        return reporteId;
+    }
+
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public String getTextoComentario() {
+        return textoComentario;
+    }
+
+    public void setTextoComentario(String textoComentario) {
+        this.textoComentario = textoComentario;
+    }
 }

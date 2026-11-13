@@ -1,11 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
-import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -16,7 +16,7 @@ import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 
 import java.net.URI;
 import java.util.List;
@@ -25,20 +25,21 @@ import java.util.List;
 @RequestMapping("/api/reports")
 public class ReporteController {
 
+    private final ModelMapper modelMapper;
     private final IReporteService service;
-    private final IUsuarioRepository usuarioRepository;
+    private final IUsuarioService usuarioService;
 
-    public ReporteController(IReporteService service, IUsuarioRepository usuarioRepository) {
+    public ReporteController(IReporteService service, IUsuarioService usuarioService, ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
         this.service = service;
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
-
 
     @GetMapping("/mis-reportes")
     @Operation(summary = "Listar mis reportes", description = "Muestra solo las incidencias registradas por la cuenta que inició sesión.")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public List<ReporteDTOList> misReportes(Authentication authentication) {
-        return convertirLista(service.buscarPorReportante(idUsuario(authentication)));
+    public ResponseEntity<List<ReporteDTOList>> misReportes(Authentication authentication) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorReportante(idUsuario(authentication))));
     }
 
     //matias
@@ -66,10 +67,9 @@ public class ReporteController {
     @GetMapping("/estadisticas/por-usuario-mes")
     @Operation(summary = "Contar incidencias por usuario y mes", description = "Consulta 2: JOIN, GROUP BY y COUNT. Cuenta incidencias por usuario, año y mes. Solo administradores.")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<IncidenciasPorMesDTO> incidenciasPorUsuarioYMes() {
-        return service.contarPorUsuarioYMes();
+    public ResponseEntity<List<IncidenciasPorMesDTO>> incidenciasPorUsuarioYMes() {
+        return ResponseEntity.ok(service.contarPorUsuarioYMes());
     }
-
 
     @GetMapping("/prioridad/{prioridad}")
     @Operation(summary = "Buscar reportes por prioridad", description = "Consulta 3, simple: lista las incidencias de la prioridad indicada. Ejemplo: ALTA.")
@@ -102,7 +102,7 @@ public class ReporteController {
     public ResponseEntity<ReporteDTOList> registrar(@Valid @RequestBody ReporteDTOInsert dto,
                                                     Authentication authentication) {
         Long idUsuario = idUsuario(authentication);
-        if (!usuarioRepository.existsById(idUsuario)) {
+        if (!usuarioService.existe(idUsuario)) {
             throw new AccessDeniedException("Usuario autenticado no encontrado");
         }
         dto.setUsuarioReportanteId(idUsuario);
@@ -152,39 +152,24 @@ public class ReporteController {
     }
 
     private ReporteDTOList convertirDto(Reporte reporte) {
-        ReporteDTOList dto = new ReporteDTOList();
-        dto.setIdReporte(reporte.getIdReporte());
+        ReporteDTOList dto = modelMapper.map(reporte, ReporteDTOList.class);
         dto.setUsuarioReportanteId(reporte.getUsuarioReportante().getIdUsuario());
-        if (reporte.getTecnicoAsignado() == null) {
-            dto.setTecnicoAsignadoId(null);
-        } else {
-            dto.setTecnicoAsignadoId(reporte.getTecnicoAsignado().getIdUsuario());
-        }
+        dto.setTecnicoAsignadoId(reporte.getTecnicoAsignado() == null ? null : reporte.getTecnicoAsignado().getIdUsuario());
         dto.setCategoriaId(reporte.getCategoria().getIdCategoria());
         dto.setCategoriaNombre(reporte.getCategoria().getNombre());
         dto.setUbicacionId(reporte.getUbicacion().getIdUbicacion());
-        dto.setTitulo(reporte.getTitulo());
-        dto.setDescripcion(reporte.getDescripcion());
-        dto.setDetalleUbicacion(reporte.getDetalleUbicacion());
-        dto.setPrioridad(reporte.getPrioridad());
-        dto.setEstado(reporte.getEstado());
-        dto.setFechaCreacion(reporte.getFechaCreacion());
-        dto.setFechaAsignacion(reporte.getFechaAsignacion());
-        dto.setFechaResolucion(reporte.getFechaResolucion());
         return dto;
     }
 
     private List<ReporteDTOList> convertirLista(List<Reporte> reportes) {
-        List<ReporteDTOList> lista = new ArrayList<>();
-        for (Reporte reporte : reportes) {
-            lista.add(convertirDto(reporte));
-        }
-        return lista;
+        return reportes.stream()
+                .map(item -> convertirDto(item))
+                .toList();
     }
     @GetMapping("/estadisticas/por-campus")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Contar incidencias por campus y estado", description = "Consulta 4: un JOIN y COUNT. Cuenta incidencias por campus del estado indicado. Ejemplo: estado=ABIERTO. Solo administradores.")
-    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(@RequestParam String estado) {
-        return service.contarPorCampusYEstado(estado);
+    public ResponseEntity<List<IncidenciasPorCampusDTO>> contarPorCampusYEstado(@RequestParam String estado) {
+        return ResponseEntity.ok(service.contarPorCampusYEstado(estado));
     }
 }

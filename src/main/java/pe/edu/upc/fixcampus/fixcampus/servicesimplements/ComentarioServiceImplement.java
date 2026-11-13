@@ -24,13 +24,17 @@ public class ComentarioServiceImplement implements IComentarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public List<Comentario> listar() { return repository.findAll(); }
+    @Override
+    public List<Comentario> listar() {
+        return repository.findAll();
+    }
 
     @Override
     public List<Comentario> listarPorReporte(Long reporteId) {
         return repository.findByReporte_IdReporteOrderByFechaComentarioDesc(reporteId);
     }
 
+    @Override
     public Comentario registrar(ComentarioDTOInsert datos) {
         Comentario comentario = new Comentario();
         copiarDatos(comentario, datos);
@@ -38,12 +42,14 @@ public class ComentarioServiceImplement implements IComentarioService {
         return repository.save(comentario);
     }
 
+    @Override
     public Comentario actualizar(Long id, ComentarioDTOInsert datos) {
         Comentario comentario = buscarPorId(id);
         copiarDatos(comentario, datos);
         return repository.save(comentario);
     }
 
+    @Override
     public Comentario buscarPorId(Long id) {
         Optional<Comentario> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {
@@ -69,5 +75,8 @@ public class ComentarioServiceImplement implements IComentarioService {
         comentario.setTextoComentario(datos.getTextoComentario());
     }
 
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    @Override
+    public void eliminar(Long id) {
+        repository.delete(buscarPorId(id));
+    }
 }

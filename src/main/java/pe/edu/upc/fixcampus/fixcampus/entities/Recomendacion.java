@@ -1,16 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "recomendacion")
-@Getter
-@Setter
 public class Recomendacion {
 
     @Id
@@ -38,6 +33,7 @@ public class Recomendacion {
     private LocalDateTime fechaRecomendacion;
 
     public Recomendacion() {
+
     }
 
     public Recomendacion(Long idRecomendacion, Reporte reporte,
@@ -53,4 +49,59 @@ public class Recomendacion {
         this.fechaRecomendacion = fechaRecomendacion;
     }
 
+    public Long getIdRecomendacion() {
+        return idRecomendacion;
+    }
+
+    public void setIdRecomendacion(Long idRecomendacion) {
+        this.idRecomendacion = idRecomendacion;
+    }
+
+    public Reporte getReporte() {
+        return reporte;
+    }
+
+    public void setReporte(Reporte reporte) {
+        this.reporte = reporte;
+    }
+
+    public String getTituloSugerido() {
+        return tituloSugerido;
+    }
+
+    public void setTituloSugerido(String tituloSugerido) {
+        this.tituloSugerido = tituloSugerido;
+    }
+
+    public String getResumen() {
+        return resumen;
+    }
+
+    public void setResumen(String resumen) {
+        this.resumen = resumen;
+    }
+
+    public String getPrioridadSugerida() {
+        return prioridadSugerida;
+    }
+
+    public void setPrioridadSugerida(String prioridadSugerida) {
+        this.prioridadSugerida = prioridadSugerida;
+    }
+
+    public String getJustificacion() {
+        return justificacion;
+    }
+
+    public void setJustificacion(String justificacion) {
+        this.justificacion = justificacion;
+    }
+
+    public LocalDateTime getFechaRecomendacion() {
+        return fechaRecomendacion;
+    }
+
+    public void setFechaRecomendacion(LocalDateTime fechaRecomendacion) {
+        this.fechaRecomendacion = fechaRecomendacion;
+    }
 }

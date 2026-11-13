@@ -13,18 +13,19 @@ import java.util.Optional;
 public class CategoriaServiceImplement implements ICategoriaService {
     private final ICategoriaRepository repository;
     public CategoriaServiceImplement(ICategoriaRepository repository) {
-
         this.repository = repository;
     }
+    @Override
     public List<Categoria> listar(){
-
         return repository.findAll();
     }
+    @Override
     public List<Categoria> buscarPorDescripcion(String palabraClave) {
         return repository.buscarPorDescripcion(palabraClave);
     }
 
     // Convierte las columnas de la consulta 7 a su DTO de salida.
+    @Override
     public List<CategoriaConReportesDTO> contarReportesPorCategoria() {
         List<CategoriaConReportesDTO> lista = new ArrayList<>();
         for (Object[] fila : repository.contarReportesPorCategoria()) {
@@ -35,6 +36,7 @@ public class CategoriaServiceImplement implements ICategoriaService {
         }
         return lista;
     }
+    @Override
     public Categoria buscarPorId(Long id) {
         Optional<Categoria> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {
@@ -57,6 +59,7 @@ public class CategoriaServiceImplement implements ICategoriaService {
         return repository.save(actual);
    }
 
+    @Override
     public void eliminar(Long id) {
         Categoria actual = buscarPorId(id);
         repository.delete(actual);

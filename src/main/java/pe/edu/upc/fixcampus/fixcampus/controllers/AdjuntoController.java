@@ -1,10 +1,10 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import java.util.ArrayList;
 import org.springframework.security.core.GrantedAuthority;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -20,16 +20,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/attachments")
 public class AdjuntoController {
+    private final ModelMapper modelMapper;
     private final IAdjuntoService service;
-    public AdjuntoController(IAdjuntoService service) { this.service = service; }
+    public AdjuntoController(IAdjuntoService service, ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+        this.service = service;
+    }
 
     @GetMapping("/reporte/{reporteId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Listar evidencias de un reporte", description = "Solo permite consultar evidencias del propio reporte o de un administrador.")
-    public List<AdjuntoDTOList> listarPorReporte(@PathVariable Long reporteId, Authentication authentication) {
+    public ResponseEntity<List<AdjuntoDTOList>> listarPorReporte(@PathVariable Long reporteId, Authentication authentication) {
         Reporte reporte = service.buscarReporte(reporteId);
         verificarPermiso(reporte, authentication);
-        return convertirLista(service.buscarPorReporte(reporteId));
+        return ResponseEntity.ok(convertirLista(service.buscarPorReporte(reporteId)));
     }
 
     private void verificarPermiso(Reporte reporte, Authentication authentication) {
@@ -45,17 +49,18 @@ public class AdjuntoController {
         }
     }
 
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar adjuntos", description = "Muestra todos los adjuntos sin parámetros. Solo administradores.")
-    public List<AdjuntoDTOList> listar() {
-        return convertirLista(service.listar());
+    public ResponseEntity<List<AdjuntoDTOList>> listar() {
+        return ResponseEntity.ok(convertirLista(service.listar()));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public AdjuntoDTOList buscar(@PathVariable Long id) { return convertir(service.buscarPorId(id)); }
+    public ResponseEntity<AdjuntoDTOList> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(convertir(service.buscarPorId(id)));
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -67,8 +72,8 @@ public class AdjuntoController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public AdjuntoDTOList actualizar(@PathVariable Long id, @Valid @RequestBody AdjuntoDTOInsert datos) {
-        return convertir(service.actualizar(id, datos));
+    public ResponseEntity<AdjuntoDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody AdjuntoDTOInsert datos) {
+        return ResponseEntity.ok(convertir(service.actualizar(id, datos)));
     }
 
     @DeleteMapping("/{id}")
@@ -79,21 +84,14 @@ public class AdjuntoController {
     }
 
     private AdjuntoDTOList convertir(Adjunto adjunto) {
-        AdjuntoDTOList dto = new AdjuntoDTOList();
-        dto.setIdAdjunto(adjunto.getIdAdjunto());
+        AdjuntoDTOList dto = modelMapper.map(adjunto, AdjuntoDTOList.class);
         dto.setReporteId(adjunto.getReporte().getIdReporte());
-        dto.setNombreArchivo(adjunto.getNombreArchivo());
-        dto.setUrlArchivo(adjunto.getUrlArchivo());
-        dto.setTipoArchivo(adjunto.getTipoArchivo());
-        dto.setFechaSubida(adjunto.getFechaSubida());
         return dto;
     }
 
     private List<AdjuntoDTOList> convertirLista(List<Adjunto> adjuntos) {
-        List<AdjuntoDTOList> lista = new ArrayList<>();
-        for (Adjunto adjunto : adjuntos) {
-            lista.add(convertir(adjunto));
-        }
-        return lista;
+        return adjuntos.stream()
+                .map(item -> convertir(item))
+                .toList();
     }
 }
