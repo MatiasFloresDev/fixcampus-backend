@@ -25,10 +25,30 @@ public class UsuarioServiceImplement implements IUsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Usuario> listar() { return repository.findAll(); }
-    public long contarRegistrados() { return repository.count(); }
-    public void eliminar(Long id) { repository.delete(buscarPorId(id)); }
+    @Override
+    public List<Usuario> listar() {
+        return repository.findAll();
+    }
 
+    @Override
+    public Optional<Usuario> buscarPorCorreo(String correo) {
+        return repository.findByCorreo(correo);
+    }
+
+    @Override
+    public boolean existe(Long id) {
+        return repository.existsById(id);
+    }
+    @Override
+    public long contarRegistrados() {
+        return repository.count();
+    }
+    @Override
+    public void eliminar(Long id) {
+        repository.delete(buscarPorId(id));
+    }
+
+    @Override
     public Usuario crear(UsuarioDTOInsert datos) {
         if (datos.getPassword() == null || datos.getPassword().length() < 6) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
@@ -39,12 +59,14 @@ public class UsuarioServiceImplement implements IUsuarioService {
         return repository.save(usuario);
     }
 
+    @Override
     public Usuario actualizar(Long id, UsuarioDTOInsert datos) {
         Usuario usuario = buscarPorId(id);
         copiarDatos(usuario, datos);
         return repository.save(usuario);
     }
 
+    @Override
     public Usuario registrar(RegistroRequestDTO request) {
         if (repository.findByCorreo(request.getCorreo()).isPresent()) {
             throw new IllegalArgumentException("El correo ya está registrado");
@@ -71,6 +93,7 @@ public class UsuarioServiceImplement implements IUsuarioService {
         return repository.findByNombre(nombre);
     }
 
+    @Override
     public Usuario buscarPorId(Long id) {
         Optional<Usuario> encontrado = repository.findById(id);
         if (encontrado.isEmpty()) {

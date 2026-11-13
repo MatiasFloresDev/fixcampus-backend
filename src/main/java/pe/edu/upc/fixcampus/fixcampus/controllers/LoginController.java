@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.edu.upc.fixcampus.fixcampus.dtos.LoginRequestDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.LoginResponseDTO;
 import pe.edu.upc.fixcampus.fixcampus.securities.JwtTokenService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 
 import java.util.Optional;
@@ -28,14 +28,14 @@ public class LoginController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
-    private final IUsuarioRepository usuarioRepository;
+    private final IUsuarioService usuarioService;
 
     public LoginController(AuthenticationManager authenticationManager,
                            JwtTokenService jwtTokenService,
-                           IUsuarioRepository usuarioRepository) {
+                           IUsuarioService usuarioService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     @PostMapping
@@ -48,7 +48,7 @@ public class LoginController {
                         request.getCorreo(), request.getPassword()));
 
         UserDetails usuario = (UserDetails) authentication.getPrincipal();
-        Optional<Usuario> usuarioEncontrado = usuarioRepository.findByCorreo(usuario.getUsername());
+        Optional<Usuario> usuarioEncontrado = usuarioService.buscarPorCorreo(usuario.getUsername());
         if (usuarioEncontrado.isEmpty()) {
             throw new BadCredentialsException("Usuario no encontrado");
         }

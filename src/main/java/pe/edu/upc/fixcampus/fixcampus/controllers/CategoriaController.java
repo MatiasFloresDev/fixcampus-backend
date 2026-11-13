@@ -1,6 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -106,10 +105,8 @@ public class CategoriaController {
     }
 
     private List<CategoriaDTOList> convertirLista(List<Categoria> categorias) {
-        List<CategoriaDTOList> lista = new ArrayList<>();
-        for (Categoria categoria : categorias) {
-            lista.add(modelMapper.map(categoria, CategoriaDTOList.class));
-        }
-        return lista;
+        return categorias.stream()
+                .map(item -> modelMapper.map(item, CategoriaDTOList.class))
+                .toList();
     }
 }
