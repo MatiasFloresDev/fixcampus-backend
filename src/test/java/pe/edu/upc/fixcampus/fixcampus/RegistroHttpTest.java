@@ -15,6 +15,7 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RegistroHttpTest {
@@ -85,6 +86,32 @@ class RegistroHttpTest {
         HttpRequest peticion = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/registro"))
                 .GET().build();
         assertEquals(405, cliente.send(peticion, HttpResponse.BodyHandlers.ofString()).statusCode());
+    }
+
+    @Test
+    void corsPermiteAngular4200ComoDemoSI() throws Exception {
+        HttpResponse<String> respuesta = preflight("http://localhost:4200");
+        assertEquals(200, respuesta.statusCode());
+        assertEquals("http://localhost:4200", respuesta.headers().firstValue("Access-Control-Allow-Origin").orElse(null));
+        assertTrue(respuesta.headers().firstValue("Access-Control-Allow-Methods").orElse("").contains("POST"));
+    }
+
+    @Test
+    void corsRechazaUnOrigenNoAutorizado() throws Exception {
+        for (String origen : new String[]{"http://localhost:4201", "http://localhost:4000", "https://frontend-pruebas.example"}) {
+            HttpResponse<String> respuesta = preflight(origen);
+            assertEquals(403, respuesta.statusCode());
+            assertNull(respuesta.headers().firstValue("Access-Control-Allow-Origin").orElse(null));
+        }
+    }
+
+    private HttpResponse<String> preflight(String origen) throws Exception {
+        HttpRequest peticion = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/reports"))
+                .header("Origin", origen)
+                .header("Access-Control-Request-Method", "POST")
+                .header("Access-Control-Request-Headers", "authorization,content-type")
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody()).build();
+        return cliente.send(peticion, HttpResponse.BodyHandlers.ofString());
     }
 
     private String datos(String correo) {
