@@ -4,6 +4,8 @@ Este conjunto acompaña la demo del proyecto para una entrevista de documentaci�
 
 El backend usa Java 21, como `PC2/demoSI/demoSI`. Configura el SDK del proyecto y JAVA_HOME con un JDK 21 antes de ejecutar `mvnw.cmd`. La estructura vigente y las pruebas se detallan en [Revisión de FixCampus con demoSI](Revision-backend-demoSI.md).
 
+Si IntelliJ indica que el módulo usa Java 17, seguir [Configuración de Java](Configuracion-Java.md). Hay que configurar el proyecto `backend/fixcampus`, no solamente su carpeta superior.
+
 ## Archivos
 
 1. [Historias de Usuario](Historias-de-usuario-FixCampus.md) — backlog priorizado, criterios de aceptación, dependencias y estado.
