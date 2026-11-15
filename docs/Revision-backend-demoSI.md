@@ -1,5 +1,7 @@
 # Revisión de FixCampus con demoSI
 
+La comprobación más reciente, incluyendo CORS con el puerto 4200 visible, está en [Comparación con la PC2 del 15/11/2026](Comparacion-PC2-2026-11-15.md).
+
 La referencia vigente, revisada el 12/11/2026, es `C:/Users/Matias/Documents/FRONTENTD- ARQUI WEB/PC2/demoSI/demoSI`, el backend de CarbonFootprintAI del examen. Las notas del 30 de septiembre se conservan debajo como historial; sus indicaciones sobre Java 17, Lombok y evitar streams ya no describen la versión actual.
 
 FixCampus utiliza Java 21, tanto en Maven como en Docker. El SDK local de IntelliJ se dejó en 21. Para ejecutar Maven desde una terminal, JAVA_HOME también debe apuntar a un JDK 21. La compilación y las pruebas se verificaron con el mismo JDK Microsoft 21 instalado para la PC2.
