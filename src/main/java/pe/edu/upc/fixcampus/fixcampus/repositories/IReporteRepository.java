@@ -1,14 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.repositories;
 
-import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface IReporteRepository extends JpaRepository<Reporte, Long> {
@@ -43,7 +40,4 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
     @Query("select r from Reporte r join r.ubicacion u where lower(u.campus) = lower(:campus)")
     List<Reporte> findByCampus(@Param("campus") String campus);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select r from Reporte r where r.idReporte = :id")
-    Optional<Reporte> findByIdParaActualizar(@Param("id") Long id);
 }

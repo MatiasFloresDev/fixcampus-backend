@@ -2,6 +2,7 @@ package pe.edu.upc.fixcampus.fixcampus.securities;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -15,6 +16,15 @@ public class CustomJwtAuthenticationConverter
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
+        String idUsuario = jwt.getSubject();
+        if (idUsuario == null || !idUsuario.matches("[1-9][0-9]{0,18}")) {
+            throw new BadCredentialsException("El identificador del usuario no es válido");
+        }
+        try {
+            Long.parseLong(idUsuario);
+        } catch (NumberFormatException error) {
+            throw new BadCredentialsException("El identificador del usuario no es válido");
+        }
         String roles = jwt.getClaimAsString("roles");
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 

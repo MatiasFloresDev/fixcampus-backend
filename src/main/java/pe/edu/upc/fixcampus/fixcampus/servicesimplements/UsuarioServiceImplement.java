@@ -45,7 +45,8 @@ public class UsuarioServiceImplement implements IUsuarioService {
     }
     @Override
     public void eliminar(Long id) {
-        repository.delete(buscarPorId(id));
+        buscarPorId(id);
+        repository.deleteById(id);
     }
 
     @Override

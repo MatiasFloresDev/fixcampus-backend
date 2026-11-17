@@ -53,7 +53,8 @@ public class UbicacionServiceImplement implements IUbicacionService {
 
     @Override
     public void eliminar(Long id) {
-        repository.delete(buscarPorId(id));
+        buscarPorId(id);
+        repository.deleteById(id);
     }
 
     private void validarCoordenadas(Ubicacion ubicacion) {

@@ -54,7 +54,7 @@ public class RolServiceImplement implements IRolService {
         if (esRolBase(rol)) {
             throw new IllegalArgumentException("No se puede eliminar un rol del sistema.");
         }
-        repository.delete(rol);
+        repository.deleteById(id);
     }
 
     private boolean esRolBase(Rol rol) {

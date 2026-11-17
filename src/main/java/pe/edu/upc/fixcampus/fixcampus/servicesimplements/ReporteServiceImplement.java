@@ -3,7 +3,6 @@ package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
@@ -64,10 +63,8 @@ public class ReporteServiceImplement implements IReporteService {
     }
 
     @Override
-    @Transactional
     public Reporte actualizar(Long id, ReporteDTOInsert dto, Long idUsuario, boolean administrador) {
-        Reporte reporte = reporteRepository.findByIdParaActualizar(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado"));
+        Reporte reporte = buscarPorId(id);
         Long idReportante = reporte.getUsuarioReportante().getIdUsuario();
         if (!administrador && !idReportante.equals(idUsuario)) {
             throw new AccessDeniedException("Solo puedes editar tus propios reportes");
@@ -85,9 +82,9 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public void eliminar(Long id) {
-        Reporte reporte = buscarPorId(id);
+        buscarPorId(id);
         // Si tiene datos relacionados, la FK impide borrarlo hasta retirarlos.
-        reporteRepository.delete(reporte);
+        reporteRepository.deleteById(id);
     }
 
     @Override
