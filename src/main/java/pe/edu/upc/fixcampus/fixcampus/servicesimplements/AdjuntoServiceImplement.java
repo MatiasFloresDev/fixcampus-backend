@@ -23,8 +23,8 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
 
     @Override
     public void eliminar(Long id) {
-        Adjunto adjunto = buscarPorId(id);
-        repository.delete(adjunto);
+        buscarPorId(id);
+        repository.deleteById(id);
     }
 
     @Override

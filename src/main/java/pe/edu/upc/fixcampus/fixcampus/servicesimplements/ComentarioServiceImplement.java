@@ -77,6 +77,7 @@ public class ComentarioServiceImplement implements IComentarioService {
 
     @Override
     public void eliminar(Long id) {
-        repository.delete(buscarPorId(id));
+        buscarPorId(id);
+        repository.deleteById(id);
     }
 }

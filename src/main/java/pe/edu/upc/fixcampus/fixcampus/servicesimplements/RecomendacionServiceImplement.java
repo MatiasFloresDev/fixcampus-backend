@@ -82,7 +82,8 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
 
     @Override
     public void eliminar(Long id) {
-        repository.delete(buscarPorId(id));
+        buscarPorId(id);
+        repository.deleteById(id);
     }
     @Override
     public List<RecomendacionesPorPrioridadDTO> contarPorPrioridadReporte() {

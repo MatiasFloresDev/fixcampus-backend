@@ -61,7 +61,7 @@ public class CategoriaServiceImplement implements ICategoriaService {
 
     @Override
     public void eliminar(Long id) {
-        Categoria actual = buscarPorId(id);
-        repository.delete(actual);
+        buscarPorId(id);
+        repository.deleteById(id);
     }
 }
