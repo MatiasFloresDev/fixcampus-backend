@@ -6,18 +6,21 @@ import jakarta.validation.constraints.Size;
 
 public class RegistroRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 100, message = "El nombre admite hasta 100 caracteres")
     private String nombre;
 
-    @NotBlank
+    @NotBlank(message = "El apellido es obligatorio")
+    @Size(max = 100, message = "El apellido admite hasta 100 caracteres")
     private String apellido;
 
-    @NotBlank
-    @Email
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "Ingresa un correo válido")
+    @Size(max = 150, message = "El correo admite hasta 150 caracteres")
     private String correo;
 
-    @NotBlank
-    @Size(min = 6)
+    @NotBlank(message = "La contraseña no puede estar vacía ni contener solo espacios")
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
     public String getNombre() {
