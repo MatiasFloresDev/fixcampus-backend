@@ -51,7 +51,7 @@ public class UsuarioServiceImplement implements IUsuarioService {
 
     @Override
     public Usuario crear(UsuarioDTOInsert datos) {
-        if (datos.getPassword() == null || datos.getPassword().length() < 6) {
+        if (datos.getPassword() == null || datos.getPassword().isBlank() || datos.getPassword().length() < 6) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
         }
         Usuario usuario = new Usuario();
@@ -121,8 +121,8 @@ public class UsuarioServiceImplement implements IUsuarioService {
         usuario.setApellido(datos.getApellido());
         usuario.setCorreo(datos.getCorreo());
         usuario.setEstado(datos.getEstado());
-        if (datos.getPassword() != null && !datos.getPassword().isBlank()) {
-            if (datos.getPassword().length() < 6) {
+        if (datos.getPassword() != null && !datos.getPassword().isEmpty()) {
+            if (datos.getPassword().isBlank() || datos.getPassword().length() < 6) {
                 throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
             }
             usuario.setContrasenaHash(passwordEncoder.encode(datos.getPassword()));

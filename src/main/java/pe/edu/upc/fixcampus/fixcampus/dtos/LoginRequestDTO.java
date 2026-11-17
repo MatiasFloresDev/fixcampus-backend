@@ -2,12 +2,15 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 
 public class LoginRequestDTO {
 
-    @NotBlank @Email
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "Ingresa un correo válido")
+    @Size(max = 150, message = "El correo admite hasta 150 caracteres")
     private String correo;
-    @NotBlank
+    @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
     public LoginRequestDTO() {

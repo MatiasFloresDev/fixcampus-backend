@@ -46,11 +46,12 @@ public class CategoriaServiceImplement implements ICategoriaService {
     }
 
    public Categoria registrar(Categoria categoria){
-
+        validar(categoria);
         return repository.save(categoria);
    }
 
    public Categoria actualizar(Long id,Categoria datos){
+        validar(datos);
         Categoria actual= buscarPorId(id);
 
         actual.setNombre(datos.getNombre());
@@ -58,6 +59,15 @@ public class CategoriaServiceImplement implements ICategoriaService {
 
         return repository.save(actual);
    }
+
+    private void validar(Categoria categoria) {
+        String nombre = categoria.getNombre().trim();
+        if (nombre.length() < 3 || nombre.length() > 100) {
+            throw new IllegalArgumentException("El nombre debe tener entre 3 y 100 caracteres sin contar espacios al inicio o al final");
+        }
+        categoria.setNombre(nombre);
+        categoria.setDescripcion(categoria.getDescripcion().trim());
+    }
 
     @Override
     public void eliminar(Long id) {

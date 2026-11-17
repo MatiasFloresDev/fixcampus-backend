@@ -4,24 +4,27 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 
 public class UsuarioDTOInsert {
-    @NotNull
+    @NotNull(message = "Selecciona un rol")
+    @Min(value = 1, message = "El rol seleccionado no es válido")
     private Long rolId;
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 100, message = "El nombre admite hasta 100 caracteres")
     private String nombre;
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "El apellido es obligatorio")
+    @Size(max = 100, message = "El apellido admite hasta 100 caracteres")
     private String apellido;
-    @NotBlank
-    @Email
-    @Size(max = 150)
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "Ingresa un correo válido")
+    @Size(max = 150, message = "El correo admite hasta 150 caracteres")
     private String correo;
     // Obligatoria al crear; opcional al actualizar para conservar la contraseña actual.
     private String password;
-    @NotBlank
-    @Size(max = 30)
+    @NotBlank(message = "Selecciona un estado")
+    @Pattern(regexp = "ACTIVO|INACTIVO", message = "El estado debe ser ACTIVO o INACTIVO")
     private String estado;
 
     public Long getRolId() {
