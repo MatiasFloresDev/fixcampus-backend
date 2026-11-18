@@ -76,6 +76,7 @@ public class ComentarioController {
         ComentarioDTOList dto = modelMapper.map(comentario, ComentarioDTOList.class);
         dto.setReporteId(comentario.getReporte().getIdReporte());
         dto.setUsuarioId(comentario.getUsuario().getIdUsuario());
+        dto.setUsuarioNombre(comentario.getUsuario().getNombre() + " " + comentario.getUsuario().getApellido());
         return dto;
     }
 

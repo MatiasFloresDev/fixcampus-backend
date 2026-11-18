@@ -158,6 +158,15 @@ public class ReporteController {
         dto.setCategoriaId(reporte.getCategoria().getIdCategoria());
         dto.setCategoriaNombre(reporte.getCategoria().getNombre());
         dto.setUbicacionId(reporte.getUbicacion().getIdUbicacion());
+        dto.setUsuarioReportanteNombre(reporte.getUsuarioReportante().getNombre() + " " + reporte.getUsuarioReportante().getApellido());
+        dto.setTecnicoAsignadoNombre(reporte.getTecnicoAsignado() == null ? null
+                : reporte.getTecnicoAsignado().getNombre() + " " + reporte.getTecnicoAsignado().getApellido());
+        String ubicacion = reporte.getUbicacion().getCampus() + " · " + reporte.getUbicacion().getEdificio();
+        if (reporte.getUbicacion().getPiso() != null) ubicacion += " · Piso " + reporte.getUbicacion().getPiso();
+        if (reporte.getUbicacion().getZona() != null && !reporte.getUbicacion().getZona().isBlank()) {
+            ubicacion += " · " + reporte.getUbicacion().getZona();
+        }
+        dto.setUbicacionNombre(ubicacion);
         return dto;
     }
 
