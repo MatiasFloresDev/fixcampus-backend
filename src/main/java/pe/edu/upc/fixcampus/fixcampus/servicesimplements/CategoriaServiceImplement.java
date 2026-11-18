@@ -1,13 +1,11 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.dtos.CategoriaConReportesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ICategoriaService;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Optional;
 @Service
 public class CategoriaServiceImplement implements ICategoriaService {
@@ -26,15 +24,8 @@ public class CategoriaServiceImplement implements ICategoriaService {
 
     // Convierte las columnas de la consulta 7 a su DTO de salida.
     @Override
-    public List<CategoriaConReportesDTO> contarReportesPorCategoria() {
-        List<CategoriaConReportesDTO> lista = new ArrayList<>();
-        for (Object[] fila : repository.contarReportesPorCategoria()) {
-            CategoriaConReportesDTO dto = new CategoriaConReportesDTO(
-                    ((Number) fila[0]).longValue(), (String) fila[1],
-                    (String) fila[2], ((Number) fila[3]).longValue());
-            lista.add(dto);
-        }
-        return lista;
+    public List<Object[]> contarReportesPorCategoria() {
+        return repository.contarReportesPorCategoria();
     }
     @Override
     public Categoria buscarPorId(Long id) {

@@ -7,6 +7,9 @@ public class CategoriaConReportesDTO {
     private String descripcion;
     private Long totalReportes;
 
+    public CategoriaConReportesDTO() {
+    }
+
     public CategoriaConReportesDTO(Long idCategoria, String nombre, String descripcion, Long totalReportes) {
         this.idCategoria = idCategoria;
         this.nombre = nombre;

@@ -15,4 +15,8 @@ public class SugerenciaCategoriaDTO {
     public Long getCategoriaId() {
         return categoriaId;
     }
+
+    public void setCategoriaId(Long categoriaId) {
+        this.categoriaId = categoriaId;
+    }
 }

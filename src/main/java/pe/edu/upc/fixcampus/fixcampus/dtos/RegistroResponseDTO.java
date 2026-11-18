@@ -6,6 +6,9 @@ public class RegistroResponseDTO {
     private String correo;
     private String mensaje;
 
+    public RegistroResponseDTO() {
+    }
+
     public RegistroResponseDTO(Long idUsuario, String correo, String mensaje) {
         this.idUsuario = idUsuario;
         this.correo = correo;
@@ -22,5 +25,17 @@ public class RegistroResponseDTO {
 
     public String getMensaje() {
         return mensaje;
+    }
+
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public void setMensaje(String mensaje) {
+        this.mensaje = mensaje;
     }
 }
