@@ -19,6 +19,12 @@ public class ReporteDTOList {
     private LocalDateTime fechaAsignacion;
     private LocalDateTime fechaResolucion;
 
+    private String usuarioReportanteNombre;
+
+    private String tecnicoAsignadoNombre;
+
+    private String ubicacionNombre;
+
     public ReporteDTOList() {
 
     }
@@ -154,5 +160,26 @@ public class ReporteDTOList {
 
     public void setFechaResolucion(LocalDateTime fechaResolucion) {
         this.fechaResolucion = fechaResolucion;
+    }
+    public String getUsuarioReportanteNombre() {
+        return usuarioReportanteNombre;
+    }
+
+    public void setUsuarioReportanteNombre(String usuarioReportanteNombre) {
+        this.usuarioReportanteNombre = usuarioReportanteNombre;
+    }
+    public String getTecnicoAsignadoNombre() {
+        return tecnicoAsignadoNombre;
+    }
+
+    public void setTecnicoAsignadoNombre(String tecnicoAsignadoNombre) {
+        this.tecnicoAsignadoNombre = tecnicoAsignadoNombre;
+    }
+    public String getUbicacionNombre() {
+        return ubicacionNombre;
+    }
+
+    public void setUbicacionNombre(String ubicacionNombre) {
+        this.ubicacionNombre = ubicacionNombre;
     }
 }

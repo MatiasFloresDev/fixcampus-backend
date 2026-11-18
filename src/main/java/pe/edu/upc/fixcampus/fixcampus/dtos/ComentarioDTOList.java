@@ -7,6 +7,7 @@ public class ComentarioDTOList {
     private Long idComentario;
     private Long reporteId;
     private Long usuarioId;
+    private String usuarioNombre;
     private String textoComentario;
     private LocalDateTime fechaComentario;
 
@@ -61,5 +62,12 @@ public class ComentarioDTOList {
 
     public void setFechaComentario(LocalDateTime fechaComentario) {
         this.fechaComentario = fechaComentario;
+    }
+    public String getUsuarioNombre() {
+        return usuarioNombre;
+    }
+
+    public void setUsuarioNombre(String usuarioNombre) {
+        this.usuarioNombre = usuarioNombre;
     }
 }

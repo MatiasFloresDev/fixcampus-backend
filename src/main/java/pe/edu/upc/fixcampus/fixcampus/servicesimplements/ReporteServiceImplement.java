@@ -169,7 +169,7 @@ public class ReporteServiceImplement implements IReporteService {
         reporte.setDescripcion(dto.getDescripcion());
         reporte.setDetalleUbicacion(dto.getDetalleUbicacion());
         reporte.setPrioridad(dto.getPrioridad());
-        if ("RESUELTO".equalsIgnoreCase(dto.getEstado())) {
+        if ("RESUELTO".equalsIgnoreCase(dto.getEstado()) || "CERRADO".equalsIgnoreCase(dto.getEstado())) {
             if (reporte.getFechaResolucion() == null) {
                 reporte.setFechaResolucion(LocalDateTime.now());
             }
