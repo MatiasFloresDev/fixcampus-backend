@@ -81,7 +81,18 @@ public class CategoriaController {
     )
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CategoriaConReportesDTO>> contarReportesPorCategoria() {
-        return ResponseEntity.ok(service.contarReportesPorCategoria());
+        List<CategoriaConReportesDTO> lista = service.contarReportesPorCategoria()
+                .stream()
+                .map(item -> {
+                    CategoriaConReportesDTO dto = new CategoriaConReportesDTO();
+                    dto.setIdCategoria(((Number) item[0]).longValue());
+                    dto.setNombre((String) item[1]);
+                    dto.setDescripcion((String) item[2]);
+                    dto.setTotalReportes(((Number) item[3]).longValue());
+                    return dto;
+                })
+                .toList();
+        return ResponseEntity.ok(lista);
     }
 
     @PutMapping("/{id}")

@@ -1,10 +1,8 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCampusDTO;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
@@ -18,7 +16,6 @@ import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -108,14 +105,8 @@ public class ReporteServiceImplement implements IReporteService {
     }
 
     @Override
-    public List<IncidenciasPorMesDTO> contarPorUsuarioYMes() {
-        List<IncidenciasPorMesDTO> lista = new ArrayList<>();
-        for (Object[] fila : reporteRepository.contarPorUsuarioYMes()) {
-            lista.add(new IncidenciasPorMesDTO(((Number) fila[0]).longValue(),
-                    (String) fila[1], (String) fila[2], ((Number) fila[3]).intValue(),
-                    ((Number) fila[4]).intValue(), ((Number) fila[5]).longValue()));
-        }
-        return lista;
+    public List<Object[]> contarPorUsuarioYMes() {
+        return reporteRepository.contarPorUsuarioYMes();
     }
 
     @Override
@@ -179,11 +170,7 @@ public class ReporteServiceImplement implements IReporteService {
         reporte.setEstado(dto.getEstado());
     }
     @Override
-    public List<IncidenciasPorCampusDTO> contarPorCampusYEstado(String estado) {
-        List<IncidenciasPorCampusDTO> lista = new ArrayList<>();
-        for (Object[] fila : reporteRepository.contarPorCampusYEstado(estado)) {
-            lista.add(new IncidenciasPorCampusDTO((String) fila[0], ((Number) fila[1]).longValue()));
-        }
-        return lista;
+    public List<Object[]> contarPorCampusYEstado(String estado) {
+        return reporteRepository.contarPorCampusYEstado(estado);
     }
 }

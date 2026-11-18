@@ -85,6 +85,15 @@ public class RecomendacionController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Contar recomendaciones por prioridad de incidencia", description = "Consulta 8: un JOIN y COUNT. Cuenta recomendaciones según la prioridad de la incidencia asociada. No pide parámetros. Solo administradores.")
     public ResponseEntity<List<RecomendacionesPorPrioridadDTO>> contarPorPrioridadReporte() {
-        return ResponseEntity.ok(service.contarPorPrioridadReporte());
+        List<RecomendacionesPorPrioridadDTO> lista = service.contarPorPrioridadReporte()
+                .stream()
+                .map(item -> {
+                    RecomendacionesPorPrioridadDTO dto = new RecomendacionesPorPrioridadDTO();
+                    dto.setPrioridad((String) item[0]);
+                    dto.setCantidad(((Number) item[1]).longValue());
+                    return dto;
+                })
+                .toList();
+        return ResponseEntity.ok(lista);
     }
 }

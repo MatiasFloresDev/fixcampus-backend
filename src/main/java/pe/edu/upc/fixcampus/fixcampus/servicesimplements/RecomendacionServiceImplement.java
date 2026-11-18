@@ -1,7 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import java.util.ArrayList;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionesPorPrioridadDTO;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
@@ -86,11 +84,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
         repository.deleteById(id);
     }
     @Override
-    public List<RecomendacionesPorPrioridadDTO> contarPorPrioridadReporte() {
-        List<RecomendacionesPorPrioridadDTO> lista = new ArrayList<>();
-        for (Object[] fila : repository.contarPorPrioridadReporte()) {
-            lista.add(new RecomendacionesPorPrioridadDTO((String) fila[0], ((Number) fila[1]).longValue()));
-        }
-        return lista;
+    public List<Object[]> contarPorPrioridadReporte() {
+        return repository.contarPorPrioridadReporte();
     }
 }
