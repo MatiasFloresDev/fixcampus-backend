@@ -1,22 +1,21 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
-import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
+import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReporteServiceImplement implements IReporteService {
@@ -26,10 +25,12 @@ public class ReporteServiceImplement implements IReporteService {
     private final ICategoriaRepository categoriaRepository;
     private final IUbicacionRepository ubicacionRepository;
 
-    public ReporteServiceImplement(IReporteRepository reporteRepository,
-                             IUsuarioRepository usuarioRepository,
-                             ICategoriaRepository categoriaRepository,
-                             IUbicacionRepository ubicacionRepository) {
+    public ReporteServiceImplement(
+        IReporteRepository reporteRepository,
+        IUsuarioRepository usuarioRepository,
+        ICategoriaRepository categoriaRepository,
+        IUbicacionRepository ubicacionRepository
+    ) {
         this.reporteRepository = reporteRepository;
         this.usuarioRepository = usuarioRepository;
         this.categoriaRepository = categoriaRepository;
@@ -80,7 +81,7 @@ public class ReporteServiceImplement implements IReporteService {
     @Override
     public void eliminar(Long id) {
         buscarPorId(id);
-        // Si tiene datos relacionados, la FK impide borrarlo hasta retirarlos.
+
         reporteRepository.deleteById(id);
     }
 
@@ -91,7 +92,9 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public List<Reporte> buscarPorReportante(Long idUsuario) {
-        return reporteRepository.findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(idUsuario);
+        return reporteRepository.findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(
+            idUsuario
+        );
     }
 
     @Override
@@ -101,7 +104,10 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public List<Reporte> buscarPropiosPorPrioridad(Long idUsuario, String prioridad) {
-        return reporteRepository.findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(idUsuario, prioridad);
+        return reporteRepository.findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(
+            idUsuario,
+            prioridad
+        );
     }
 
     @Override
@@ -149,8 +155,11 @@ public class ReporteServiceImplement implements IReporteService {
             }
             tecnico = tecnicoEncontrado.get();
         }
-        if (tecnico != null && (reporte.getTecnicoAsignado() == null
-                || !tecnico.getIdUsuario().equals(reporte.getTecnicoAsignado().getIdUsuario()))) {
+        if (
+            tecnico != null &&
+            (reporte.getTecnicoAsignado() == null ||
+                !tecnico.getIdUsuario().equals(reporte.getTecnicoAsignado().getIdUsuario()))
+        ) {
             reporte.setFechaAsignacion(LocalDateTime.now());
         } else if (tecnico == null) {
             reporte.setFechaAsignacion(null);
@@ -169,6 +178,7 @@ public class ReporteServiceImplement implements IReporteService {
         }
         reporte.setEstado(dto.getEstado());
     }
+
     @Override
     public List<Object[]> contarPorCampusYEstado(String estado) {
         return reporteRepository.contarPorCampusYEstado(estado);
