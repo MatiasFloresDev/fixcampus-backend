@@ -1,15 +1,13 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
-import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 import java.util.List;
+import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
 
 public interface ICategoriaService {
-
     List<Categoria> listar();
 
     List<Categoria> buscarPorDescripcion(String palabraClave);
 
-    // Query 2: JOIN con Reporte y COUNT
     List<Object[]> contarReportesPorCategoria();
 
     Categoria buscarPorId(Long id);

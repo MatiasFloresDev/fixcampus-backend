@@ -1,36 +1,37 @@
 package pe.edu.upc.fixcampus.fixcampus.repositories;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import java.util.List;
 
 @Repository
 public interface IReporteRepository extends JpaRepository<Reporte, Long> {
-    // Consulta 1 : muestra las incidencias del estado indicado.
     List<Reporte> findByEstadoIgnoreCase(String estado);
 
-    // Consulta 2 : cuenta incidencias por usuario, año y mes.
-    @Query(value = "SELECT u.id_usuario, u.nombre, u.apellido, " +
+    @Query(
+        value = "SELECT u.id_usuario, u.nombre, u.apellido, " +
             "EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion), COUNT(*) " +
             "FROM reporte r INNER JOIN usuario u ON r.id_usuario_reportante = u.id_usuario " +
             "GROUP BY u.id_usuario, u.nombre, u.apellido, " +
             "EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion) " +
             "ORDER BY EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion), u.nombre",
-            nativeQuery = true)
+        nativeQuery = true
+    )
     List<Object[]> contarPorUsuarioYMes();
 
-    // Consulta 3 : muestra las incidencias de una prioridad, por ejemplo ALTA.
     @Query("select r from Reporte r where lower(r.prioridad) = lower(:prioridad)")
     List<Reporte> findByPrioridad(@Param("prioridad") String prioridad);
 
-    // Consulta 4 : cuenta incidencias por campus y estado.
-    @Query(value = "SELECT u.campus, COUNT(r.id_reporte) " +
+    @Query(
+        value = "SELECT u.campus, COUNT(r.id_reporte) " +
             "FROM reporte r INNER JOIN ubicacion u ON r.id_ubicacion = u.id_ubicacion " +
             "WHERE LOWER(r.estado) = LOWER(:estado) " +
-            "GROUP BY u.campus ORDER BY COUNT(r.id_reporte) DESC, u.campus", nativeQuery = true)
+            "GROUP BY u.campus ORDER BY COUNT(r.id_reporte) DESC, u.campus",
+        nativeQuery = true
+    )
     List<Object[]> contarPorCampusYEstado(@Param("estado") String estado);
 
     List<Reporte> findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(Long idUsuario);
@@ -39,5 +40,4 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
 
     @Query("select r from Reporte r join r.ubicacion u where lower(u.campus) = lower(:campus)")
     List<Reporte> findByCampus(@Param("campus") String campus);
-
 }
