@@ -13,6 +13,8 @@ public interface IReporteService {
     Reporte actualizar(Long id, ReporteDTOInsert dto, Long idUsuario, boolean administrador);
     void eliminar(Long id);
     List<Reporte> buscarPorEstado(String estado);
+    List<Reporte> buscarPorCategoria(Long categoriaId);
+    List<Reporte> buscarPorCorreoReportante(String correo);
     List<Reporte> buscarPorReportante(Long idUsuario);
     List<Reporte> buscarPropiosPorEstado(Long idUsuario, String estado);
     List<Reporte> buscarPropiosPorPrioridad(Long idUsuario, String prioridad);

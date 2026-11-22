@@ -2,7 +2,6 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-import java.util.ArrayList;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -92,12 +91,15 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Contar usuarios por rol", description = "Consulta 10: un INNER JOIN y COUNT. Cuenta los usuarios registrados de cada rol y ordena de mayor a menor cantidad. Incluye solo roles con usuarios. No pide parámetros. Solo administradores.")
     public ResponseEntity<List<UsuariosPorRolDTO>> contarUsuariosPorRol() {
-        List<UsuariosPorRolDTO> lista = new ArrayList<>();
-        for (Object[] fila : service.contarUsuariosPorRol()) {
-            UsuariosPorRolDTO dto = new UsuariosPorRolDTO(
-                    (String) fila[0], ((Number) fila[1]).longValue());
-            lista.add(dto);
-        }
+        List<UsuariosPorRolDTO> lista = service.contarUsuariosPorRol()
+                .stream()
+                .map(fila -> {
+                    UsuariosPorRolDTO dto = new UsuariosPorRolDTO();
+                    dto.setNombreRol((String) fila[0]);
+                    dto.setCantidadUsuarios(((Number) fila[1]).longValue());
+                    return dto;
+                })
+                .toList();
         return ResponseEntity.ok(lista);
     }
 

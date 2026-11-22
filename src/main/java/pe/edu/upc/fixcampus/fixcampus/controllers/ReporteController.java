@@ -3,6 +3,10 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.net.URI;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -74,6 +78,24 @@ public class ReporteController {
             reportes = service.listar();
         }
         return ResponseEntity.ok(convertirLista(reportes));
+    }
+
+    @GetMapping("/por-categoria")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Consultar reportes por categoría", description = "Busca por el ID de una categoría existente. Solo administradores.")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorCategoria(
+        @RequestParam @Positive Long categoriaId
+    ) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorCategoria(categoriaId)));
+    }
+
+    @GetMapping("/por-correo")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Consultar reportes por correo del usuario", description = "Busca el correo completo sin distinguir mayúsculas. Solo administradores.")
+    public ResponseEntity<List<ReporteDTOList>> buscarPorCorreoReportante(
+        @RequestParam @NotBlank @Email @Size(max = 150) String correo
+    ) {
+        return ResponseEntity.ok(convertirLista(service.buscarPorCorreoReportante(correo)));
     }
 
     @GetMapping("/estadisticas/por-usuario-mes")

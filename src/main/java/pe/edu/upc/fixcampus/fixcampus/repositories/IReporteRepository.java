@@ -11,6 +11,11 @@ import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 public interface IReporteRepository extends JpaRepository<Reporte, Long> {
     List<Reporte> findByEstadoIgnoreCase(String estado);
 
+    List<Reporte> findByCategoria_IdCategoriaOrderByFechaCreacionDesc(Long categoriaId);
+
+    @Query("select r from Reporte r join r.usuarioReportante u where lower(u.correo) = lower(:correo) order by r.fechaCreacion desc")
+    List<Reporte> findByCorreoReportante(@Param("correo") String correo);
+
     @Query(
         value = "SELECT u.id_usuario, u.nombre, u.apellido, " +
             "EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion), COUNT(*) " +
