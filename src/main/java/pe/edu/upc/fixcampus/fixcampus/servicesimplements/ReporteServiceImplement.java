@@ -91,6 +91,19 @@ public class ReporteServiceImplement implements IReporteService {
     }
 
     @Override
+    public List<Reporte> buscarPorCategoria(Long categoriaId) {
+        if (categoriaRepository.findById(categoriaId).isEmpty()) {
+            throw new ResourceNotFoundException("Categoría no encontrada");
+        }
+        return reporteRepository.findByCategoria_IdCategoriaOrderByFechaCreacionDesc(categoriaId);
+    }
+
+    @Override
+    public List<Reporte> buscarPorCorreoReportante(String correo) {
+        return reporteRepository.findByCorreoReportante(correo.trim());
+    }
+
+    @Override
     public List<Reporte> buscarPorReportante(Long idUsuario) {
         return reporteRepository.findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(
             idUsuario
