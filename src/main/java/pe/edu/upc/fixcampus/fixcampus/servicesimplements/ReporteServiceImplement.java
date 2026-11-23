@@ -1,40 +1,23 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
+import org.springframework.stereotype.Service;
+
+import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
+import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
-import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
-import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
-import pe.edu.upc.fixcampus.fixcampus.repositories.ICategoriaRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUbicacionRepository;
-import pe.edu.upc.fixcampus.fixcampus.repositories.IUsuarioRepository;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 
 @Service
 public class ReporteServiceImplement implements IReporteService {
 
     private final IReporteRepository reporteRepository;
-    private final IUsuarioRepository usuarioRepository;
-    private final ICategoriaRepository categoriaRepository;
-    private final IUbicacionRepository ubicacionRepository;
 
     public ReporteServiceImplement(
-        IReporteRepository reporteRepository,
-        IUsuarioRepository usuarioRepository,
-        ICategoriaRepository categoriaRepository,
-        IUbicacionRepository ubicacionRepository
-    ) {
+            IReporteRepository reporteRepository) {
+
         this.reporteRepository = reporteRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.categoriaRepository = categoriaRepository;
-        this.ubicacionRepository = ubicacionRepository;
     }
 
     @Override
@@ -44,45 +27,64 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public Reporte buscarPorId(Long id) {
-        Optional<Reporte> encontrado = reporteRepository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Reporte no encontrado");
-        }
-        return encontrado.get();
+        return reporteRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Reporte no encontrado"));
     }
 
     @Override
-    public Reporte registrar(ReporteDTOInsert dto) {
-        Reporte reporte = new Reporte();
-        dto.setEstado("ABIERTO");
-        copiarDatos(reporte, dto);
-        reporte.setFechaCreacion(LocalDateTime.now());
-        return reporteRepository.save(reporte);
+    public Reporte registrar(Reporte datos) {
+        datos.setTecnicoAsignado(null);
+        datos.setPrioridad(null);
+        datos.setEstado("PENDIENTE");
+        datos.setFechaCreacion(LocalDateTime.now());
+        datos.setFechaAsignacion(null);
+        datos.setFechaResolucion(null);
+
+        return reporteRepository.save(datos);
     }
 
     @Override
-    public Reporte actualizar(Long id, ReporteDTOInsert dto, Long idUsuario, boolean administrador) {
-        Reporte reporte = buscarPorId(id);
-        Long idReportante = reporte.getUsuarioReportante().getIdUsuario();
-        if (!administrador && !idReportante.equals(idUsuario)) {
-            throw new AccessDeniedException("Solo puedes editar tus propios reportes");
+    public Reporte actualizar(Long id, Reporte datos) {
+        Reporte actual = buscarPorId(id);
+
+        actual.setCategoria(datos.getCategoria());
+        actual.setUbicacion(datos.getUbicacion());
+        actual.setTitulo(datos.getTitulo());
+        actual.setDescripcion(datos.getDescripcion());
+        actual.setDetalleUbicacion(datos.getDetalleUbicacion());
+
+        if (actual.getFechaAsignacion() == null
+                && actual.getTecnicoAsignado() == null
+                && datos.getTecnicoAsignado() != null) {
+
+            actual.setFechaAsignacion(LocalDateTime.now());
         }
-        dto.setUsuarioReportanteId(idReportante);
-        if (!administrador) {
-            dto.setPrioridad(reporte.getPrioridad());
-            dto.setEstado(reporte.getEstado());
-            Usuario tecnico = reporte.getTecnicoAsignado();
-            dto.setTecnicoAsignadoId(tecnico == null ? null : tecnico.getIdUsuario());
+
+        actual.setTecnicoAsignado(datos.getTecnicoAsignado());
+        actual.setPrioridad(datos.getPrioridad());
+
+        if (("RESUELTO".equalsIgnoreCase(datos.getEstado()) || "CERRADO".equalsIgnoreCase(datos.getEstado()))
+                && !"RESUELTO".equalsIgnoreCase(actual.getEstado())
+                && !"CERRADO".equalsIgnoreCase(actual.getEstado())) {
+
+            actual.setFechaResolucion(LocalDateTime.now());
+
+        } else if (!"RESUELTO".equalsIgnoreCase(datos.getEstado()) && !"CERRADO".equalsIgnoreCase(datos.getEstado())) {
+
+            actual.setFechaResolucion(null);
         }
-        copiarDatos(reporte, dto);
-        return reporteRepository.save(reporte);
+
+        actual.setEstado(datos.getEstado());
+
+        return reporteRepository.save(actual);
     }
 
     @Override
     public void eliminar(Long id) {
-        buscarPorId(id);
+        Reporte reporte = buscarPorId(id);
 
-        reporteRepository.deleteById(id);
+        reporteRepository.delete(reporte);
     }
 
     @Override
@@ -91,36 +93,13 @@ public class ReporteServiceImplement implements IReporteService {
     }
 
     @Override
-    public List<Reporte> buscarPorCategoria(Long categoriaId) {
-        if (categoriaRepository.findById(categoriaId).isEmpty()) {
-            throw new ResourceNotFoundException("Categoría no encontrada");
-        }
-        return reporteRepository.findByCategoria_IdCategoriaOrderByFechaCreacionDesc(categoriaId);
+    public List<Reporte> buscarPorCategoria(String nombreCategoria) {
+        return reporteRepository.findByNombreCategoria(nombreCategoria);
     }
 
     @Override
     public List<Reporte> buscarPorCorreoReportante(String correo) {
-        return reporteRepository.findByCorreoReportante(correo.trim());
-    }
-
-    @Override
-    public List<Reporte> buscarPorReportante(Long idUsuario) {
-        return reporteRepository.findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(
-            idUsuario
-        );
-    }
-
-    @Override
-    public List<Reporte> buscarPropiosPorEstado(Long idUsuario, String estado) {
-        return reporteRepository.findByUsuarioReportante_IdUsuarioAndEstadoIgnoreCase(idUsuario, estado);
-    }
-
-    @Override
-    public List<Reporte> buscarPropiosPorPrioridad(Long idUsuario, String prioridad) {
-        return reporteRepository.findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(
-            idUsuario,
-            prioridad
-        );
+        return reporteRepository.findByCorreoReportante(correo);
     }
 
     @Override
@@ -130,70 +109,11 @@ public class ReporteServiceImplement implements IReporteService {
 
     @Override
     public List<Reporte> buscarPorPrioridad(String prioridad) {
-        return reporteRepository.findByPrioridad(prioridad);
+        return reporteRepository.findByPrioridadIgnoreCase(prioridad);
     }
 
     @Override
-    public List<Reporte> buscarPorCampus(String campus) {
-        return reporteRepository.findByCampus(campus);
-    }
-
-    private void copiarDatos(Reporte reporte, ReporteDTOInsert dto) {
-        Optional<Usuario> usuarioEncontrado = usuarioRepository.findById(dto.getUsuarioReportanteId());
-        if (usuarioEncontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Usuario reportante no encontrado");
-        }
-        Usuario usuario = usuarioEncontrado.get();
-
-        Optional<Categoria> categoriaEncontrada = categoriaRepository.findById(dto.getCategoriaId());
-        if (categoriaEncontrada.isEmpty()) {
-            throw new ResourceNotFoundException("Categoría no encontrada");
-        }
-        Categoria categoria = categoriaEncontrada.get();
-
-        Optional<Ubicacion> ubicacionEncontrada = ubicacionRepository.findById(dto.getUbicacionId());
-        if (ubicacionEncontrada.isEmpty()) {
-            throw new ResourceNotFoundException("Ubicación no encontrada");
-        }
-        Ubicacion ubicacion = ubicacionEncontrada.get();
-
-        reporte.setUsuarioReportante(usuario);
-        reporte.setCategoria(categoria);
-        reporte.setUbicacion(ubicacion);
-        Usuario tecnico = null;
-        if (dto.getTecnicoAsignadoId() != null) {
-            Optional<Usuario> tecnicoEncontrado = usuarioRepository.findById(dto.getTecnicoAsignadoId());
-            if (tecnicoEncontrado.isEmpty()) {
-                throw new ResourceNotFoundException("Técnico no encontrado");
-            }
-            tecnico = tecnicoEncontrado.get();
-        }
-        if (
-            tecnico != null &&
-            (reporte.getTecnicoAsignado() == null ||
-                !tecnico.getIdUsuario().equals(reporte.getTecnicoAsignado().getIdUsuario()))
-        ) {
-            reporte.setFechaAsignacion(LocalDateTime.now());
-        } else if (tecnico == null) {
-            reporte.setFechaAsignacion(null);
-        }
-        reporte.setTecnicoAsignado(tecnico);
-        reporte.setTitulo(dto.getTitulo());
-        reporte.setDescripcion(dto.getDescripcion());
-        reporte.setDetalleUbicacion(dto.getDetalleUbicacion());
-        reporte.setPrioridad(dto.getPrioridad());
-        if ("RESUELTO".equalsIgnoreCase(dto.getEstado()) || "CERRADO".equalsIgnoreCase(dto.getEstado())) {
-            if (reporte.getFechaResolucion() == null) {
-                reporte.setFechaResolucion(LocalDateTime.now());
-            }
-        } else {
-            reporte.setFechaResolucion(null);
-        }
-        reporte.setEstado(dto.getEstado());
-    }
-
-    @Override
-    public List<Object[]> contarPorCampusYEstado(String estado) {
-        return reporteRepository.contarPorCampusYEstado(estado);
+    public List<Object[]> contarPorCategoria() {
+        return reporteRepository.contarPorCategoria();
     }
 }

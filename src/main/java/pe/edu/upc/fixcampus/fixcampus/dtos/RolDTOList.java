@@ -8,7 +8,6 @@ public class RolDTOList {
     private String descripcion;
 
     public RolDTOList() {
-
     }
 
     public RolDTOList(Long idRol, String nombre,

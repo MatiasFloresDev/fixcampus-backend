@@ -1,83 +1,58 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
-import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.*;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IComentarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ComentarioServiceImplement implements IComentarioService {
-    private final IComentarioRepository repository;
-    private final IReporteRepository reporteRepository;
-    private final IUsuarioRepository usuarioRepository;
 
-    public ComentarioServiceImplement(IComentarioRepository repository, IReporteRepository reporteRepository, IUsuarioRepository usuarioRepository) {
-        this.repository = repository;
-        this.reporteRepository = reporteRepository;
-        this.usuarioRepository = usuarioRepository;
+    private final IComentarioRepository comentarioRepository;
+
+    public ComentarioServiceImplement(IComentarioRepository comentarioRepository) {
+        this.comentarioRepository = comentarioRepository;
     }
 
     @Override
     public List<Comentario> listar() {
-        return repository.findAll();
+        return comentarioRepository.findAll();
     }
 
     @Override
-    public List<Comentario> listarPorReporte(Long reporteId) {
-        return repository.findByReporte_IdReporteOrderByFechaComentarioDesc(reporteId);
-    }
-
-    @Override
-    public Comentario registrar(ComentarioDTOInsert datos) {
-        Comentario comentario = new Comentario();
-        copiarDatos(comentario, datos);
-        comentario.setFechaComentario(LocalDateTime.now());
-        return repository.save(comentario);
-    }
-
-    @Override
-    public Comentario actualizar(Long id, ComentarioDTOInsert datos) {
-        Comentario comentario = buscarPorId(id);
-        copiarDatos(comentario, datos);
-        return repository.save(comentario);
+    public List<Comentario> buscarPorReporte(Long reporteId) {
+        return comentarioRepository.findByReporte_IdReporte(reporteId);
     }
 
     @Override
     public Comentario buscarPorId(Long id) {
-        Optional<Comentario> encontrado = repository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Comentario no encontrado");
-        }
-        return encontrado.get();
+        return comentarioRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Comentario no encontrado"));
     }
 
-    private void copiarDatos(Comentario comentario, ComentarioDTOInsert datos) {
-        Optional<Reporte> reporte =
-                reporteRepository.findById(datos.getReporteId());
-        if (reporte.isEmpty()) {
-            throw new ResourceNotFoundException("Reporte no encontrado");
-        }
-        comentario.setReporte(reporte.get());
+    @Override
+    public Comentario registrar(Comentario datos) {
+        datos.setFechaComentario(LocalDateTime.now());
+        return comentarioRepository.save(datos);
+    }
 
-        Optional<Usuario> usuario =
-                usuarioRepository.findById(datos.getUsuarioId());
-        if (usuario.isEmpty()) {
-            throw new ResourceNotFoundException("Usuario no encontrado");
-        }
-        comentario.setUsuario(usuario.get());
-        comentario.setTextoComentario(datos.getTextoComentario());
+    @Override
+    public Comentario actualizar(Long id, Comentario datos) {
+        Comentario actual = buscarPorId(id);
+
+        actual.setTextoComentario(datos.getTextoComentario());
+
+        return comentarioRepository.save(actual);
     }
 
     @Override
     public void eliminar(Long id) {
-        buscarPorId(id);
-        repository.deleteById(id);
+        Comentario actual = buscarPorId(id);
+        comentarioRepository.delete(actual);
     }
 }

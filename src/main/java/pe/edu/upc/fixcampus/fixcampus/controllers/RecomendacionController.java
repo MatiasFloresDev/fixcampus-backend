@@ -1,99 +1,179 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionesPorPrioridadDTO;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTOList;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionDTOUpdate;
 import pe.edu.upc.fixcampus.fixcampus.entities.Recomendacion;
-
+import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRecomendacionService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
+import pe.edu.upc.fixcampus.fixcampus.dtos.RecomendacionesPorPrioridadReporteDTO;
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/recomendaciones")
 @PreAuthorize("hasRole('ADMIN')")
 public class RecomendacionController {
-    private final ModelMapper modelMapper;
-    private final IRecomendacionService service;
 
-    public RecomendacionController(IRecomendacionService service, ModelMapper modelMapper) {
+    private final IRecomendacionService recomendacionService;
+    private final IReporteService reporteService;
+    private final ModelMapper modelMapper;
+
+    public RecomendacionController(
+            IRecomendacionService recomendacionService,
+            IReporteService reporteService,
+            ModelMapper modelMapper) {
+
+        this.recomendacionService = recomendacionService;
+        this.reporteService = reporteService;
         this.modelMapper = modelMapper;
-        this.service = service;
     }
 
     @GetMapping
-    @Operation(summary = "Listar recomendaciones", description = "Devuelve todas las recomendaciones de mantenimiento sin pedir parámetros.")
     public ResponseEntity<List<RecomendacionDTOList>> listar() {
-        return ResponseEntity.ok(convertirLista(service.listar()));
+
+        List<RecomendacionDTOList> lista =
+                recomendacionService.listar()
+                        .stream()
+                        .map(recomendacion ->
+                                modelMapper.map(
+                                        recomendacion,
+                                        RecomendacionDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/prioridad")
-    @Operation(summary = "Buscar recomendaciones por prioridad", description = "Consulta 7, simple: filtra recomendaciones por prioridad sugerida. Ejemplo: MEDIA.")
-    public ResponseEntity<List<RecomendacionDTOList>> buscarPorPrioridad(@RequestParam String prioridad) {
-        return ResponseEntity.ok(convertirLista(service.buscarPorPrioridad(prioridad)));
+    public ResponseEntity<List<RecomendacionDTOList>> buscarPorPrioridad(
+            @RequestParam String prioridad) {
+
+        List<RecomendacionDTOList> lista =
+                recomendacionService.buscarPorPrioridad(prioridad)
+                        .stream()
+                        .map(recomendacion ->
+                                modelMapper.map(
+                                        recomendacion,
+                                        RecomendacionDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
-    @GetMapping("/reporte/{reporteId}")
-    @Operation(summary = "Obtener la recomendación asociada al reporte")
-    public ResponseEntity<RecomendacionDTOList> buscarPorReporte(@PathVariable Long reporteId) {
-        return service.buscarPorReporte(reporteId)
-                .map(recomendacion -> ResponseEntity.ok(convertir(recomendacion)))
-                .orElseGet(() -> ResponseEntity.noContent().build());
+    @GetMapping("/estadisticas/por-prioridad-reporte")
+    public ResponseEntity<List<RecomendacionesPorPrioridadReporteDTO>>
+    contarPorPrioridadReporte() {
+
+        List<RecomendacionesPorPrioridadReporteDTO> lista =
+                recomendacionService.contarPorPrioridadDelReporte()
+                        .stream()
+                        .map(fila -> new RecomendacionesPorPrioridadReporteDTO(
+                                (String) fila[0],
+                                ((Number) fila[1]).longValue()
+                        ))
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecomendacionDTOList> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(convertir(service.buscarPorId(id)));
+    public ResponseEntity<RecomendacionDTOList> buscar(
+            @PathVariable Long id) {
+
+        Recomendacion recomendacion =
+                recomendacionService.buscarPorId(id);
+
+        RecomendacionDTOList dto =
+                modelMapper.map(
+                        recomendacion,
+                        RecomendacionDTOList.class
+                );
+
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<RecomendacionDTOList> crear(@Valid @RequestBody RecomendacionDTOInsert datos) {
-        Recomendacion guardado = service.registrar(datos);
-        RecomendacionDTOList respuesta = convertir(guardado);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    public ResponseEntity<RecomendacionDTOList> registrar(
+            @Valid @RequestBody RecomendacionDTOInsert dto) {
+
+        Reporte reporte =
+                reporteService.buscarPorId(
+                        dto.getReporteId()
+                );
+
+        Recomendacion recomendacion =
+                modelMapper.map(
+                        dto,
+                        Recomendacion.class
+                );
+        recomendacion.setIdRecomendacion(null);
+        recomendacion.setReporte(reporte);
+
+        Recomendacion guardada =
+                recomendacionService.registrar(recomendacion);
+
+        RecomendacionDTOList responseDTO =
+                modelMapper.map(
+                        guardada,
+                        RecomendacionDTOList.class
+                );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(
+                        guardada.getIdRecomendacion()
+                )
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RecomendacionDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody RecomendacionDTOInsert datos) {
-        return ResponseEntity.ok(convertir(service.actualizar(id, datos)));
+    public ResponseEntity<RecomendacionDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody RecomendacionDTOUpdate dto) {
+
+        Recomendacion recomendacion =
+                modelMapper.map(
+                        dto,
+                        Recomendacion.class
+                );
+
+        Recomendacion actualizada =
+                recomendacionService.actualizar(
+                        id,
+                        recomendacion
+                );
+
+        RecomendacionDTOList responseDTO =
+                modelMapper.map(
+                        actualizada,
+                        RecomendacionDTOList.class
+                );
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        recomendacionService.eliminar(id);
+
         return ResponseEntity.noContent().build();
-    }
-
-    private RecomendacionDTOList convertir(Recomendacion recomendacion) {
-        RecomendacionDTOList dto = modelMapper.map(recomendacion, RecomendacionDTOList.class);
-        dto.setReporteId(recomendacion.getReporte().getIdReporte());
-        return dto;
-    }
-
-    private List<RecomendacionDTOList> convertirLista(List<Recomendacion> recomendaciones) {
-        return recomendaciones.stream()
-                .map(item -> convertir(item))
-                .toList();
-    }
-    @GetMapping("/estadisticas/por-prioridad-reporte")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Contar recomendaciones por prioridad de incidencia", description = "Consulta 8: un JOIN y COUNT. Cuenta recomendaciones según la prioridad de la incidencia asociada. No pide parámetros. Solo administradores.")
-    public ResponseEntity<List<RecomendacionesPorPrioridadDTO>> contarPorPrioridadReporte() {
-        List<RecomendacionesPorPrioridadDTO> lista = service.contarPorPrioridadReporte()
-                .stream()
-                .map(item -> {
-                    RecomendacionesPorPrioridadDTO dto = new RecomendacionesPorPrioridadDTO();
-                    dto.setPrioridad((String) item[0]);
-                    dto.setCantidad(((Number) item[1]).longValue());
-                    return dto;
-                })
-                .toList();
-        return ResponseEntity.ok(lista);
     }
 }

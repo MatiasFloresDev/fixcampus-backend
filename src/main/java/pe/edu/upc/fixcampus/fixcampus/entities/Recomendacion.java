@@ -33,7 +33,6 @@ public class Recomendacion {
     private LocalDateTime fechaRecomendacion;
 
     public Recomendacion() {
-
     }
 
     public Recomendacion(Long idRecomendacion, Reporte reporte,

@@ -1,88 +1,224 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import pe.edu.upc.fixcampus.fixcampus.dtos.TextoComentarioDTO;
-import org.springframework.security.core.Authentication;
-import org.springframework.http.ResponseEntity;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTOList;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTOUpdate;
 import pe.edu.upc.fixcampus.fixcampus.entities.Comentario;
-
+import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
+import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IComentarioService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
-@PreAuthorize("hasRole('ADMIN')")
 public class ComentarioController {
-    private final ModelMapper modelMapper;
-    private final IComentarioService service;
 
-    public ComentarioController(IComentarioService service, ModelMapper modelMapper) {
+    private final IComentarioService comentarioService;
+    private final IReporteService reporteService;
+    private final IUsuarioService usuarioService;
+    private final ModelMapper modelMapper;
+
+    public ComentarioController(
+            IComentarioService comentarioService,
+            IReporteService reporteService,
+            IUsuarioService usuarioService,
+            ModelMapper modelMapper) {
+
+        this.comentarioService = comentarioService;
+        this.reporteService = reporteService;
+        this.usuarioService = usuarioService;
         this.modelMapper = modelMapper;
-        this.service = service;
     }
 
     @GetMapping
-    @Operation(summary = "Listar comentarios", description = "Muestra todos los comentarios sin parámetros. Solo administradores.")
-    public ResponseEntity<List<ComentarioDTOList>> listar() {
-        return ResponseEntity.ok(convertirLista(service.listar()));
-    }
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ComentarioDTOList>> listar(
+            @RequestParam(required = false) Long reporteId) {
 
-    @GetMapping("/reporte/{reporteId}")
-    @Operation(summary = "Listar comentarios del reporte")
-    public ResponseEntity<List<ComentarioDTOList>> listarPorReporte(@PathVariable Long reporteId) {
-        return ResponseEntity.ok(convertirLista(service.listarPorReporte(reporteId)));
-    }
+        List<Comentario> comentarios;
 
-    @PostMapping("/reporte/{reporteId}")
-    @Operation(summary = "Comentar un reporte con la cuenta autenticada")
-    public ResponseEntity<ComentarioDTOList> comentar(@PathVariable Long reporteId,
-            @Valid @RequestBody TextoComentarioDTO texto, Authentication authentication) {
-        ComentarioDTOInsert datos = new ComentarioDTOInsert(reporteId, texto.getTextoComentario().trim());
-        datos.setUsuarioId(Long.valueOf(authentication.getName()));
-        return crear(datos);
+        if (reporteId != null) {
+
+            reporteService.buscarPorId(reporteId);
+
+            comentarios =
+                    comentarioService.buscarPorReporte(
+                            reporteId
+                    );
+
+        } else {
+
+            comentarios =
+                    comentarioService.listar();
+        }
+
+        List<ComentarioDTOList> lista =
+                comentarios
+                        .stream()
+                        .map(comentario ->
+                                modelMapper.map(
+                                        comentario,
+                                        ComentarioDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ComentarioDTOList> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(convertir(service.buscarPorId(id)));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ComentarioDTOList> buscarPorId(
+            @PathVariable Long id) {
+
+        Comentario comentario =
+                comentarioService.buscarPorId(id);
+
+        ComentarioDTOList dto =
+                modelMapper.map(
+                        comentario,
+                        ComentarioDTOList.class
+                );
+
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<ComentarioDTOList> crear(@Valid @RequestBody ComentarioDTOInsert datos) {
-        Comentario guardado = service.registrar(datos);
-        ComentarioDTOList respuesta = convertir(guardado);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ComentarioDTOList> registrar(
+            @Valid @RequestBody ComentarioDTOInsert dto,
+            Authentication authentication) {
+
+        Reporte reporte =
+                reporteService.buscarPorId(
+                        dto.getReporteId()
+                );
+
+        Usuario usuario =
+                usuarioService.buscarPorCorreo(
+                        authentication.getName()
+                );
+
+        Comentario comentario =
+                modelMapper.map(
+                        dto,
+                        Comentario.class
+                );
+        comentario.setIdComentario(null);
+        comentario.setReporte(reporte);
+        comentario.setUsuario(usuario);
+
+        Comentario guardado =
+                comentarioService.registrar(
+                        comentario
+                );
+
+        ComentarioDTOList responseDTO =
+                modelMapper.map(
+                        guardado,
+                        ComentarioDTOList.class
+                );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(
+                        guardado.getIdComentario()
+                )
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ComentarioDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody ComentarioDTOInsert datos) {
-        return ResponseEntity.ok(convertir(service.actualizar(id, datos)));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ComentarioDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ComentarioDTOUpdate dto,
+            Authentication authentication) {
+
+        Comentario comentarioActual =
+                comentarioService.buscarPorId(id);
+
+        verificarAutorComentario(
+                comentarioActual,
+                authentication
+        );
+
+        Comentario comentario =
+                modelMapper.map(
+                        dto,
+                        Comentario.class
+                );
+
+        Comentario actualizado =
+                comentarioService.actualizar(
+                        id,
+                        comentario
+                );
+
+        ComentarioDTOList responseDTO =
+                modelMapper.map(
+                        actualizado,
+                        ComentarioDTOList.class
+                );
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        comentarioService.eliminar(id);
+
         return ResponseEntity.noContent().build();
     }
 
-    private ComentarioDTOList convertir(Comentario comentario) {
-        ComentarioDTOList dto = modelMapper.map(comentario, ComentarioDTOList.class);
-        dto.setReporteId(comentario.getReporte().getIdReporte());
-        dto.setUsuarioId(comentario.getUsuario().getIdUsuario());
-        dto.setUsuarioNombre(comentario.getUsuario().getNombre() + " " + comentario.getUsuario().getApellido());
-        return dto;
-    }
+    private void verificarAutorComentario(
+            Comentario comentario,
+            Authentication authentication) {
 
-    private List<ComentarioDTOList> convertirLista(List<Comentario> comentarios) {
-        return comentarios.stream()
-                .map(item -> convertir(item))
-                .toList();
+        boolean administrador = false;
+
+        for (GrantedAuthority autoridad :
+                authentication.getAuthorities()) {
+
+            if ("ROLE_ADMIN".equals(
+                    autoridad.getAuthority())) {
+
+                administrador = true;
+                break;
+            }
+        }
+
+        boolean autor =
+                comentario.getUsuario()
+                        .getCorreo()
+                        .equalsIgnoreCase(
+                                authentication.getName()
+                        );
+
+        if (!administrador && !autor) {
+            throw new AccessDeniedException(
+                    "No tienes permiso para modificar este comentario"
+            );
+        }
     }
 }

@@ -2,31 +2,19 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 public class UsuariosPorRolDTO {
 
-    private String nombreRol;
-    private Long cantidadUsuarios;
+    private String rol;
+    private Long cantidad;
 
-    public UsuariosPorRolDTO() {
-
+    public UsuariosPorRolDTO(String rol, Long cantidad) {
+        this.rol = rol;
+        this.cantidad = cantidad;
     }
 
-    public UsuariosPorRolDTO(String nombreRol, Long cantidadUsuarios) {
-        this.nombreRol = nombreRol;
-        this.cantidadUsuarios = cantidadUsuarios;
+    public String getRol() {
+        return rol;
     }
 
-    public String getNombreRol() {
-        return nombreRol;
-    }
-
-    public void setNombreRol(String nombreRol) {
-        this.nombreRol = nombreRol;
-    }
-
-    public Long getCantidadUsuarios() {
-        return cantidadUsuarios;
-    }
-
-    public void setCantidadUsuarios(Long cantidadUsuarios) {
-        this.cantidadUsuarios = cantidadUsuarios;
+    public Long getCantidad() {
+        return cantidad;
     }
 }

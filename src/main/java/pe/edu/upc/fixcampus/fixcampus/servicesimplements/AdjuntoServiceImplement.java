@@ -1,79 +1,70 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesimplements;
 
 import org.springframework.stereotype.Service;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IAdjuntoService;
-import pe.edu.upc.fixcampus.fixcampus.repositories.*;
-import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
-import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IAdjuntoRepository;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IAdjuntoService;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AdjuntoServiceImplement implements IAdjuntoService {
-    private final IAdjuntoRepository repository;
-    private final IReporteRepository reporteRepository;
 
-    public AdjuntoServiceImplement(IAdjuntoRepository repository, IReporteRepository reporteRepository) {
-        this.repository = repository;
-        this.reporteRepository = reporteRepository;
-    }
+    private final IAdjuntoRepository adjuntoRepository;
 
-    @Override
-    public void eliminar(Long id) {
-        buscarPorId(id);
-        repository.deleteById(id);
+    public AdjuntoServiceImplement(IAdjuntoRepository adjuntoRepository) {
+        this.adjuntoRepository = adjuntoRepository;
     }
 
     @Override
     public List<Adjunto> listar() {
-        return repository.findAll();
+        return adjuntoRepository.findAll();
     }
+
     @Override
     public List<Adjunto> buscarPorReporte(Long reporteId) {
-        return repository.findByReporte_IdReporte(reporteId);
-    }
-
-    @Override
-    public Adjunto registrar(AdjuntoDTOInsert datos) {
-        Adjunto adjunto = new Adjunto();
-        copiarDatos(adjunto, datos);
-        adjunto.setFechaSubida(LocalDateTime.now());
-        return repository.save(adjunto);
-    }
-
-    @Override
-    public Adjunto actualizar(Long id, AdjuntoDTOInsert datos) {
-        Adjunto adjunto = buscarPorId(id);
-        copiarDatos(adjunto, datos);
-        return repository.save(adjunto);
+        return adjuntoRepository.findByReporte_IdReporte(reporteId);
     }
 
     @Override
     public Adjunto buscarPorId(Long id) {
-        Optional<Adjunto> encontrado = repository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Adjunto no encontrado");
-        }
-        return encontrado.get();
-    }
-
-    private void copiarDatos(Adjunto adjunto, AdjuntoDTOInsert datos) {
-        adjunto.setReporte(buscarReporte(datos.getReporteId()));
-        adjunto.setNombreArchivo(datos.getNombreArchivo());
-        adjunto.setUrlArchivo(datos.getUrlArchivo());
-        adjunto.setTipoArchivo(datos.getTipoArchivo());
+        return adjuntoRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Adjunto no encontrado"));
     }
 
     @Override
-    public Reporte buscarReporte(Long id) {
-        Optional<Reporte> encontrado = reporteRepository.findById(id);
-        if (encontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Reporte no encontrado");
+    public Adjunto registrar(Adjunto datos) {
+
+        if (adjuntoRepository.countByReporte_IdReporte(
+                datos.getReporte().getIdReporte()) >= 3) {
+
+            throw new IllegalArgumentException(
+                    "Un reporte puede tener como máximo 3 evidencias");
         }
-        return encontrado.get();
+
+        datos.setFechaSubida(LocalDateTime.now());
+
+        return adjuntoRepository.save(datos);
     }
 
+    @Override
+    public Adjunto actualizar(Long id, Adjunto datos) {
+        Adjunto actual = buscarPorId(id);
+
+        actual.setNombreArchivo(datos.getNombreArchivo());
+        actual.setUrlArchivo(datos.getUrlArchivo());
+        actual.setTipoArchivo(datos.getTipoArchivo());
+
+        return adjuntoRepository.save(actual);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        Adjunto actual = buscarPorId(id);
+        adjuntoRepository.delete(actual);
+    }
 }

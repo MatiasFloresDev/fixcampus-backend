@@ -18,7 +18,6 @@ public class Categoria {
     private String descripcion;
 
     public Categoria() {
-
     }
 
     public Categoria(Long idCategoria, String nombre, String descripcion) {

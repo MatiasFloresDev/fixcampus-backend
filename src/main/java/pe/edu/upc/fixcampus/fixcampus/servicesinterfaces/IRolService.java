@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface IRolService {
     List<Rol> listar();
+    Rol buscarPorNombreExacto(String nombre);
     Rol buscarPorId(Long id);
     Rol registrar(Rol datos);
     Rol actualizar(Long id, Rol datos);

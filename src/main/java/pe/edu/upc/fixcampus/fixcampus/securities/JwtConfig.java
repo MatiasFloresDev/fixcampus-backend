@@ -22,12 +22,8 @@ public class JwtConfig {
 
     @Bean
     public SecretKey jwtSecretKey() {
-        byte[] clave = secret.getBytes(StandardCharsets.UTF_8);
-        if (clave.length < 64) {
-            throw new IllegalArgumentException("JWT_SECRET debe tener al menos 64 bytes para HS512");
-        }
         return new SecretKeySpec(
-                clave,
+                secret.getBytes(StandardCharsets.UTF_8),
                 "HmacSHA512"
         );
     }
@@ -41,7 +37,8 @@ public class JwtConfig {
 
     @Bean
     public JwtDecoder jwtDecoder(SecretKey secretKey) {
-        return NimbusJwtDecoder.withSecretKey(secretKey)
+        return NimbusJwtDecoder
+                .withSecretKey(secretKey)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
     }

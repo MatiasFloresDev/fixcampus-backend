@@ -13,7 +13,6 @@ public class UsuarioDTOList {
     private LocalDateTime fechaRegistro;
 
     public UsuarioDTOList() {
-
     }
 
     public UsuarioDTOList(Long idUsuario, Long rolId,

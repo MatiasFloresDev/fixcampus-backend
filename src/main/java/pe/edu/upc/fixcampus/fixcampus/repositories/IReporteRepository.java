@@ -1,48 +1,44 @@
 package pe.edu.upc.fixcampus.fixcampus.repositories;
 
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 
+import java.util.List;
+
 @Repository
 public interface IReporteRepository extends JpaRepository<Reporte, Long> {
+
     List<Reporte> findByEstadoIgnoreCase(String estado);
 
-    List<Reporte> findByCategoria_IdCategoriaOrderByFechaCreacionDesc(Long categoriaId);
+    @Query("select r from Reporte r join r.categoria c where lower(c.nombre) = lower(:nombreCategoria)")
+    List<Reporte> findByNombreCategoria(@Param("nombreCategoria") String nombreCategoria);
 
-    @Query("select r from Reporte r join r.usuarioReportante u where lower(u.correo) = lower(:correo) order by r.fechaCreacion desc")
+    @Query("select r from Reporte r join r.usuarioReportante u where lower(u.correo) = lower(:correo)")
     List<Reporte> findByCorreoReportante(@Param("correo") String correo);
 
-    @Query(
-        value = "SELECT u.id_usuario, u.nombre, u.apellido, " +
-            "EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion), COUNT(*) " +
-            "FROM reporte r INNER JOIN usuario u ON r.id_usuario_reportante = u.id_usuario " +
-            "GROUP BY u.id_usuario, u.nombre, u.apellido, " +
-            "EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion) " +
-            "ORDER BY EXTRACT(YEAR FROM r.fecha_creacion), EXTRACT(MONTH FROM r.fecha_creacion), u.nombre",
-        nativeQuery = true
-    )
+    @Query(value = """
+        SELECT u.id_usuario, u.nombre, u.apellido,
+               EXTRACT(YEAR FROM r.fecha_creacion),
+               EXTRACT(MONTH FROM r.fecha_creacion),
+               COUNT(*)
+        FROM reporte r
+        JOIN usuario u ON r.id_usuario_reportante = u.id_usuario
+        GROUP BY u.id_usuario,
+                 EXTRACT(YEAR FROM r.fecha_creacion),
+                 EXTRACT(MONTH FROM r.fecha_creacion)
+        """, nativeQuery = true)
     List<Object[]> contarPorUsuarioYMes();
 
-    @Query("select r from Reporte r where lower(r.prioridad) = lower(:prioridad)")
-    List<Reporte> findByPrioridad(@Param("prioridad") String prioridad);
+    List<Reporte> findByPrioridadIgnoreCase(String prioridad);
 
-    @Query(
-        value = "SELECT u.campus, COUNT(r.id_reporte) " +
-            "FROM reporte r INNER JOIN ubicacion u ON r.id_ubicacion = u.id_ubicacion " +
-            "WHERE LOWER(r.estado) = LOWER(:estado) " +
-            "GROUP BY u.campus ORDER BY COUNT(r.id_reporte) DESC, u.campus",
-        nativeQuery = true
-    )
-    List<Object[]> contarPorCampusYEstado(@Param("estado") String estado);
-
-    List<Reporte> findByUsuarioReportante_IdUsuarioOrderByFechaCreacionDescIdReporteDesc(Long idUsuario);
-    List<Reporte> findByUsuarioReportante_IdUsuarioAndEstadoIgnoreCase(Long idUsuario, String estado);
-    List<Reporte> findByUsuarioReportante_IdUsuarioAndPrioridadIgnoreCase(Long idUsuario, String prioridad);
-
-    @Query("select r from Reporte r join r.ubicacion u where lower(u.campus) = lower(:campus)")
-    List<Reporte> findByCampus(@Param("campus") String campus);
+    @Query("""
+        SELECT c.nombre, COUNT(r)
+        FROM Reporte r
+        JOIN r.categoria c
+        GROUP BY c.nombre
+        """)
+    List<Object[]> contarPorCategoria();
 }

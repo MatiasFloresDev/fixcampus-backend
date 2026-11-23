@@ -7,7 +7,6 @@ public class ErrorResponse {
     private String path;
 
     public ErrorResponse() {
-
     }
 
     public ErrorResponse(int status, String message, String path) {

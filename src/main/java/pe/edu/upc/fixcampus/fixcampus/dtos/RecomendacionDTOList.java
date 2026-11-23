@@ -13,7 +13,6 @@ public class RecomendacionDTOList {
     private LocalDateTime fechaRecomendacion;
 
     public RecomendacionDTOList() {
-
     }
 
     public RecomendacionDTOList(Long idRecomendacion, Long reporteId,

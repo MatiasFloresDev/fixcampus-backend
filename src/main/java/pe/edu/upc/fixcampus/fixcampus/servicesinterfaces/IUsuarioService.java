@@ -1,21 +1,24 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
+
 import java.util.List;
-import java.util.Optional;
 
 public interface IUsuarioService {
+
     List<Usuario> listar();
-    long contarRegistrados();
+
     Usuario buscarPorId(Long id);
-    Optional<Usuario> buscarPorCorreo(String correo);
-    boolean existe(Long id);
-    Usuario crear(UsuarioDTOInsert datos);
-    Usuario actualizar(Long id, UsuarioDTOInsert datos);
-    Usuario registrar(RegistroRequestDTO datos);
+
+    Usuario buscarPorCorreo(String correo);
+
+    Usuario registrar(Usuario datos);
+
+    Usuario actualizar(Long id, Usuario datos);
+
     void eliminar(Long id);
-    List<Usuario> buscarPorNombre(String nombre);
+
     List<Object[]> contarUsuariosPorRol();
+
+    List<Usuario> buscarPorNombre(String nombre);
 }

@@ -22,14 +22,16 @@ public class JwtTokenService {
         this.jwtEncoder = jwtEncoder;
     }
 
-    public String generarToken(UserDetails usuario, Long idUsuario) {
+    public String generarToken(UserDetails usuario) {
         Instant ahora = Instant.now();
+
         String roles = usuario.getAuthorities()
                 .stream()
-                .map(GrantedAuthority::getAuthority)
+                .map(authority -> authority.getAuthority())
                 .collect(Collectors.joining(","));
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(idUsuario.toString())
+                .subject(usuario.getUsername())
                 .issuedAt(ahora)
                 .expiresAt(ahora.plusSeconds(TIEMPO_TOKEN))
                 .claim("roles", roles)
