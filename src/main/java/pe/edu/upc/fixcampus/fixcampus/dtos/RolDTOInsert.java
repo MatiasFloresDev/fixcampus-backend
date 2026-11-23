@@ -17,7 +17,6 @@ public class RolDTOInsert {
     private String descripcion;
 
     public RolDTOInsert() {
-
     }
 
     public RolDTOInsert(String nombre, String nivelAcceso, String descripcion) {

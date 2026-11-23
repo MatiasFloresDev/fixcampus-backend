@@ -1,65 +1,125 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/locations")
 public class UbicacionController {
-    private final IUbicacionService service;
+
+    private final IUbicacionService ubicacionService;
     private final ModelMapper modelMapper;
 
-    public UbicacionController(IUbicacionService service, ModelMapper modelMapper) {
-        this.service = service;
+    public UbicacionController(
+            IUbicacionService ubicacionService,
+            ModelMapper modelMapper) {
+        this.ubicacionService = ubicacionService;
         this.modelMapper = modelMapper;
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    @Operation(summary = "Listar ubicaciones", description = "Muestra todos los registros sin parámetros.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
     public ResponseEntity<List<UbicacionDTOList>> listar() {
-        List<UbicacionDTOList> lista = service.listar().stream()
-                .map(registro -> modelMapper.map(registro, UbicacionDTOList.class))
+
+        List<Ubicacion> ubicaciones = ubicacionService.listar();
+
+        List<UbicacionDTOList> lista = ubicaciones
+                .stream()
+                .map(ubicacion ->
+                        modelMapper.map(
+                                ubicacion,
+                                UbicacionDTOList.class
+                        )
+                )
                 .toList();
+
         return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<UbicacionDTOList> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(modelMapper.map(service.buscarPorId(id), UbicacionDTOList.class));
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    public ResponseEntity<UbicacionDTOList> buscarPorId(
+            @PathVariable Long id) {
+
+        Ubicacion ubicacion =
+                ubicacionService.buscarPorId(id);
+
+        UbicacionDTOList response =
+                modelMapper.map(
+                        ubicacion,
+                        UbicacionDTOList.class
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UbicacionDTOList> crear(@Valid @RequestBody UbicacionDTOInsert datos) {
-        Ubicacion registro = modelMapper.map(datos, Ubicacion.class);
-        Ubicacion guardado = service.registrar(registro);
-        UbicacionDTOList respuesta = modelMapper.map(guardado, UbicacionDTOList.class);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    public ResponseEntity<UbicacionDTOList> registrar(
+            @Valid @RequestBody UbicacionDTOInsert dto) {
+
+        Ubicacion ubicacion =
+                modelMapper.map(dto, Ubicacion.class);
+
+        Ubicacion guardada =
+                ubicacionService.registrar(ubicacion);
+
+        UbicacionDTOList response =
+                modelMapper.map(
+                        guardada,
+                        UbicacionDTOList.class
+                );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(guardada.getIdUbicacion())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UbicacionDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody UbicacionDTOInsert datos) {
-        Ubicacion registro = modelMapper.map(datos, Ubicacion.class);
-        return ResponseEntity.ok(modelMapper.map(service.actualizar(id, registro), UbicacionDTOList.class));
+    public ResponseEntity<UbicacionDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UbicacionDTOInsert dto) {
+
+        Ubicacion ubicacion =
+                modelMapper.map(dto, Ubicacion.class);
+
+        Ubicacion actualizada =
+                ubicacionService.actualizar(id, ubicacion);
+
+        UbicacionDTOList response =
+                modelMapper.map(
+                        actualizada,
+                        UbicacionDTOList.class
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        ubicacionService.eliminar(id);
+
         return ResponseEntity.noContent().build();
     }
 }

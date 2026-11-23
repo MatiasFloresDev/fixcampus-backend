@@ -1,65 +1,124 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RolDTOInsert;
 import pe.edu.upc.fixcampus.fixcampus.dtos.RolDTOList;
 import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {
-    private final IRolService service;
+
+    private final IRolService rolService;
     private final ModelMapper modelMapper;
 
-    public RolController(IRolService service, ModelMapper modelMapper) {
-        this.service = service;
+    public RolController(
+            IRolService rolService,
+            ModelMapper modelMapper) {
+        this.rolService = rolService;
         this.modelMapper = modelMapper;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar roles", description = "Muestra todos los registros sin parámetros.")
     public ResponseEntity<List<RolDTOList>> listar() {
-        List<RolDTOList> lista = service.listar().stream()
-                .map(registro -> modelMapper.map(registro, RolDTOList.class))
+
+        List<Rol> roles = rolService.listar();
+
+        List<RolDTOList> lista = roles
+                .stream()
+                .map(rol ->
+                        modelMapper.map(
+                                rol,
+                                RolDTOList.class
+                        )
+                )
                 .toList();
+
         return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RolDTOList> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(modelMapper.map(service.buscarPorId(id), RolDTOList.class));
+    public ResponseEntity<RolDTOList> buscarPorId(
+            @PathVariable Long id) {
+
+        Rol rol = rolService.buscarPorId(id);
+
+        RolDTOList response =
+                modelMapper.map(
+                        rol,
+                        RolDTOList.class
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RolDTOList> crear(@Valid @RequestBody RolDTOInsert datos) {
-        Rol registro = modelMapper.map(datos, Rol.class);
-        Rol guardado = service.registrar(registro);
-        RolDTOList respuesta = modelMapper.map(guardado, RolDTOList.class);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    public ResponseEntity<RolDTOList> registrar(
+            @Valid @RequestBody RolDTOInsert dto) {
+
+        Rol rol =
+                modelMapper.map(dto, Rol.class);
+
+        Rol guardado =
+                rolService.registrar(rol);
+
+        RolDTOList response =
+                modelMapper.map(
+                        guardado,
+                        RolDTOList.class
+                );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(guardado.getIdRol())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RolDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody RolDTOInsert datos) {
-        Rol registro = modelMapper.map(datos, Rol.class);
-        return ResponseEntity.ok(modelMapper.map(service.actualizar(id, registro), RolDTOList.class));
+    public ResponseEntity<RolDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody RolDTOInsert dto) {
+
+        Rol rol =
+                modelMapper.map(dto, Rol.class);
+
+        Rol actualizado =
+                rolService.actualizar(id, rol);
+
+        RolDTOList response =
+                modelMapper.map(
+                        actualizado,
+                        RolDTOList.class
+                );
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        rolService.eliminar(id);
+
         return ResponseEntity.noContent().build();
     }
 }

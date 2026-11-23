@@ -28,7 +28,6 @@ public class Comentario {
     private LocalDateTime fechaComentario;
 
     public Comentario() {
-
     }
 
     public Comentario(Long idComentario, Reporte reporte, Usuario usuario,

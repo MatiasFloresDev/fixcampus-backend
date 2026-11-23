@@ -1,117 +1,217 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
-
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroRequestDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.RegistroResponseDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuariosPorRolDTO;
 import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOUpdate;
+import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuariosPorRolDTO;
 import java.util.List;
 
 @RestController
 public class UsuarioController {
-    private final ModelMapper modelMapper;
-    private final IUsuarioService service;
 
-    public UsuarioController(IUsuarioService service, ModelMapper modelMapper) {
+    private final IUsuarioService usuarioService;
+    private final IRolService rolService;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    public UsuarioController(
+            IUsuarioService usuarioService,
+            IRolService rolService,
+            ModelMapper modelMapper,
+            PasswordEncoder passwordEncoder) {
+
+        this.usuarioService = usuarioService;
+        this.rolService = rolService;
         this.modelMapper = modelMapper;
-        this.service = service;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/api/users")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar usuarios", description = "Muestra todos los usuarios registrados sin pedir parámetros y sin devolver contraseñas. Solo para administradores.")
     public ResponseEntity<List<UsuarioDTOList>> listar() {
-        return ResponseEntity.ok(convertirLista(service.listar()));
+
+        List<UsuarioDTOList> lista =
+                usuarioService.listar()
+                        .stream()
+                        .map(usuario ->
+                                modelMapper.map(
+                                        usuario,
+                                        UsuarioDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
-    @GetMapping("/api/users/count")
+    @GetMapping("/api/users/estadisticas/por-rol")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Long> contarRegistrados() {
-        return ResponseEntity.ok(service.contarRegistrados());
+    public ResponseEntity<List<UsuariosPorRolDTO>> usuariosPorRol() {
+
+        List<UsuariosPorRolDTO> lista =
+                usuarioService.contarUsuariosPorRol()
+                        .stream()
+                        .map(fila -> new UsuariosPorRolDTO(
+                                (String) fila[0],
+                                ((Number) fila[1]).longValue()
+                        ))
+                        .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/api/users/buscar-nombre")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UsuarioDTOList>> buscarPorNombre(
+            @RequestParam String nombre) {
+
+        List<UsuarioDTOList> lista =
+                usuarioService.buscarPorNombre(nombre)
+                        .stream()
+                        .map(usuario ->
+                                modelMapper.map(
+                                        usuario,
+                                        UsuarioDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/api/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTOList> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(convertir(service.buscarPorId(id)));
-    }
+    public ResponseEntity<UsuarioDTOList> buscarPorId(
+            @PathVariable Long id) {
 
-    @PostMapping("/api/users")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTOList> crear(@Valid @RequestBody UsuarioDTOInsert datos) {
-        Usuario guardado = service.crear(datos);
-        UsuarioDTOList respuesta = convertir(guardado);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        Usuario usuario =
+                usuarioService.buscarPorId(id);
+
+        UsuarioDTOList dto =
+                modelMapper.map(
+                        usuario,
+                        UsuarioDTOList.class
+                );
+
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/api/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioDTOInsert datos) {
-        return ResponseEntity.ok(convertir(service.actualizar(id, datos)));
+    public ResponseEntity<UsuarioDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UsuarioDTOUpdate dto) {
+
+        Rol rol =
+                rolService.buscarPorId(
+                        dto.getRolId()
+                );
+
+        Usuario usuario =
+                modelMapper.map(
+                        dto,
+                        Usuario.class
+                );
+
+        usuario.setRol(rol);
+
+        if (dto.getContrasena() != null
+                && !dto.getContrasena().isBlank()) {
+
+            usuario.setContrasenaHash(
+                    passwordEncoder.encode(
+                            dto.getContrasena()
+                    )
+            );
+        }
+
+        Usuario actualizado =
+                usuarioService.actualizar(
+                        id,
+                        usuario
+                );
+
+        UsuarioDTOList responseDTO =
+                modelMapper.map(
+                        actualizado,
+                        UsuarioDTOList.class
+                );
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/api/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        usuarioService.eliminar(id);
+
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/api/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UsuarioDTOList> crear(@Valid @RequestBody UsuarioDTOInsert dto) {
+        if (dto.getRolId() == null) {
+            throw new IllegalArgumentException("Selecciona un rol");
+        }
+        Usuario usuario = modelMapper.map(dto, Usuario.class);
+        usuario.setIdUsuario(null);
+        usuario.setRol(rolService.buscarPorId(dto.getRolId()));
+        usuario.setContrasenaHash(passwordEncoder.encode(dto.getContrasena()));
+        Usuario guardado = usuarioService.registrar(usuario);
+        if (dto.getEstado() != null) {
+            guardado.setEstado(dto.getEstado());
+            guardado = usuarioService.actualizar(guardado.getIdUsuario(), guardado);
+        }
+        return ResponseEntity.status(201).body(modelMapper.map(guardado, UsuarioDTOList.class));
+    }
+
     @PostMapping("/registro")
-    @SecurityRequirements
-    @ApiResponse(responseCode = "201", description = "Cuenta creada correctamente")
-    @Operation(summary = "Registrar una cuenta", description = "Ruta pública. Crea un usuario ACTIVO con rol USUARIO. La contraseña debe tener al menos 6 caracteres y se guarda como hash BCrypt.")
-    public ResponseEntity<RegistroResponseDTO> registrar(@Valid @RequestBody RegistroRequestDTO request) {
-        Usuario guardado = service.registrar(request);
-        RegistroResponseDTO response = new RegistroResponseDTO(
-                guardado.getIdUsuario(), guardado.getCorreo(), "Cuenta creada correctamente");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+    public ResponseEntity<UsuarioDTOList> registrar(
+            @Valid @RequestBody UsuarioDTOInsert dto) {
 
-    @GetMapping("/api/users/nombre")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Buscar usuarios por nombre", description = "Consulta 9, simple: lista usuarios cuyo nombre coincide exactamente con el parámetro nombre. Ejemplo: nombre=Matias. No devuelve contraseñas. Solo administradores.")
-    public ResponseEntity<List<UsuarioDTOList>> buscarPorNombre(@RequestParam String nombre) {
-        return ResponseEntity.ok(convertirLista(service.buscarPorNombre(nombre)));
-    }
+        Rol rolUsuario =
+                rolService.buscarPorNombreExacto(
+                        "USUARIO"
+                );
 
-    @GetMapping("/api/users/por-rol")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Contar usuarios por rol", description = "Consulta 10: un INNER JOIN y COUNT. Cuenta los usuarios registrados de cada rol y ordena de mayor a menor cantidad. Incluye solo roles con usuarios. No pide parámetros. Solo administradores.")
-    public ResponseEntity<List<UsuariosPorRolDTO>> contarUsuariosPorRol() {
-        List<UsuariosPorRolDTO> lista = service.contarUsuariosPorRol()
-                .stream()
-                .map(fila -> {
-                    UsuariosPorRolDTO dto = new UsuariosPorRolDTO();
-                    dto.setNombreRol((String) fila[0]);
-                    dto.setCantidadUsuarios(((Number) fila[1]).longValue());
-                    return dto;
-                })
-                .toList();
-        return ResponseEntity.ok(lista);
-    }
+        Usuario usuario =
+                modelMapper.map(
+                        dto,
+                        Usuario.class
+                );
 
-    private UsuarioDTOList convertir(Usuario usuario) {
-        UsuarioDTOList dto = modelMapper.map(usuario, UsuarioDTOList.class);
-        dto.setRolId(usuario.getRol().getIdRol());
-        return dto;
-    }
+        usuario.setIdUsuario(null);
+        usuario.setRol(rolUsuario);
 
-    private List<UsuarioDTOList> convertirLista(List<Usuario> usuarios) {
-        return usuarios.stream()
-                .map(item -> convertir(item))
-                .toList();
+        usuario.setContrasenaHash(
+                passwordEncoder.encode(
+                        dto.getContrasena()
+                )
+        );
+
+        Usuario guardado =
+                usuarioService.registrar(usuario);
+
+        UsuarioDTOList responseDTO =
+                modelMapper.map(
+                        guardado,
+                        UsuarioDTOList.class
+                );
+
+        return ResponseEntity
+                .status(201)
+                .body(responseDTO);
     }
 }

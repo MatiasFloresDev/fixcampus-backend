@@ -54,7 +54,6 @@ public class Reporte {
     private LocalDateTime fechaResolucion;
 
     public Reporte() {
-
     }
 
     public Reporte(Long idReporte, Usuario usuarioReportante,

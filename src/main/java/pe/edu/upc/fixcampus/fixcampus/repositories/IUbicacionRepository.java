@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface IUbicacionRepository extends JpaRepository<Ubicacion, Long> {
-    List<Ubicacion> findByCampusContainingIgnoreCase(String campus);
+
 }

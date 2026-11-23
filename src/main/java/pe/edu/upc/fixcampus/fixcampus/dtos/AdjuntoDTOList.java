@@ -12,7 +12,6 @@ public class AdjuntoDTOList {
     private LocalDateTime fechaSubida;
 
     public AdjuntoDTOList() {
-
     }
 
     public AdjuntoDTOList(Long idAdjunto, Long reporteId,

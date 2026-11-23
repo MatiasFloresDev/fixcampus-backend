@@ -1,25 +1,30 @@
 package pe.edu.upc.fixcampus.fixcampus.servicesinterfaces;
 
-import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-
 import java.util.List;
+
+import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 
 public interface IReporteService {
 
+    List<Object[]> contarPorCategoria();
+
     List<Reporte> listar();
+
     Reporte buscarPorId(Long id);
-    Reporte registrar(ReporteDTOInsert dto);
-    Reporte actualizar(Long id, ReporteDTOInsert dto, Long idUsuario, boolean administrador);
+
+    Reporte registrar(Reporte datos);
+
+    Reporte actualizar(Long id, Reporte datos);
+
     void eliminar(Long id);
+
     List<Reporte> buscarPorEstado(String estado);
-    List<Reporte> buscarPorCategoria(Long categoriaId);
+
+    List<Reporte> buscarPorCategoria(String nombreCategoria);
+
     List<Reporte> buscarPorCorreoReportante(String correo);
-    List<Reporte> buscarPorReportante(Long idUsuario);
-    List<Reporte> buscarPropiosPorEstado(Long idUsuario, String estado);
-    List<Reporte> buscarPropiosPorPrioridad(Long idUsuario, String prioridad);
+
     List<Object[]> contarPorUsuarioYMes();
+
     List<Reporte> buscarPorPrioridad(String prioridad);
-    List<Reporte> buscarPorCampus(String campus);
-    List<Object[]> contarPorCampusYEstado(String estado);
 }

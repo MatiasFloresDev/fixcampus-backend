@@ -30,7 +30,6 @@ public class Adjunto {
     private LocalDateTime fechaSubida;
 
     public Adjunto() {
-
     }
 
     public Adjunto(Long idAdjunto, Reporte reporte, String nombreArchivo,

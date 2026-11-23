@@ -1,7 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.entities;
 
-import java.math.BigDecimal;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -28,14 +26,7 @@ public class Ubicacion {
     @Column(name = "tipo", nullable = false, length = 50)
     private String tipo;
 
-    @Column(precision = 9, scale = 6)
-    private BigDecimal latitud;
-
-    @Column(precision = 9, scale = 6)
-    private BigDecimal longitud;
-
     public Ubicacion() {
-
     }
 
     public Ubicacion(Long idUbicacion, String campus, String edificio,
@@ -94,21 +85,5 @@ public class Ubicacion {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public BigDecimal getLatitud() {
-        return latitud;
-    }
-
-    public void setLatitud(BigDecimal latitud) {
-        this.latitud = latitud;
-    }
-
-    public BigDecimal getLongitud() {
-        return longitud;
-    }
-
-    public void setLongitud(BigDecimal longitud) {
-        this.longitud = longitud;
     }
 }

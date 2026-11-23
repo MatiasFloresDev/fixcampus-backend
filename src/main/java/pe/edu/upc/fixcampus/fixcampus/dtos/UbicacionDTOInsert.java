@@ -1,9 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import java.math.BigDecimal;
-
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -26,16 +22,7 @@ public class UbicacionDTOInsert {
     @Size(max = 50, message = "El tipo no puede superar los 50 caracteres")
     private String tipo;
 
-    @DecimalMin("-90")
-    @DecimalMax("90")
-    private BigDecimal latitud;
-
-    @DecimalMin("-180")
-    @DecimalMax("180")
-    private BigDecimal longitud;
-
     public UbicacionDTOInsert() {
-
     }
 
     public UbicacionDTOInsert(String campus, String edificio,
@@ -85,21 +72,5 @@ public class UbicacionDTOInsert {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public BigDecimal getLatitud() {
-        return latitud;
-    }
-
-    public void setLatitud(BigDecimal latitud) {
-        this.latitud = latitud;
-    }
-
-    public BigDecimal getLongitud() {
-        return longitud;
-    }
-
-    public void setLongitud(BigDecimal longitud) {
-        this.longitud = longitud;
     }
 }

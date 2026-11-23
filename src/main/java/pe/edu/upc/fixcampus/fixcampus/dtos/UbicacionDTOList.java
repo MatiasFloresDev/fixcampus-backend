@@ -1,7 +1,5 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import java.math.BigDecimal;
-
 public class UbicacionDTOList {
 
     private Long idUbicacion;
@@ -11,11 +9,7 @@ public class UbicacionDTOList {
     private String zona;
     private String tipo;
 
-    private BigDecimal latitud;
-    private BigDecimal longitud;
-
     public UbicacionDTOList() {
-
     }
 
     public UbicacionDTOList(Long idUbicacion, String campus,
@@ -75,21 +69,5 @@ public class UbicacionDTOList {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public BigDecimal getLatitud() {
-        return latitud;
-    }
-
-    public void setLatitud(BigDecimal latitud) {
-        this.latitud = latitud;
-    }
-
-    public BigDecimal getLongitud() {
-        return longitud;
-    }
-
-    public void setLongitud(BigDecimal longitud) {
-        this.longitud = longitud;
     }
 }

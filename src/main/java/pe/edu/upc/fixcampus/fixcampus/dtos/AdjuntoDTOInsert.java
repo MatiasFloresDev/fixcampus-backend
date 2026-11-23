@@ -1,9 +1,9 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class AdjuntoDTOInsert {
@@ -25,7 +25,6 @@ public class AdjuntoDTOInsert {
     private String tipoArchivo;
 
     public AdjuntoDTOInsert() {
-
     }
 
     public AdjuntoDTOInsert(Long reporteId, String nombreArchivo,

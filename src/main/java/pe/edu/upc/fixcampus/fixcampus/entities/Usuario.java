@@ -36,7 +36,6 @@ public class Usuario {
     private LocalDateTime fechaRegistro;
 
     public Usuario() {
-
     }
 
     public Usuario(Long idUsuario, Rol rol, String nombre, String apellido,

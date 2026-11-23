@@ -3,12 +3,17 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 import java.time.LocalDateTime;
 
 public class ReporteDTOList {
+    private String usuarioReportanteNombre;
+    private String tecnicoAsignadoNombre;
+    public String getUsuarioReportanteNombre() { return usuarioReportanteNombre; }
+    public void setUsuarioReportanteNombre(String nombre) { this.usuarioReportanteNombre = nombre; }
+    public String getTecnicoAsignadoNombre() { return tecnicoAsignadoNombre; }
+    public void setTecnicoAsignadoNombre(String nombre) { this.tecnicoAsignadoNombre = nombre; }
 
     private Long idReporte;
     private Long usuarioReportanteId;
     private Long tecnicoAsignadoId;
     private Long categoriaId;
-    private String categoriaNombre;
     private Long ubicacionId;
     private String titulo;
     private String descripcion;
@@ -19,14 +24,7 @@ public class ReporteDTOList {
     private LocalDateTime fechaAsignacion;
     private LocalDateTime fechaResolucion;
 
-    private String usuarioReportanteNombre;
-
-    private String tecnicoAsignadoNombre;
-
-    private String ubicacionNombre;
-
     public ReporteDTOList() {
-
     }
 
     public ReporteDTOList(Long idReporte, Long usuarioReportanteId,
@@ -80,14 +78,6 @@ public class ReporteDTOList {
 
     public void setCategoriaId(Long categoriaId) {
         this.categoriaId = categoriaId;
-    }
-
-    public String getCategoriaNombre() {
-        return categoriaNombre;
-    }
-
-    public void setCategoriaNombre(String categoriaNombre) {
-        this.categoriaNombre = categoriaNombre;
     }
 
     public Long getUbicacionId() {
@@ -160,26 +150,5 @@ public class ReporteDTOList {
 
     public void setFechaResolucion(LocalDateTime fechaResolucion) {
         this.fechaResolucion = fechaResolucion;
-    }
-    public String getUsuarioReportanteNombre() {
-        return usuarioReportanteNombre;
-    }
-
-    public void setUsuarioReportanteNombre(String usuarioReportanteNombre) {
-        this.usuarioReportanteNombre = usuarioReportanteNombre;
-    }
-    public String getTecnicoAsignadoNombre() {
-        return tecnicoAsignadoNombre;
-    }
-
-    public void setTecnicoAsignadoNombre(String tecnicoAsignadoNombre) {
-        this.tecnicoAsignadoNombre = tecnicoAsignadoNombre;
-    }
-    public String getUbicacionNombre() {
-        return ubicacionNombre;
-    }
-
-    public void setUbicacionNombre(String ubicacionNombre) {
-        this.ubicacionNombre = ubicacionNombre;
     }
 }

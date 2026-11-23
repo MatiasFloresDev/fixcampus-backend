@@ -1,97 +1,209 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
 
-import org.springframework.security.core.GrantedAuthority;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOList;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.AdjuntoDTOUpdate;
 import pe.edu.upc.fixcampus.fixcampus.entities.Adjunto;
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IAdjuntoService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/attachments")
 public class AdjuntoController {
+
+    private final IAdjuntoService adjuntoService;
+    private final IReporteService reporteService;
     private final ModelMapper modelMapper;
-    private final IAdjuntoService service;
-    public AdjuntoController(IAdjuntoService service, ModelMapper modelMapper) {
+
+    public AdjuntoController(
+            IAdjuntoService adjuntoService,
+            IReporteService reporteService,
+            ModelMapper modelMapper) {
+
+        this.adjuntoService = adjuntoService;
+        this.reporteService = reporteService;
         this.modelMapper = modelMapper;
-        this.service = service;
     }
 
     @GetMapping("/reporte/{reporteId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    @Operation(summary = "Listar evidencias de un reporte", description = "Solo permite consultar evidencias del propio reporte o de un administrador.")
-    public ResponseEntity<List<AdjuntoDTOList>> listarPorReporte(@PathVariable Long reporteId, Authentication authentication) {
-        Reporte reporte = service.buscarReporte(reporteId);
-        verificarPermiso(reporte, authentication);
-        return ResponseEntity.ok(convertirLista(service.buscarPorReporte(reporteId)));
-    }
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    public ResponseEntity<List<AdjuntoDTOList>> listarPorReporte(
+            @PathVariable Long reporteId, Authentication authentication) {
 
-    private void verificarPermiso(Reporte reporte, Authentication authentication) {
-        boolean admin = false;
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
-                admin = true;
-                break;
-            }
-        }
-        if (!admin && !reporte.getUsuarioReportante().getIdUsuario().equals(Long.valueOf(authentication.getName()))) {
-            throw new org.springframework.security.access.AccessDeniedException("No tienes permiso para ver esta evidencia");
-        }
+        verificarPermiso(reporteService.buscarPorId(reporteId), authentication);
+
+        List<AdjuntoDTOList> lista =
+                adjuntoService.buscarPorReporte(reporteId)
+                        .stream()
+                        .map(adjunto ->
+                                modelMapper.map(
+                                        adjunto,
+                                        AdjuntoDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar adjuntos", description = "Muestra todos los adjuntos sin parámetros. Solo administradores.")
     public ResponseEntity<List<AdjuntoDTOList>> listar() {
-        return ResponseEntity.ok(convertirLista(service.listar()));
+
+        List<Adjunto> adjuntos = adjuntoService.listar();
+
+        List<AdjuntoDTOList> lista = adjuntos
+                .stream()
+                .map(adjunto ->
+                        modelMapper.map(
+                                adjunto,
+                                AdjuntoDTOList.class
+                        )
+                )
+                .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdjuntoDTOList> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(convertir(service.buscarPorId(id)));
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    public ResponseEntity<AdjuntoDTOList> buscarPorId(
+            @PathVariable Long id, Authentication authentication) {
+
+        Adjunto adjunto =
+                adjuntoService.buscarPorId(id);
+
+        verificarPermiso(adjunto.getReporte(), authentication);
+        AdjuntoDTOList dto =
+                modelMapper.map(
+                        adjunto,
+                        AdjuntoDTOList.class
+                );
+
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdjuntoDTOList> crear(@Valid @RequestBody AdjuntoDTOInsert datos) {
-        Adjunto guardado = service.registrar(datos);
-        AdjuntoDTOList respuesta = convertir(guardado);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<AdjuntoDTOList> registrar(
+            @Valid @RequestBody AdjuntoDTOInsert dto,
+            Authentication authentication) {
+
+        Reporte reporte =
+                reporteService.buscarPorId(
+                        dto.getReporteId()
+                );
+
+        verificarPermiso(reporte, authentication);
+
+        Adjunto adjunto =
+                modelMapper.map(
+                        dto,
+                        Adjunto.class
+                );
+        adjunto.setIdAdjunto(null);
+        adjunto.setReporte(reporte);
+
+        Adjunto guardado =
+                adjuntoService.registrar(adjunto);
+
+        AdjuntoDTOList responseDTO =
+                modelMapper.map(
+                        guardado,
+                        AdjuntoDTOList.class
+                );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(
+                        guardado.getIdAdjunto()
+                )
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(responseDTO);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdjuntoDTOList> actualizar(@PathVariable Long id, @Valid @RequestBody AdjuntoDTOInsert datos) {
-        return ResponseEntity.ok(convertir(service.actualizar(id, datos)));
+    public ResponseEntity<AdjuntoDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody AdjuntoDTOUpdate dto) {
+
+        Adjunto adjunto =
+                modelMapper.map(
+                        dto,
+                        Adjunto.class
+                );
+
+        Adjunto actualizado =
+                adjuntoService.actualizar(
+                        id,
+                        adjunto
+                );
+
+        AdjuntoDTOList responseDTO =
+                modelMapper.map(
+                        actualizado,
+                        AdjuntoDTOList.class
+                );
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        adjuntoService.eliminar(id);
+
         return ResponseEntity.noContent().build();
     }
 
-    private AdjuntoDTOList convertir(Adjunto adjunto) {
-        AdjuntoDTOList dto = modelMapper.map(adjunto, AdjuntoDTOList.class);
-        dto.setReporteId(adjunto.getReporte().getIdReporte());
-        return dto;
-    }
+    private void verificarPermiso(
+            Reporte reporte,
+            Authentication authentication) {
 
-    private List<AdjuntoDTOList> convertirLista(List<Adjunto> adjuntos) {
-        return adjuntos.stream()
-                .map(item -> convertir(item))
-                .toList();
+        boolean administrador = false;
+
+        for (GrantedAuthority autoridad :
+                authentication.getAuthorities()) {
+
+            if ("ROLE_ADMIN".equals(
+                    autoridad.getAuthority())) {
+
+                administrador = true;
+                break;
+            }
+        }
+
+        boolean propietario =
+                reporte.getUsuarioReportante()
+                        .getCorreo()
+                        .equalsIgnoreCase(
+                                authentication.getName()
+                        );
+
+        if (!administrador && !propietario) {
+            throw new AccessDeniedException(
+                    "No tienes permiso para acceder a los adjuntos de este reporte"
+            );
+        }
     }
 }
