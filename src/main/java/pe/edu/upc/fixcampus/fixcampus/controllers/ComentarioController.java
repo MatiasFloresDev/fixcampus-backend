@@ -44,7 +44,7 @@ public class ComentarioController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ComentarioDTOList>> listar(
             @RequestParam(required = false) Long reporteId) {
 
@@ -80,7 +80,7 @@ public class ComentarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ComentarioDTOList> buscarPorId(
             @PathVariable Long id) {
 
@@ -97,7 +97,7 @@ public class ComentarioController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ComentarioDTOList> registrar(
             @Valid @RequestBody ComentarioDTOInsert dto,
             Authentication authentication) {
@@ -146,7 +146,7 @@ public class ComentarioController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ComentarioDTOList> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody ComentarioDTOUpdate dto,

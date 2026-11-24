@@ -3,6 +3,12 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 import java.time.LocalDateTime;
 
 public class ReporteDTOList {
+    private String usuarioReportanteNombre;
+    private String tecnicoAsignadoNombre;
+    public String getUsuarioReportanteNombre() { return usuarioReportanteNombre; }
+    public void setUsuarioReportanteNombre(String nombre) { this.usuarioReportanteNombre = nombre; }
+    public String getTecnicoAsignadoNombre() { return tecnicoAsignadoNombre; }
+    public void setTecnicoAsignadoNombre(String nombre) { this.tecnicoAsignadoNombre = nombre; }
 
     private Long idReporte;
     private Long usuarioReportanteId;

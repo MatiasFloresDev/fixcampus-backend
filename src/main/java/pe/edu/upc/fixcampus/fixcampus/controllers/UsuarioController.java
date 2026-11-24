@@ -53,7 +53,6 @@ public class UsuarioController {
         return ResponseEntity.ok(lista);
     }
 
-
     @GetMapping("/api/users/estadisticas/por-rol")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UsuariosPorRolDTO>> usuariosPorRol() {
@@ -160,13 +159,31 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/api/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UsuarioDTOList> crear(@Valid @RequestBody UsuarioDTOInsert dto) {
+        if (dto.getRolId() == null) {
+            throw new IllegalArgumentException("Selecciona un rol");
+        }
+        Usuario usuario = modelMapper.map(dto, Usuario.class);
+        usuario.setIdUsuario(null);
+        usuario.setRol(rolService.buscarPorId(dto.getRolId()));
+        usuario.setContrasenaHash(passwordEncoder.encode(dto.getContrasena()));
+        Usuario guardado = usuarioService.registrar(usuario);
+        if (dto.getEstado() != null) {
+            guardado.setEstado(dto.getEstado());
+            guardado = usuarioService.actualizar(guardado.getIdUsuario(), guardado);
+        }
+        return ResponseEntity.status(201).body(modelMapper.map(guardado, UsuarioDTOList.class));
+    }
+
     @PostMapping("/registro")
     public ResponseEntity<UsuarioDTOList> registrar(
             @Valid @RequestBody UsuarioDTOInsert dto) {
 
         Rol rolUsuario =
                 rolService.buscarPorNombreExacto(
-                        "ROLE_USUARIO"
+                        "USUARIO"
                 );
 
         Usuario usuario =
@@ -175,6 +192,7 @@ public class UsuarioController {
                         Usuario.class
                 );
 
+        usuario.setIdUsuario(null);
         usuario.setRol(rolUsuario);
 
         usuario.setContrasenaHash(

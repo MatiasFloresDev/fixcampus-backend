@@ -1,9 +1,19 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class UsuarioDTOInsert {
+    @jakarta.validation.constraints.Positive
+    private Long rolId;
+    @Pattern(regexp = "ACTIVO|INACTIVO")
+    private String estado;
+    public Long getRolId() { return rolId; }
+    public void setRolId(Long rolId) { this.rolId = rolId; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")
@@ -15,6 +25,7 @@ public class UsuarioDTOInsert {
 
     @NotBlank(message = "El correo es obligatorio")
     @Size(max = 150, message = "El correo no puede superar los 150 caracteres")
+    @Email(message = "Ingresa un correo válido")
     private String correo;
 
     @NotBlank(message = "La contraseña es obligatoria")

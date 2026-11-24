@@ -1,6 +1,8 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -21,6 +23,7 @@ public class UsuarioDTOUpdate {
 
     @NotBlank(message = "El correo es obligatorio")
     @Size(max = 150, message = "El correo no puede superar los 150 caracteres")
+    @Email(message = "Ingresa un correo válido")
     private String correo;
 
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
@@ -28,6 +31,7 @@ public class UsuarioDTOUpdate {
 
     @NotBlank(message = "El estado es obligatorio")
     @Size(max = 30, message = "El estado no puede superar los 30 caracteres")
+    @Pattern(regexp = "ACTIVO|INACTIVO", message = "Estado inválido")
     private String estado;
 
     public UsuarioDTOUpdate() {

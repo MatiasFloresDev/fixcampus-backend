@@ -99,39 +99,33 @@ public class SecurityConfig {
 
         return http.build();
     }
-    // Configuración CORS
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Origen permitido: aplicación Angular
         configuration.setAllowedOrigins(
-                List.of("http://localhost:4200")
+                List.of("http://localhost:4200", "https://fixcampus-matias.onrender.com")
         );
 
-        // Métodos HTTP permitidos
         configuration.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
         );
 
-        // Cabeceras HTTP permitidas
         configuration.setAllowedHeaders(
                 List.of("*")
         );
 
-        // Cabeceras que Angular puede leer en la respuesta
         configuration.setExposedHeaders(
                 List.of("Authorization")
         );
 
-        // No se utilizan cookies de autenticación
         configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        // Aplicar CORS a todos los endpoints
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

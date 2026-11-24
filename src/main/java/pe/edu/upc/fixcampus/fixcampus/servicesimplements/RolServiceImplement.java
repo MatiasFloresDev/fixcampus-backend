@@ -17,6 +17,11 @@ public class RolServiceImplement implements IRolService {
         this.rolRepository = rolRepository;
     }
 
+    private boolean esBase(Rol rol) {
+        String nombre = rol.getNombre().replace("ROLE_", "");
+        return nombre.equals("ADMIN") || nombre.equals("USUARIO");
+    }
+
     @Override
     public List<Rol> listar() {
         return rolRepository.findAll();
@@ -45,6 +50,7 @@ public class RolServiceImplement implements IRolService {
     public Rol actualizar(Long id, Rol datos) {
         Rol actual = buscarPorId(id);
 
+        if (esBase(actual) && !actual.getNombre().equals(datos.getNombre())) throw new IllegalArgumentException("No se puede renombrar un rol base");
         actual.setNombre(datos.getNombre());
         actual.setNivelAcceso(datos.getNivelAcceso());
         actual.setDescripcion(datos.getDescripcion());
@@ -55,6 +61,7 @@ public class RolServiceImplement implements IRolService {
     @Override
     public void eliminar(Long id) {
         Rol actual = buscarPorId(id);
+        if (esBase(actual)) throw new IllegalArgumentException("No se puede eliminar un rol base");
         rolRepository.delete(actual);
     }
 }
