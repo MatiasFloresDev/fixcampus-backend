@@ -11,6 +11,8 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
 
+        // Con la linea de abajo, ModelMapper ignorará las propiedades cuyo
+        // origen sea ambiguo, como idReporte, en lugar de lanzar una excepción.
         mapper.getConfiguration().setAmbiguityIgnored(true);
         return mapper;
     }

@@ -30,6 +30,7 @@ public class RecomendacionServiceImplement implements IRecomendacionService {
                 .findByPrioridadSugeridaIgnoreCase(prioridad);
     }
 
+
     @Override
     public Recomendacion buscarPorId(Long id) {
         return recomendacionRepository.findById(id)

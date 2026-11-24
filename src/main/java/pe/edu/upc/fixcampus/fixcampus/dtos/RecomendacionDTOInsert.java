@@ -1,7 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -19,7 +18,6 @@ public class RecomendacionDTOInsert {
 
     @NotBlank(message = "La prioridad sugerida es obligatoria")
     @Size(max = 30, message = "La prioridad sugerida no puede superar los 30 caracteres")
-    @Pattern(regexp = "MUY_BAJA|BAJA|MEDIA|ALTA|MUY_ALTA", message = "Prioridad inválida")
     private String prioridadSugerida;
 
     @NotBlank(message = "La justificación es obligatoria")

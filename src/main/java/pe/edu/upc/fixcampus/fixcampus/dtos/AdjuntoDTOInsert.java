@@ -1,7 +1,6 @@
 package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -18,7 +17,6 @@ public class AdjuntoDTOInsert {
 
     @NotBlank(message = "La URL del archivo es obligatoria")
     @Size(max = 500, message = "La URL del archivo no puede superar los 500 caracteres")
-    @Pattern(regexp = "(?i)^https?://\\S+$", message = "El enlace debe usar HTTP o HTTPS")
     private String urlArchivo;
 
     @Size(max = 100, message = "El tipo de archivo no puede superar los 100 caracteres")

@@ -41,9 +41,9 @@ public class AdjuntoController {
     @GetMapping("/reporte/{reporteId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
     public ResponseEntity<List<AdjuntoDTOList>> listarPorReporte(
-            @PathVariable Long reporteId, Authentication authentication) {
+            @PathVariable Long reporteId) {
 
-        verificarPermiso(reporteService.buscarPorId(reporteId), authentication);
+        reporteService.buscarPorId(reporteId);
 
         List<AdjuntoDTOList> lista =
                 adjuntoService.buscarPorReporte(reporteId)
@@ -60,7 +60,7 @@ public class AdjuntoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
     public ResponseEntity<List<AdjuntoDTOList>> listar() {
 
         List<Adjunto> adjuntos = adjuntoService.listar();
@@ -81,12 +81,11 @@ public class AdjuntoController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
     public ResponseEntity<AdjuntoDTOList> buscarPorId(
-            @PathVariable Long id, Authentication authentication) {
+            @PathVariable Long id) {
 
         Adjunto adjunto =
                 adjuntoService.buscarPorId(id);
 
-        verificarPermiso(adjunto.getReporte(), authentication);
         AdjuntoDTOList dto =
                 modelMapper.map(
                         adjunto,

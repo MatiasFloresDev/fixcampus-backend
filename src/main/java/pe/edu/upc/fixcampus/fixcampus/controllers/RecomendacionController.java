@@ -87,6 +87,7 @@ public class RecomendacionController {
         return ResponseEntity.ok(lista);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<RecomendacionDTOList> buscar(
             @PathVariable Long id) {
