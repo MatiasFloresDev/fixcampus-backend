@@ -10,6 +10,8 @@ RUN mvn -DskipTests package
 
 FROM eclipse-temurin:21-jre
 
+ENV TZ=America/Lima
+
 WORKDIR /app
 COPY --from=compilacion /app/target/fixcampus-0.0.1-SNAPSHOT.jar app.jar
 
