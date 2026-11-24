@@ -60,10 +60,12 @@ public class UsuarioController {
         List<UsuariosPorRolDTO> lista =
                 usuarioService.contarUsuariosPorRol()
                         .stream()
-                        .map(fila -> new UsuariosPorRolDTO(
-                                (String) fila[0],
-                                ((Number) fila[1]).longValue()
-                        ))
+                        .map(fila -> {
+                            UsuariosPorRolDTO dto = new UsuariosPorRolDTO();
+                            dto.setRol((String) fila[0]);
+                            dto.setCantidad(((Number) fila[1]).longValue());
+                            return dto;
+                        })
                         .toList();
 
         return ResponseEntity.ok(lista);

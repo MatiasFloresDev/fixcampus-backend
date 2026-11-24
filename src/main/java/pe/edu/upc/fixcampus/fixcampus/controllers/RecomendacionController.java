@@ -78,10 +78,12 @@ public class RecomendacionController {
         List<RecomendacionesPorPrioridadReporteDTO> lista =
                 recomendacionService.contarPorPrioridadDelReporte()
                         .stream()
-                        .map(fila -> new RecomendacionesPorPrioridadReporteDTO(
-                                (String) fila[0],
-                                ((Number) fila[1]).longValue()
-                        ))
+                        .map(fila -> {
+                            RecomendacionesPorPrioridadReporteDTO dto = new RecomendacionesPorPrioridadReporteDTO();
+                            dto.setPrioridad((String) fila[0]);
+                            dto.setCantidad(((Number) fila[1]).longValue());
+                            return dto;
+                        })
                         .toList();
 
         return ResponseEntity.ok(lista);

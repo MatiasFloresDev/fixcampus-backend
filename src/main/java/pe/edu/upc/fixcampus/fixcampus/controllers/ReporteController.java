@@ -330,14 +330,16 @@ public class ReporteController {
         List<IncidenciasPorMesDTO> lista =
                 reporteService.contarPorUsuarioYMes()
                         .stream()
-                        .map(fila -> new IncidenciasPorMesDTO(
-                                ((Number) fila[0]).longValue(),
-                                (String) fila[1],
-                                (String) fila[2],
-                                ((Number) fila[3]).intValue(),
-                                ((Number) fila[4]).intValue(),
-                                ((Number) fila[5]).longValue()
-                        ))
+                        .map(fila -> {
+                            IncidenciasPorMesDTO dto = new IncidenciasPorMesDTO();
+                            dto.setUsuarioId(((Number) fila[0]).longValue());
+                            dto.setNombre((String) fila[1]);
+                            dto.setApellido((String) fila[2]);
+                            dto.setAnio(((Number) fila[3]).intValue());
+                            dto.setMes(((Number) fila[4]).intValue());
+                            dto.setCantidad(((Number) fila[5]).longValue());
+                            return dto;
+                        })
                         .toList();
 
         return ResponseEntity.ok(lista);
@@ -351,10 +353,12 @@ public class ReporteController {
         List<IncidenciasPorCategoriaDTO> lista =
                 reporteService.contarPorCategoria()
                         .stream()
-                        .map(fila -> new IncidenciasPorCategoriaDTO(
-                                (String) fila[0],
-                                ((Number) fila[1]).longValue()
-                        ))
+                        .map(fila -> {
+                            IncidenciasPorCategoriaDTO dto = new IncidenciasPorCategoriaDTO();
+                            dto.setCategoria((String) fila[0]);
+                            dto.setCantidad(((Number) fila[1]).longValue());
+                            return dto;
+                        })
                         .toList();
 
         return ResponseEntity.ok(lista);
