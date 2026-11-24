@@ -32,6 +32,7 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
         """, nativeQuery = true)
     List<Object[]> contarPorUsuarioYMes();
 
+
     List<Reporte> findByPrioridadIgnoreCase(String prioridad);
 
     @Query("""

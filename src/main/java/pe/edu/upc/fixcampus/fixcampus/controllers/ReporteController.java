@@ -28,23 +28,6 @@ import java.util.List;
 @RequestMapping("/api/reports")
 public class ReporteController {
 
-    private ReporteDTOList convertir(Reporte reporte) {
-        ReporteDTOList dto = modelMapper.map(reporte, ReporteDTOList.class);
-        dto.setUsuarioReportanteNombre(reporte.getUsuarioReportante().getNombre() + " " + reporte.getUsuarioReportante().getApellido());
-        if (reporte.getTecnicoAsignado() != null) dto.setTecnicoAsignadoNombre(reporte.getTecnicoAsignado().getNombre() + " " + reporte.getTecnicoAsignado().getApellido());
-        return dto;
-    }
-    private boolean esAdmin(Authentication auth) {
-        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-    }
-
-    private void verificarAcceso(Reporte reporte, Authentication auth) {
-        if (!esAdmin(auth) && !reporte.getUsuarioReportante().getCorreo().equalsIgnoreCase(auth.getName())
-            && (reporte.getTecnicoAsignado() == null || !reporte.getTecnicoAsignado().getCorreo().equalsIgnoreCase(auth.getName()))) {
-            throw new org.springframework.security.access.AccessDeniedException("No tienes permiso para este reporte");
-        }
-    }
-
     private final IReporteService reporteService;
     private final IUsuarioService usuarioService;
     private final ICategoriaService categoriaService;
@@ -77,7 +60,10 @@ public class ReporteController {
                         )
                         .stream()
                         .map(reporte ->
-                                convertir(reporte)
+                                modelMapper.map(
+                                        reporte,
+                                        ReporteDTOList.class
+                                )
                         )
                         .toList();
 
@@ -89,7 +75,7 @@ public class ReporteController {
     public ResponseEntity<List<ReporteDTOList>> listar(
             @RequestParam(required = false) String estado,
             @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) String correo, Authentication authentication) {
+            @RequestParam(required = false) String correo) {
 
         List<Reporte> reportes;
 
@@ -115,8 +101,6 @@ public class ReporteController {
                     reporteService.listar();
         }
 
-        if (!esAdmin(authentication)) reportes = reportes.stream().filter(r -> r.getUsuarioReportante().getCorreo().equalsIgnoreCase(authentication.getName())).toList();
-
         List<ReporteDTOList> lista = reportes
                 .stream()
                 .map(reporte ->
@@ -133,16 +117,13 @@ public class ReporteController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
     public ResponseEntity<ReporteDTOList> buscarPorId(
-            @PathVariable Long id, Authentication authentication) {
+            @PathVariable Long id) {
 
         Reporte reporte = reporteService.buscarPorId(id);
-        verificarAcceso(reporte, authentication);
 
         ReporteDTOList dto =
-                convertir(reporte);
+                modelMapper.map(reporte, ReporteDTOList.class);
 
-        dto.setUsuarioReportanteNombre(reporte.getUsuarioReportante().getNombre() + " " + reporte.getUsuarioReportante().getApellido());
-        if (reporte.getTecnicoAsignado() != null) dto.setTecnicoAsignadoNombre(reporte.getTecnicoAsignado().getNombre() + " " + reporte.getTecnicoAsignado().getApellido());
         return ResponseEntity.ok(dto);
     }
 
@@ -208,18 +189,10 @@ public class ReporteController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ReporteDTOList> actualizar(
             @PathVariable Long id,
-            @Valid @RequestBody ReporteDTOUpdate dto, Authentication authentication) {
-
-        Reporte anterior = reporteService.buscarPorId(id);
-        verificarAcceso(anterior, authentication);
-        if (!esAdmin(authentication)) {
-            dto.setEstado(anterior.getEstado());
-            dto.setPrioridad(anterior.getPrioridad());
-            dto.setTecnicoAsignadoId(anterior.getTecnicoAsignado() == null ? null : anterior.getTecnicoAsignado().getIdUsuario());
-        }
+            @Valid @RequestBody ReporteDTOUpdate dto) {
 
         Categoria categoria =
                 categoriaService.buscarPorId(
@@ -240,7 +213,7 @@ public class ReporteController {
                     );
 
             if (tecnicoAsignado.getRol() == null ||
-                    !"TECNICO".equalsIgnoreCase(tecnicoAsignado.getRol().getNombre().replace("ROLE_", ""))) {
+                    !"ROLE_TECNICO".equalsIgnoreCase(tecnicoAsignado.getRol().getNombre())) {
                 throw new IllegalArgumentException(
                         "El usuario asignado debe tener el rol TECNICO"
                 );
@@ -293,7 +266,7 @@ public class ReporteController {
     }
 
     @GetMapping("/prioridad/{prioridad}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
     public ResponseEntity<List<ReporteDTOList>>
     buscarPorPrioridad(
             @PathVariable String prioridad) {
@@ -303,12 +276,16 @@ public class ReporteController {
                         .buscarPorPrioridad(prioridad)
                         .stream()
                         .map(reporte ->
-                                convertir(reporte)
+                                modelMapper.map(
+                                        reporte,
+                                        ReporteDTOList.class
+                                )
                         )
                         .toList();
 
         return ResponseEntity.ok(lista);
     }
+
 
     @GetMapping("/estadisticas/por-usuario-mes")
     @PreAuthorize("hasRole('ADMIN')")

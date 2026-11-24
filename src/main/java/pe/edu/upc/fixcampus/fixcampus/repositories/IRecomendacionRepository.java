@@ -9,7 +9,7 @@ import java.util.List;
 public interface IRecomendacionRepository extends JpaRepository<Recomendacion, Long> {
     boolean existsByReporte_IdReporte(Long idReporte);
     List<Recomendacion> findByReporte_IdReporte(Long idReporte);
-
+    
     List<Recomendacion> findByPrioridadSugeridaIgnoreCase(String prioridadSugerida);
 
     @Query("""

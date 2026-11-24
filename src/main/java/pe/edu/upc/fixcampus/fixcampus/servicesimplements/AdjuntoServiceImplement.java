@@ -18,10 +18,13 @@ public class AdjuntoServiceImplement implements IAdjuntoService {
         this.adjuntoRepository = adjuntoRepository;
     }
 
+
     @Override
     public List<Adjunto> listar() {
         return adjuntoRepository.findAll();
     }
+
+
 
     @Override
     public List<Adjunto> buscarPorReporte(Long reporteId) {

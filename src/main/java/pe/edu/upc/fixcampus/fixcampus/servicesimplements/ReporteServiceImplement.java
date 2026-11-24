@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 
 import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
 import pe.edu.upc.fixcampus.fixcampus.exceptions.ResourceNotFoundException;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IAdjuntoRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IComentarioRepository;
+import pe.edu.upc.fixcampus.fixcampus.repositories.IRecomendacionRepository;
 import pe.edu.upc.fixcampus.fixcampus.repositories.IReporteRepository;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 import java.time.LocalDateTime;
@@ -13,11 +16,20 @@ import java.util.List;
 public class ReporteServiceImplement implements IReporteService {
 
     private final IReporteRepository reporteRepository;
+    private final IAdjuntoRepository adjuntoRepository;
+    private final IComentarioRepository comentarioRepository;
+    private final IRecomendacionRepository recomendacionRepository;
 
     public ReporteServiceImplement(
-            IReporteRepository reporteRepository) {
+            IReporteRepository reporteRepository,
+            IAdjuntoRepository adjuntoRepository,
+            IComentarioRepository comentarioRepository,
+            IRecomendacionRepository recomendacionRepository) {
 
         this.reporteRepository = reporteRepository;
+        this.adjuntoRepository = adjuntoRepository;
+        this.comentarioRepository = comentarioRepository;
+        this.recomendacionRepository = recomendacionRepository;
     }
 
     @Override
@@ -64,13 +76,12 @@ public class ReporteServiceImplement implements IReporteService {
         actual.setTecnicoAsignado(datos.getTecnicoAsignado());
         actual.setPrioridad(datos.getPrioridad());
 
-        if (("RESUELTO".equalsIgnoreCase(datos.getEstado()) || "CERRADO".equalsIgnoreCase(datos.getEstado()))
-                && !"RESUELTO".equalsIgnoreCase(actual.getEstado())
-                && !"CERRADO".equalsIgnoreCase(actual.getEstado())) {
+        if ("RESUELTO".equalsIgnoreCase(datos.getEstado())
+                && !"RESUELTO".equalsIgnoreCase(actual.getEstado())) {
 
             actual.setFechaResolucion(LocalDateTime.now());
 
-        } else if (!"RESUELTO".equalsIgnoreCase(datos.getEstado()) && !"CERRADO".equalsIgnoreCase(datos.getEstado())) {
+        } else if (!"RESUELTO".equalsIgnoreCase(datos.getEstado())) {
 
             actual.setFechaResolucion(null);
         }
@@ -83,6 +94,15 @@ public class ReporteServiceImplement implements IReporteService {
     @Override
     public void eliminar(Long id) {
         Reporte reporte = buscarPorId(id);
+
+        comentarioRepository.deleteAll(
+                comentarioRepository.findByReporte_IdReporte(id));
+
+        recomendacionRepository.deleteAll(
+                recomendacionRepository.findByReporte_IdReporte(id));
+
+        adjuntoRepository.deleteAll(
+                adjuntoRepository.findByReporte_IdReporte(id));
 
         reporteRepository.delete(reporte);
     }
@@ -106,6 +126,7 @@ public class ReporteServiceImplement implements IReporteService {
     public List<Object[]> contarPorUsuarioYMes() {
         return reporteRepository.contarPorUsuarioYMes();
     }
+
 
     @Override
     public List<Reporte> buscarPorPrioridad(String prioridad) {

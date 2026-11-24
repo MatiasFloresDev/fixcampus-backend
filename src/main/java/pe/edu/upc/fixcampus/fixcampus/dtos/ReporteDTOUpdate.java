@@ -24,15 +24,16 @@ public class ReporteDTOUpdate {
 
     private Long tecnicoAsignadoId;
 
+
     @Pattern(
-            regexp = "MUY_BAJA|BAJA|MEDIA|ALTA|MUY_ALTA",
+            regexp = "ALTA|MEDIA|BAJA",
             message = "La prioridad debe ser ALTA, MEDIA o BAJA"
     )
     private String prioridad;
 
     @NotBlank(message = "El estado es obligatorio")
     @Pattern(
-            regexp = "PENDIENTE|ABIERTO|EN_REVISION|ASIGNADO|EN_ATENCION|RESUELTO|CERRADO",
+            regexp = "PENDIENTE|RESUELTO",
             message = "El estado debe ser PENDIENTE o RESUELTO"
     )
     private String estado;
