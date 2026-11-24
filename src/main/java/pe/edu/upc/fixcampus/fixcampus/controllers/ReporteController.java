@@ -21,6 +21,8 @@ import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
 
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.INotificacionService;
+import pe.edu.upc.fixcampus.fixcampus.entities.Notificacion;
 import java.net.URI;
 import java.util.List;
 
@@ -50,19 +52,21 @@ public class ReporteController {
     private final ICategoriaService categoriaService;
     private final IUbicacionService ubicacionService;
     private final ModelMapper modelMapper;
+    private final INotificacionService notificaciones;
 
     public ReporteController(
             IReporteService reporteService,
             IUsuarioService usuarioService,
             ICategoriaService categoriaService,
             IUbicacionService ubicacionService,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper, INotificacionService notificaciones) {
 
         this.reporteService = reporteService;
         this.usuarioService = usuarioService;
         this.categoriaService = categoriaService;
         this.ubicacionService = ubicacionService;
         this.modelMapper = modelMapper;
+        this.notificaciones = notificaciones;
     }
 
     @GetMapping("/mis-reportes")
@@ -194,6 +198,9 @@ public class ReporteController {
                         ReporteDTOList.class
                 );
 
+        Notificacion aviso = notificaciones.registrar(guardado, "NUEVO_REPORTE");
+        responseDTO.setNotificacionMensaje(aviso.getMensaje());
+
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -214,6 +221,7 @@ public class ReporteController {
             @Valid @RequestBody ReporteDTOUpdate dto, Authentication authentication) {
 
         Reporte anterior = reporteService.buscarPorId(id);
+        String estadoAnterior = anterior.getEstado();
         verificarAcceso(anterior, authentication);
         if (!esAdmin(authentication)) {
             dto.setEstado(anterior.getEstado());
@@ -277,6 +285,10 @@ public class ReporteController {
                         ReporteDTOList.class
                 );
 
+        if (!"RESUELTO".equalsIgnoreCase(estadoAnterior) && "RESUELTO".equalsIgnoreCase(actualizado.getEstado())) {
+            Notificacion aviso = notificaciones.registrar(actualizado, "REPORTE_RESUELTO");
+            responseDTO.setNotificacionMensaje(aviso.getMensaje());
+        }
         return ResponseEntity.ok(responseDTO);
     }
 

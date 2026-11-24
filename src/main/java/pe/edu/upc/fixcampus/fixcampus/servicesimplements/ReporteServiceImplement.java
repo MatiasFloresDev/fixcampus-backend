@@ -13,11 +13,13 @@ import java.util.List;
 public class ReporteServiceImplement implements IReporteService {
 
     private final IReporteRepository reporteRepository;
+    private final pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.INotificacionService notificaciones;
 
     public ReporteServiceImplement(
-            IReporteRepository reporteRepository) {
+            IReporteRepository reporteRepository, pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.INotificacionService notificaciones) {
 
         this.reporteRepository = reporteRepository;
+        this.notificaciones = notificaciones;
     }
 
     @Override
@@ -84,6 +86,9 @@ public class ReporteServiceImplement implements IReporteService {
     public void eliminar(Long id) {
         Reporte reporte = buscarPorId(id);
 
+        if (!reporteRepository.tieneRelaciones(id)) {
+            notificaciones.eliminarPorReporte(id);
+        }
         reporteRepository.delete(reporte);
     }
 

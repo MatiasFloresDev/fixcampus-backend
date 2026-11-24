@@ -2,6 +2,9 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.AssertTrue;
 
 public class UbicacionDTOInsert {
 
@@ -21,6 +24,13 @@ public class UbicacionDTOInsert {
     @NotBlank(message = "El tipo es obligatorio")
     @Size(max = 50, message = "El tipo no puede superar los 50 caracteres")
     private String tipo;
+
+    @DecimalMin("-90")
+    @DecimalMax("90")
+    private Double latitud;
+    @DecimalMin("-180")
+    @DecimalMax("180")
+    private Double longitud;
 
     public UbicacionDTOInsert() {
     }
@@ -73,4 +83,14 @@ public class UbicacionDTOInsert {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    @AssertTrue(message = "Completa latitud y longitud juntas")
+    public boolean isCoordenadasCompletas() {
+        return (latitud == null) == (longitud == null);
+    }
+
+    public Double getLatitud() { return latitud; }
+    public void setLatitud(Double latitud) { this.latitud = latitud; }
+    public Double getLongitud() { return longitud; }
+    public void setLongitud(Double longitud) { this.longitud = longitud; }
 }

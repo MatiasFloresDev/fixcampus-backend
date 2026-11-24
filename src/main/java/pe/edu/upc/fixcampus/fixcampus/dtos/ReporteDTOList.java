@@ -3,6 +3,9 @@ package pe.edu.upc.fixcampus.fixcampus.dtos;
 import java.time.LocalDateTime;
 
 public class ReporteDTOList {
+    private String notificacionMensaje;
+    public String getNotificacionMensaje() { return notificacionMensaje; }
+    public void setNotificacionMensaje(String mensaje) { this.notificacionMensaje = mensaje; }
     private String usuarioReportanteNombre;
     private String tecnicoAsignadoNombre;
     public String getUsuarioReportanteNombre() { return usuarioReportanteNombre; }

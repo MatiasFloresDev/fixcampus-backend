@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
 
-        String message = "Error de validación";
+        String message = "Error de validaciÃ³n";
         if (!ex.getBindingResult().getFieldErrors().isEmpty()) {
             FieldError error = ex.getBindingResult().getFieldErrors().get(0);
             message = error.getField() + ": " + error.getDefaultMessage();
@@ -65,9 +65,14 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
-                "No se puede guardar o eliminar porque el dato está en uso o ya existe",
+                "No se puede guardar o eliminar porque el dato estÃ¡ en uso o ya existe",
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleIntegracion(org.springframework.web.server.ResponseStatusException ex, HttpServletRequest request) {
+        return ResponseEntity.status(ex.getStatusCode()).body(new ErrorResponse(ex.getStatusCode().value(), ex.getReason(), request.getRequestURI()));
     }
 }

@@ -42,4 +42,6 @@ public interface IReporteRepository extends JpaRepository<Reporte, Long> {
         GROUP BY c.nombre
         """)
     List<Object[]> contarPorCategoria();
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM comentario WHERE id_reporte=:id) OR EXISTS(SELECT 1 FROM adjunto WHERE id_reporte=:id) OR EXISTS(SELECT 1 FROM recomendacion WHERE id_reporte=:id)", nativeQuery = true)
+    boolean tieneRelaciones(@Param("id") Long id);
 }

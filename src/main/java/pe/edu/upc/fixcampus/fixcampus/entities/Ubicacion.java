@@ -26,6 +26,9 @@ public class Ubicacion {
     @Column(name = "tipo", nullable = false, length = 50)
     private String tipo;
 
+    private Double latitud;
+    private Double longitud;
+
     public Ubicacion() {
     }
 
@@ -86,4 +89,9 @@ public class Ubicacion {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    public Double getLatitud() { return latitud; }
+    public void setLatitud(Double latitud) { this.latitud = latitud; }
+    public Double getLongitud() { return longitud; }
+    public void setLongitud(Double longitud) { this.longitud = longitud; }
 }

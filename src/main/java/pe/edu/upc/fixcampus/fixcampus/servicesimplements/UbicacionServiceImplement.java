@@ -26,7 +26,7 @@ public class UbicacionServiceImplement implements IUbicacionService {
     public Ubicacion buscarPorId(Long id) {
         return ubicacionRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Ubicación no encontrada"));
+                        new ResourceNotFoundException("UbicaciÃ³n no encontrada"));
     }
 
     @Override
@@ -43,6 +43,8 @@ public class UbicacionServiceImplement implements IUbicacionService {
         actual.setPiso(datos.getPiso());
         actual.setZona(datos.getZona());
         actual.setTipo(datos.getTipo());
+        actual.setLatitud(datos.getLatitud());
+        actual.setLongitud(datos.getLongitud());
 
         return ubicacionRepository.save(actual);
     }
