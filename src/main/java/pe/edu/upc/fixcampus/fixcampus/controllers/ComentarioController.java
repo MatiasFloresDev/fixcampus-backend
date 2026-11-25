@@ -3,10 +3,8 @@ package pe.edu.upc.fixcampus.fixcampus.controllers;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.edu.upc.fixcampus.fixcampus.dtos.ComentarioDTOInsert;
@@ -146,19 +144,10 @@ public class ComentarioController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ComentarioDTOList> actualizar(
             @PathVariable Long id,
-            @Valid @RequestBody ComentarioDTOUpdate dto,
-            Authentication authentication) {
-
-        Comentario comentarioActual =
-                comentarioService.buscarPorId(id);
-
-        verificarAutorComentario(
-                comentarioActual,
-                authentication
-        );
+            @Valid @RequestBody ComentarioDTOUpdate dto) {
 
         Comentario comentario =
                 modelMapper.map(
@@ -189,36 +178,5 @@ public class ComentarioController {
         comentarioService.eliminar(id);
 
         return ResponseEntity.noContent().build();
-    }
-
-    private void verificarAutorComentario(
-            Comentario comentario,
-            Authentication authentication) {
-
-        boolean administrador = false;
-
-        for (GrantedAuthority autoridad :
-                authentication.getAuthorities()) {
-
-            if ("ROLE_ADMIN".equals(
-                    autoridad.getAuthority())) {
-
-                administrador = true;
-                break;
-            }
-        }
-
-        boolean autor =
-                comentario.getUsuario()
-                        .getCorreo()
-                        .equalsIgnoreCase(
-                                authentication.getName()
-                        );
-
-        if (!administrador && !autor) {
-            throw new AccessDeniedException(
-                    "No tienes permiso para modificar este comentario"
-            );
-        }
     }
 }
