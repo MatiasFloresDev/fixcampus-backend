@@ -1,284 +1,51 @@
 package pe.edu.upc.fixcampus.fixcampus.controllers;
-
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorCategoriaDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.IncidenciasPorMesDTO;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOList;
-import pe.edu.upc.fixcampus.fixcampus.dtos.ReporteDTOUpdate;
-import pe.edu.upc.fixcampus.fixcampus.entities.Categoria;
-import pe.edu.upc.fixcampus.fixcampus.entities.Reporte;
-import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOUpdate;
+import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
 import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.ICategoriaService;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IReporteService;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
+import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
 import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
-
-import java.net.URI;
+import pe.edu.upc.fixcampus.fixcampus.dtos.UsuariosPorRolDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reports")
-public class ReporteController {
+public class UsuarioController {
 
-    private final IReporteService reporteService;
     private final IUsuarioService usuarioService;
-    private final ICategoriaService categoriaService;
-    private final IUbicacionService ubicacionService;
+    private final IRolService rolService;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public ReporteController(
-            IReporteService reporteService,
+    public UsuarioController(
             IUsuarioService usuarioService,
-            ICategoriaService categoriaService,
-            IUbicacionService ubicacionService,
-            ModelMapper modelMapper) {
+            IRolService rolService,
+            ModelMapper modelMapper,
+            PasswordEncoder passwordEncoder) {
 
-        this.reporteService = reporteService;
         this.usuarioService = usuarioService;
-        this.categoriaService = categoriaService;
-        this.ubicacionService = ubicacionService;
+        this.rolService = rolService;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/mis-reportes")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<List<ReporteDTOList>> misReportes(
-            Authentication authentication) {
-
-        List<ReporteDTOList> lista =
-                reporteService
-                        .buscarPorCorreoReportante(
-                                authentication.getName()
-                        )
-                        .stream()
-                        .map(reporte ->
-                                modelMapper.map(
-                                        reporte,
-                                        ReporteDTOList.class
-                                )
-                        )
-                        .toList();
-
-        return ResponseEntity.ok(lista);
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
-    public ResponseEntity<List<ReporteDTOList>> listar(
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) String correo) {
-
-        List<Reporte> reportes;
-
-        if (estado != null && !estado.isBlank()) {
-            reportes =
-                    reporteService.buscarPorEstado(estado);
-
-        } else if (categoria != null
-                && !categoria.isBlank()) {
-
-            reportes =
-                    reporteService.buscarPorCategoria(categoria);
-
-        } else if (correo != null
-                && !correo.isBlank()) {
-
-            reportes =
-                    reporteService
-                            .buscarPorCorreoReportante(correo);
-
-        } else {
-            reportes =
-                    reporteService.listar();
-        }
-
-        List<ReporteDTOList> lista = reportes
-                .stream()
-                .map(reporte ->
-                        modelMapper.map(
-                                reporte,
-                                ReporteDTOList.class
-                        )
-                )
-                .toList();
-
-        return ResponseEntity.ok(lista);
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
-    public ResponseEntity<ReporteDTOList> buscarPorId(
-            @PathVariable Long id) {
-
-        Reporte reporte = reporteService.buscarPorId(id);
-
-        ReporteDTOList dto =
-                modelMapper.map(reporte, ReporteDTOList.class);
-
-        return ResponseEntity.ok(dto);
-    }
-
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    public ResponseEntity<ReporteDTOList> registrar(
-            @Valid @RequestBody ReporteDTOInsert dto,
-            Authentication authentication) {
-
-        Usuario usuarioReportante =
-                usuarioService.buscarPorCorreo(
-                        authentication.getName()
-                );
-
-        Categoria categoria =
-                categoriaService.buscarPorId(
-                        dto.getCategoriaId()
-                );
-
-        Ubicacion ubicacion =
-                ubicacionService.buscarPorId(
-                        dto.getUbicacionId()
-                );
-
-        Reporte reporte =
-                modelMapper.map(
-                        dto,
-                        Reporte.class
-                );
-
-        reporte.setUsuarioReportante(
-                usuarioReportante
-        );
-
-        reporte.setCategoria(
-                categoria
-        );
-
-        reporte.setUbicacion(
-                ubicacion
-        );
-
-        Reporte guardado =
-                reporteService.registrar(reporte);
-
-        ReporteDTOList responseDTO =
-                modelMapper.map(
-                        guardado,
-                        ReporteDTOList.class
-                );
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(
-                        guardado.getIdReporte()
-                )
-                .toUri();
-
-        return ResponseEntity
-                .created(location)
-                .body(responseDTO);
-    }
-
-    @PutMapping("/{id}")
+    @GetMapping("/api/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ReporteDTOList> actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody ReporteDTOUpdate dto) {
+    public ResponseEntity<List<UsuarioDTOList>> listar() {
 
-        Categoria categoria =
-                categoriaService.buscarPorId(
-                        dto.getCategoriaId()
-                );
-
-        Ubicacion ubicacion =
-                ubicacionService.buscarPorId(
-                        dto.getUbicacionId()
-                );
-
-        Usuario tecnicoAsignado = null;
-
-        if (dto.getTecnicoAsignadoId() != null) {
-            tecnicoAsignado =
-                    usuarioService.buscarPorId(
-                            dto.getTecnicoAsignadoId()
-                    );
-
-            if (tecnicoAsignado.getRol() == null ||
-                    !"ROLE_TECNICO".equalsIgnoreCase(tecnicoAsignado.getRol().getNombre())) {
-                throw new IllegalArgumentException(
-                        "El usuario asignado debe tener el rol TECNICO"
-                );
-            }
-        }
-
-        Reporte reporte =
-                modelMapper.map(
-                        dto,
-                        Reporte.class
-                );
-
-        reporte.setCategoria(
-                categoria
-        );
-
-        reporte.setUbicacion(
-                ubicacion
-        );
-
-        reporte.setTecnicoAsignado(
-                tecnicoAsignado
-        );
-
-        Reporte actualizado =
-                reporteService.actualizar(
-                        id,
-                        reporte
-                );
-
-        ReporteDTOList responseDTO =
-                modelMapper.map(
-                        actualizado,
-                        ReporteDTOList.class
-                );
-
-        return ResponseEntity.ok(responseDTO);
-    }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(
-            @PathVariable Long id) {
-
-        reporteService.eliminar(id);
-
-        return ResponseEntity
-                .noContent()
-                .build();
-    }
-
-    @GetMapping("/prioridad/{prioridad}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
-    public ResponseEntity<List<ReporteDTOList>>
-    buscarPorPrioridad(
-            @PathVariable String prioridad) {
-
-        List<ReporteDTOList> lista =
-                reporteService
-                        .buscarPorPrioridad(prioridad)
+        List<UsuarioDTOList> lista =
+                usuarioService.listar()
                         .stream()
-                        .map(reporte ->
+                        .map(usuario ->
                                 modelMapper.map(
-                                        reporte,
-                                        ReporteDTOList.class
+                                        usuario,
+                                        UsuarioDTOList.class
                                 )
                         )
                         .toList();
@@ -287,41 +54,146 @@ public class ReporteController {
     }
 
 
-    @GetMapping("/estadisticas/por-usuario-mes")
+    @GetMapping("/api/users/estadisticas/por-rol")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<IncidenciasPorMesDTO>>
-    incidenciasPorUsuarioYMes() {
+    public ResponseEntity<List<UsuariosPorRolDTO>> usuariosPorRol() {
 
-        List<IncidenciasPorMesDTO> lista =
-                reporteService.contarPorUsuarioYMes()
+        List<UsuariosPorRolDTO> lista =
+                usuarioService.contarUsuariosPorRol()
                         .stream()
-                        .map(fila -> new IncidenciasPorMesDTO(
-                                ((Number) fila[0]).longValue(),
-                                (String) fila[1],
-                                (String) fila[2],
-                                ((Number) fila[3]).intValue(),
-                                ((Number) fila[4]).intValue(),
-                                ((Number) fila[5]).longValue()
-                        ))
-                        .toList();
-
-        return ResponseEntity.ok(lista);
-    }
-
-    @GetMapping("/estadisticas/por-categoria")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<IncidenciasPorCategoriaDTO>>
-    incidenciasPorCategoria() {
-
-        List<IncidenciasPorCategoriaDTO> lista =
-                reporteService.contarPorCategoria()
-                        .stream()
-                        .map(fila -> new IncidenciasPorCategoriaDTO(
+                        .map(fila -> new UsuariosPorRolDTO(
                                 (String) fila[0],
                                 ((Number) fila[1]).longValue()
                         ))
                         .toList();
 
         return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/api/users/buscar-nombre")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UsuarioDTOList>> buscarPorNombre(
+            @RequestParam String nombre) {
+
+        List<UsuarioDTOList> lista =
+                usuarioService.buscarPorNombre(nombre)
+                        .stream()
+                        .map(usuario ->
+                                modelMapper.map(
+                                        usuario,
+                                        UsuarioDTOList.class
+                                )
+                        )
+                        .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/api/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UsuarioDTOList> buscarPorId(
+            @PathVariable Long id) {
+
+        Usuario usuario =
+                usuarioService.buscarPorId(id);
+
+        UsuarioDTOList dto =
+                modelMapper.map(
+                        usuario,
+                        UsuarioDTOList.class
+                );
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/api/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UsuarioDTOList> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UsuarioDTOUpdate dto) {
+
+        Rol rol =
+                rolService.buscarPorId(
+                        dto.getRolId()
+                );
+
+        Usuario usuario =
+                modelMapper.map(
+                        dto,
+                        Usuario.class
+                );
+
+        usuario.setRol(rol);
+
+        if (dto.getContrasena() != null
+                && !dto.getContrasena().isBlank()) {
+
+            usuario.setContrasenaHash(
+                    passwordEncoder.encode(
+                            dto.getContrasena()
+                    )
+            );
+        }
+
+        Usuario actualizado =
+                usuarioService.actualizar(
+                        id,
+                        usuario
+                );
+
+        UsuarioDTOList responseDTO =
+                modelMapper.map(
+                        actualizado,
+                        UsuarioDTOList.class
+                );
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @DeleteMapping("/api/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
+
+        usuarioService.eliminar(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/registro")
+    public ResponseEntity<UsuarioDTOList> registrar(
+            @Valid @RequestBody UsuarioDTOInsert dto) {
+
+        Rol rolUsuario =
+                rolService.buscarPorNombreExacto(
+                        "ROLE_REPORTANTE"
+                );
+
+        Usuario usuario =
+                modelMapper.map(
+                        dto,
+                        Usuario.class
+                );
+
+        usuario.setRol(rolUsuario);
+
+        usuario.setContrasenaHash(
+                passwordEncoder.encode(
+                        dto.getContrasena()
+                )
+        );
+
+        Usuario guardado =
+                usuarioService.registrar(usuario);
+
+        UsuarioDTOList responseDTO =
+                modelMapper.map(
+                        guardado,
+                        UsuarioDTOList.class
+                );
+
+        return ResponseEntity
+                .status(201)
+                .body(responseDTO);
     }
 }

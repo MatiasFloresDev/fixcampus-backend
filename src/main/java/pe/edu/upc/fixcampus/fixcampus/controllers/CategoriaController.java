@@ -29,7 +29,7 @@ public class CategoriaController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<List<CategoriaDTOList>> listar(
             @RequestParam(required = false) String descripcion) {
 
@@ -54,7 +54,7 @@ public class CategoriaController {
     }
 
     @GetMapping("/buscar-descripcion")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<List<CategoriaDTOList>> buscarPorDescripcion(
             @RequestParam String palabraClave) {
 
@@ -73,7 +73,7 @@ public class CategoriaController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<CategoriaDTOList> buscarPorId(
             @PathVariable Long id) {
 

@@ -1,199 +1,75 @@
-package pe.edu.upc.fixcampus.fixcampus.controllers;
-import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOList;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuarioDTOUpdate;
-import pe.edu.upc.fixcampus.fixcampus.entities.Rol;
-import pe.edu.upc.fixcampus.fixcampus.entities.Usuario;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IRolService;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUsuarioService;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UsuariosPorRolDTO;
-import java.util.List;
+package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-@RestController
-public class UsuarioController {
+import java.time.LocalDateTime;
 
-    private final IUsuarioService usuarioService;
-    private final IRolService rolService;
-    private final ModelMapper modelMapper;
-    private final PasswordEncoder passwordEncoder;
+public class AdjuntoDTOList {
 
-    public UsuarioController(
-            IUsuarioService usuarioService,
-            IRolService rolService,
-            ModelMapper modelMapper,
-            PasswordEncoder passwordEncoder) {
+    private Long idAdjunto;
+    private Long reporteId;
+    private String nombreArchivo;
+    private String urlArchivo;
+    private String tipoArchivo;
+    private LocalDateTime fechaSubida;
 
-        this.usuarioService = usuarioService;
-        this.rolService = rolService;
-        this.modelMapper = modelMapper;
-        this.passwordEncoder = passwordEncoder;
+    public AdjuntoDTOList() {
     }
 
-    @GetMapping("/api/users")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UsuarioDTOList>> listar() {
-
-        List<UsuarioDTOList> lista =
-                usuarioService.listar()
-                        .stream()
-                        .map(usuario ->
-                                modelMapper.map(
-                                        usuario,
-                                        UsuarioDTOList.class
-                                )
-                        )
-                        .toList();
-
-        return ResponseEntity.ok(lista);
+    public AdjuntoDTOList(Long idAdjunto, Long reporteId,
+                          String nombreArchivo, String urlArchivo,
+                          String tipoArchivo, LocalDateTime fechaSubida) {
+        this.idAdjunto = idAdjunto;
+        this.reporteId = reporteId;
+        this.nombreArchivo = nombreArchivo;
+        this.urlArchivo = urlArchivo;
+        this.tipoArchivo = tipoArchivo;
+        this.fechaSubida = fechaSubida;
     }
 
-
-    @GetMapping("/api/users/estadisticas/por-rol")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UsuariosPorRolDTO>> usuariosPorRol() {
-
-        List<UsuariosPorRolDTO> lista =
-                usuarioService.contarUsuariosPorRol()
-                        .stream()
-                        .map(fila -> new UsuariosPorRolDTO(
-                                (String) fila[0],
-                                ((Number) fila[1]).longValue()
-                        ))
-                        .toList();
-
-        return ResponseEntity.ok(lista);
+    public Long getIdAdjunto() {
+        return idAdjunto;
     }
 
-    @GetMapping("/api/users/buscar-nombre")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UsuarioDTOList>> buscarPorNombre(
-            @RequestParam String nombre) {
-
-        List<UsuarioDTOList> lista =
-                usuarioService.buscarPorNombre(nombre)
-                        .stream()
-                        .map(usuario ->
-                                modelMapper.map(
-                                        usuario,
-                                        UsuarioDTOList.class
-                                )
-                        )
-                        .toList();
-
-        return ResponseEntity.ok(lista);
+    public void setIdAdjunto(Long idAdjunto) {
+        this.idAdjunto = idAdjunto;
     }
 
-    @GetMapping("/api/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTOList> buscarPorId(
-            @PathVariable Long id) {
-
-        Usuario usuario =
-                usuarioService.buscarPorId(id);
-
-        UsuarioDTOList dto =
-                modelMapper.map(
-                        usuario,
-                        UsuarioDTOList.class
-                );
-
-        return ResponseEntity.ok(dto);
+    public Long getReporteId() {
+        return reporteId;
     }
 
-    @PutMapping("/api/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTOList> actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody UsuarioDTOUpdate dto) {
-
-        Rol rol =
-                rolService.buscarPorId(
-                        dto.getRolId()
-                );
-
-        Usuario usuario =
-                modelMapper.map(
-                        dto,
-                        Usuario.class
-                );
-
-        usuario.setRol(rol);
-
-        if (dto.getContrasena() != null
-                && !dto.getContrasena().isBlank()) {
-
-            usuario.setContrasenaHash(
-                    passwordEncoder.encode(
-                            dto.getContrasena()
-                    )
-            );
-        }
-
-        Usuario actualizado =
-                usuarioService.actualizar(
-                        id,
-                        usuario
-                );
-
-        UsuarioDTOList responseDTO =
-                modelMapper.map(
-                        actualizado,
-                        UsuarioDTOList.class
-                );
-
-        return ResponseEntity.ok(responseDTO);
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
     }
 
-    @DeleteMapping("/api/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(
-            @PathVariable Long id) {
-
-        usuarioService.eliminar(id);
-
-        return ResponseEntity.noContent().build();
+    public String getNombreArchivo() {
+        return nombreArchivo;
     }
 
-    @PostMapping("/registro")
-    public ResponseEntity<UsuarioDTOList> registrar(
-            @Valid @RequestBody UsuarioDTOInsert dto) {
+    public void setNombreArchivo(String nombreArchivo) {
+        this.nombreArchivo = nombreArchivo;
+    }
 
-        Rol rolUsuario =
-                rolService.buscarPorNombreExacto(
-                        "ROLE_USUARIO"
-                );
+    public String getUrlArchivo() {
+        return urlArchivo;
+    }
 
-        Usuario usuario =
-                modelMapper.map(
-                        dto,
-                        Usuario.class
-                );
+    public void setUrlArchivo(String urlArchivo) {
+        this.urlArchivo = urlArchivo;
+    }
 
-        usuario.setRol(rolUsuario);
+    public String getTipoArchivo() {
+        return tipoArchivo;
+    }
 
-        usuario.setContrasenaHash(
-                passwordEncoder.encode(
-                        dto.getContrasena()
-                )
-        );
+    public void setTipoArchivo(String tipoArchivo) {
+        this.tipoArchivo = tipoArchivo;
+    }
 
-        Usuario guardado =
-                usuarioService.registrar(usuario);
+    public LocalDateTime getFechaSubida() {
+        return fechaSubida;
+    }
 
-        UsuarioDTOList responseDTO =
-                modelMapper.map(
-                        guardado,
-                        UsuarioDTOList.class
-                );
-
-        return ResponseEntity
-                .status(201)
-                .body(responseDTO);
+    public void setFechaSubida(LocalDateTime fechaSubida) {
+        this.fechaSubida = fechaSubida;
     }
 }

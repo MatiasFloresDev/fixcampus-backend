@@ -39,7 +39,7 @@ public class AdjuntoController {
     }
 
     @GetMapping("/reporte/{reporteId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<List<AdjuntoDTOList>> listarPorReporte(
             @PathVariable Long reporteId) {
 
@@ -60,7 +60,7 @@ public class AdjuntoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<List<AdjuntoDTOList>> listar() {
 
         List<Adjunto> adjuntos = adjuntoService.listar();
@@ -79,7 +79,7 @@ public class AdjuntoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<AdjuntoDTOList> buscarPorId(
             @PathVariable Long id) {
 
@@ -96,7 +96,7 @@ public class AdjuntoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE')")
     public ResponseEntity<AdjuntoDTOList> registrar(
             @Valid @RequestBody AdjuntoDTOInsert dto,
             Authentication authentication) {

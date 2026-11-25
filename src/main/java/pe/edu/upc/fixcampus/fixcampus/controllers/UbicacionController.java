@@ -1,125 +1,67 @@
-package pe.edu.upc.fixcampus.fixcampus.controllers;
+package pe.edu.upc.fixcampus.fixcampus.dtos;
 
-import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOInsert;
-import pe.edu.upc.fixcampus.fixcampus.dtos.UbicacionDTOList;
-import pe.edu.upc.fixcampus.fixcampus.entities.Ubicacion;
-import pe.edu.upc.fixcampus.fixcampus.servicesinterfaces.IUbicacionService;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
-import java.net.URI;
-import java.util.List;
+public class AdjuntoDTOInsert {
 
-@RestController
-@RequestMapping("/api/locations")
-public class UbicacionController {
+    @NotNull(message = "El id del reporte es obligatorio")
+    @Positive(message = "El id del reporte debe ser positivo")
+    private Long reporteId;
 
-    private final IUbicacionService ubicacionService;
-    private final ModelMapper modelMapper;
+    @NotBlank(message = "El nombre del archivo es obligatorio")
+    @Size(max = 255, message = "El nombre del archivo no puede superar los 255 caracteres")
+    private String nombreArchivo;
 
-    public UbicacionController(
-            IUbicacionService ubicacionService,
-            ModelMapper modelMapper) {
-        this.ubicacionService = ubicacionService;
-        this.modelMapper = modelMapper;
+    @NotBlank(message = "La URL del archivo es obligatoria")
+    @Size(max = 500, message = "La URL del archivo no puede superar los 500 caracteres")
+    private String urlArchivo;
+
+    @Size(max = 100, message = "El tipo de archivo no puede superar los 100 caracteres")
+    private String tipoArchivo;
+
+    public AdjuntoDTOInsert() {
     }
 
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
-    public ResponseEntity<List<UbicacionDTOList>> listar() {
-
-        List<Ubicacion> ubicaciones = ubicacionService.listar();
-
-        List<UbicacionDTOList> lista = ubicaciones
-                .stream()
-                .map(ubicacion ->
-                        modelMapper.map(
-                                ubicacion,
-                                UbicacionDTOList.class
-                        )
-                )
-                .toList();
-
-        return ResponseEntity.ok(lista);
+    public AdjuntoDTOInsert(Long reporteId, String nombreArchivo,
+                            String urlArchivo, String tipoArchivo) {
+        this.reporteId = reporteId;
+        this.nombreArchivo = nombreArchivo;
+        this.urlArchivo = urlArchivo;
+        this.tipoArchivo = tipoArchivo;
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO', 'TECNICO')")
-    public ResponseEntity<UbicacionDTOList> buscarPorId(
-            @PathVariable Long id) {
-
-        Ubicacion ubicacion =
-                ubicacionService.buscarPorId(id);
-
-        UbicacionDTOList response =
-                modelMapper.map(
-                        ubicacion,
-                        UbicacionDTOList.class
-                );
-
-        return ResponseEntity.ok(response);
+    public Long getReporteId() {
+        return reporteId;
     }
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UbicacionDTOList> registrar(
-            @Valid @RequestBody UbicacionDTOInsert dto) {
-
-        Ubicacion ubicacion =
-                modelMapper.map(dto, Ubicacion.class);
-
-        Ubicacion guardada =
-                ubicacionService.registrar(ubicacion);
-
-        UbicacionDTOList response =
-                modelMapper.map(
-                        guardada,
-                        UbicacionDTOList.class
-                );
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(guardada.getIdUbicacion())
-                .toUri();
-
-        return ResponseEntity
-                .created(location)
-                .body(response);
+    public void setReporteId(Long reporteId) {
+        this.reporteId = reporteId;
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UbicacionDTOList> actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody UbicacionDTOInsert dto) {
-
-        Ubicacion ubicacion =
-                modelMapper.map(dto, Ubicacion.class);
-
-        Ubicacion actualizada =
-                ubicacionService.actualizar(id, ubicacion);
-
-        UbicacionDTOList response =
-                modelMapper.map(
-                        actualizada,
-                        UbicacionDTOList.class
-                );
-
-        return ResponseEntity.ok(response);
+    public String getNombreArchivo() {
+        return nombreArchivo;
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(
-            @PathVariable Long id) {
+    public void setNombreArchivo(String nombreArchivo) {
+        this.nombreArchivo = nombreArchivo;
+    }
 
-        ubicacionService.eliminar(id);
+    public String getUrlArchivo() {
+        return urlArchivo;
+    }
 
-        return ResponseEntity.noContent().build();
+    public void setUrlArchivo(String urlArchivo) {
+        this.urlArchivo = urlArchivo;
+    }
+
+    public String getTipoArchivo() {
+        return tipoArchivo;
+    }
+
+    public void setTipoArchivo(String tipoArchivo) {
+        this.tipoArchivo = tipoArchivo;
     }
 }
