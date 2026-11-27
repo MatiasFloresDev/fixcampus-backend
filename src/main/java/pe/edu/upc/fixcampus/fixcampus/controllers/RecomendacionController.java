@@ -19,7 +19,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/recomendaciones")
-@PreAuthorize("hasRole('ADMIN')")
 public class RecomendacionController {
 
     private final IRecomendacionService recomendacionService;
@@ -37,6 +36,7 @@ public class RecomendacionController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public ResponseEntity<List<RecomendacionDTOList>> listar() {
 
         List<RecomendacionDTOList> lista =
@@ -54,6 +54,7 @@ public class RecomendacionController {
     }
 
     @GetMapping("/prioridad")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RecomendacionDTOList>> buscarPorPrioridad(
             @RequestParam String prioridad) {
 
@@ -72,6 +73,7 @@ public class RecomendacionController {
     }
 
     @GetMapping("/estadisticas/por-prioridad-reporte")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RecomendacionesPorPrioridadReporteDTO>>
     contarPorPrioridadReporte() {
 
@@ -89,6 +91,7 @@ public class RecomendacionController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public ResponseEntity<RecomendacionDTOList> buscar(
             @PathVariable Long id) {
 
@@ -105,6 +108,7 @@ public class RecomendacionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public ResponseEntity<RecomendacionDTOList> registrar(
             @Valid @RequestBody RecomendacionDTOInsert dto) {
 
@@ -144,6 +148,7 @@ public class RecomendacionController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RecomendacionDTOList> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody RecomendacionDTOUpdate dto) {
@@ -170,6 +175,7 @@ public class RecomendacionController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id) {
 

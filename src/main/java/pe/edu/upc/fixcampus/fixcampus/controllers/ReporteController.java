@@ -49,7 +49,7 @@ public class ReporteController {
     }
 
     @GetMapping("/mis-reportes")
-    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<List<ReporteDTOList>> misReportes(
             Authentication authentication) {
 
@@ -128,7 +128,7 @@ public class ReporteController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<ReporteDTOList> registrar(
             @Valid @RequestBody ReporteDTOInsert dto,
             Authentication authentication) {

@@ -96,7 +96,7 @@ public class AdjuntoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REPORTANTE', 'TECNICO')")
     public ResponseEntity<AdjuntoDTOList> registrar(
             @Valid @RequestBody AdjuntoDTOInsert dto,
             Authentication authentication) {
